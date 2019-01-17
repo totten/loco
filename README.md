@@ -35,22 +35,26 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
 
 * Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  It's technically in the same
   category as sysvinit, runit, or systemd -- although it's not as battle-tested and it's not intended for managing
-  the full OS.
+  a full OS.
 
 * Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
   want, and these are glued together with a few environment variables.  Your work is scoped to a specific project/folder -- and
   not the host OS.
 
+* Specifically, I tend to use it in combination with the cross-platform `nix-shell` and `nix run` for package
+  management.  `nix-shell` and `nix run` excel at providing binaries but leave you to roll-your-on for process+data
+  management.  In this context, `loco` is a replacement for (a) the manual habit of launching multiple daemons or (b)
+  the semi-automated approach of writing per-project bash scripts with bunch of boilerplate.
+
 * Architecturally, it is thinner, less opinionated, and more-limited in value/scope than docker-compose or k8s; which means:
 
-    * It makes no pretense of providing binary-distribution, network/machine management, or long-term state-management.  It
-      starts and stops processes.
+    * It makes no pretense of providing binary-distribution, network/machine management, or long-term state-management.
 
-    * It relies on basic POSIX process-management; there's no special mechanism for strong isolation (like hypervisors or Linux
-      cgroups/namespaces).
+    * It makes no pretense of enhanced process-isolation (like hypervisors or Linux cgroups/namespaces). It just uses
+      POSIX APIs.
 
-    * It should work on any POSIX-style OS (Linux/OS X/BSD), and you can easily mix packages from different providers (nix,
-      docker, homebrew, apt, etc).
+    * It should work on any POSIX-style OS (Linux/OS X/BSD) with PHP+pcntl, and you can easily mix packages from
+      different providers (nix, docker, homebrew, apt, etc).
 
     * All platforms (including OSX) get native performance for IO/filesystem operations.
 
@@ -61,9 +65,6 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
 
     * The configuration options for each service are presented in their canonical forms -- the CLI commands and file-formats
       match the official upstream docs.
-
-* Specifically, I tend to use it in combination with the cross-platform `nix` package manager (on Ubuntu/OS X -- not NixOS).  In
-  cross-platform usage, `nix` excels at providing binaries but leaves you to roll-your-on for process+data management.
 
 * `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `grunt` live far left on the
   local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3 from the
