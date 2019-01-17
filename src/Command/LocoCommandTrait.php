@@ -12,16 +12,16 @@ use Symfony\Component\Yaml\Yaml;
 
 trait LocoCommandTrait {
   public function configureSystemOptions() {
-    $this->addOption('file', 'f', InputOption::VALUE_REQUIRED, 'Name of the loco.yml file', '.loco/loco.yml');
+    $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Name of the loco.yml file', '.loco/loco.yml');
     return $this;
   }
 
   public function initSystem(InputInterface $input, OutputInterface $output) {
-    if (!file_exists($input->getOption('file'))) {
-      throw new \Exception("Failed to find loco config file: " . $input->getOption('file'));
+    if (!file_exists($input->getOption('config'))) {
+      throw new \Exception("Failed to find loco config file: " . $input->getOption('config'));
     }
 
-    $settings = Yaml::parse(file_get_contents($input->getOption('file')));
+    $settings = Yaml::parse(file_get_contents($input->getOption('config')));
     return LocoSystem::create($settings);
   }
 

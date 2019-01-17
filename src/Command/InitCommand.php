@@ -8,30 +8,30 @@ use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 
 class InitCommand extends \Symfony\Component\Console\Command\Command {
 
   use LocoCommandTrait;
 
-  /**
-   * @var array
-   *   Ex: $procs['redis'] = ['pid' => 123, 'pidFile' => '/path/to/redis.pid'];
-   */
-  public $procs;
-
-  /**
-   * @var OutputInterface
-   */
-  protected $output;
-
   protected function configure() {
     $this
       ->setName('init')
       ->setDescription('Init the service(s)')
       ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
-      ->setHelp('Display the environment variables for a service');
+      ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force initialization, overwriting an existing data folder')
+      ->setHelp('Initialize the service
+
+This supports a mix of convention and configuration:
+
+- Using a convention, any files named ".loco/config/SERVICE/FILE.loco.tpl" will
+  be automatically mapped to ".loco/var/SERVICE/FILE".
+- Using configuration, you may list a series of bash steps in the loco.yml.
+
+      ');
     $this->configureSystemOptions();
   }
 
@@ -47,16 +47,66 @@ class InitCommand extends \Symfony\Component\Console\Command\Command {
   public static function doInit(LocoSystem $sys, LocoService $svc, InputInterface $input, OutputInterface $output) {
     $env = $svc->createEnv();
 
-    if (is_dir($env->getValue('LOCO_SVC_VAR'))) {
-      $output->writeln("<info>[<comment>$svc->name</comment>] Initialization is not required</info>", OutputInterface::VERBOSITY_VERBOSE);
-      return 0;
+    $svcVar = $env->getValue('LOCO_SVC_VAR');
+    if (file_exists($svcVar)) {
+      if ($input->hasOption('force') && $input->getOption('force')) {
+        CleanCommand::doClean($sys, $svc, $input, $output);
+      }
+      else {
+        $output->writeln("<info>[<comment>$svc->name</comment>] Initialization is not required</info>", OutputInterface::VERBOSITY_VERBOSE);
+        return 0;
+      }
     }
 
-    $output->writeln("<info>[<comment>$svc->name</comment>] Initializing service</info>");
-    mkdir($env->getValue('LOCO_SVC_VAR'), 0777, TRUE);
+    $output->writeln("<info>[<comment>$svc->name</comment>] Initializing service with data folder \"<comment>$svcVar</comment>\"</info>");
+    \Loco\Utils\File::mkdir($svcVar);
 
     // We fork so that we can call putenv()+passthru() with impunity.
 
+    self::doInitFileTpl($svc, $env, $output);
+    self::doInitBash($svc, $env, $output);
+  }
+
+  /**
+   * @param \Loco\LocoService $svc
+   * @param \Loco\LocoEnv $env
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  protected static function doInitFileTpl(LocoService $svc, LocoEnv $env, OutputInterface $output) {
+    $cfgDir = $env->getValue('LOCO_SVC_CFG');
+    $destDir = $env->getValue('LOCO_SVC_VAR');
+    if (!file_exists($cfgDir)) {
+      return;
+    }
+
+    $envTokens = [];
+    foreach ($env->getAllValues() as $key => $value) {
+      $envTokens['{{' . $key . '}}'] = $value;
+    }
+
+    $finder = new Finder();
+    foreach ($finder->in($cfgDir)->name('*.loco.tpl') as $srcFile) {
+      $destFile = preg_replace(
+        ';^' . preg_quote($cfgDir, ';') . ';',
+        $destDir,
+        preg_replace(';\.loco\.tpl$;', '', $srcFile)
+      );
+
+      $output->writeln("<info>[<comment>$svc->name</comment>] Generate \"<comment>$destFile</comment>\"</info>", Output::VERBOSITY_VERBOSE);
+      \Loco\Utils\File::mkdir(dirname($destFile));
+      file_put_contents($destFile, strtr(file_get_contents($srcFile), $envTokens));
+    }
+
+    // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
+
+  }
+
+  /**
+   * @param \Loco\LocoService $svc
+   * @param \Loco\LocoEnv $env
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  protected static function doInitBash(LocoService $svc, LocoEnv $env, OutputInterface $output) {
     $pid = pcntl_fork();
     if ($pid == -1) {
       die("($svc->name) Failed to fork");
@@ -86,7 +136,6 @@ class InitCommand extends \Symfony\Component\Console\Command\Command {
       }
       exit(0);
     }
-
   }
 
 }

@@ -59,7 +59,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       foreach ($services as $name => $svc) {
         /** @var LocoService $svc */
         if (!isset($this->procs[$name]['pid'])) {
-          $this->output->writeln("<info>[<comment>$name</comment>] FIXME: Initializing service</info>");
+          InitCommand::doInit($system, $svc, $input, $output);
 
           // Launch
           $pid = pcntl_fork();
