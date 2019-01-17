@@ -1,6 +1,8 @@
 <?php
 namespace Loco;
 use Loco\Command\EnvCommand;
+use Loco\Command\RunCommand;
+use Loco\Command\ShellCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -22,6 +24,7 @@ class Application extends \Symfony\Component\Console\Application {
     parent::__construct($name, $version);
     $this->setCatchExceptions(TRUE);
     $this->addCommands($this->createCommands());
+    $this->setDefaultCommand('run');
   }
 
   /**
@@ -57,6 +60,8 @@ class Application extends \Symfony\Component\Console\Application {
   public function createCommands() {
     $commands = array();
     $commands[] = new EnvCommand();
+    $commands[] = new ShellCommand();
+    $commands[] = new RunCommand();
     return $commands;
   }
 

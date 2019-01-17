@@ -18,11 +18,15 @@ class LocoSystem {
   /** @var array */
   public $services;
 
+  /**
+   * @param array $settings
+   * @return \Loco\LocoSystem
+   */
   public static function create($settings) {
     $system = new self();
-    $system->format = $settings['format'] ?: 'loco-0.1';
-    $system->default_environment = LocoEnv::create($settings['default_environment'] ?: []);
-    $system->environment = LocoEnv::create($settings['environment'] ?: []);
+    $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
+    $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
+    $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment']: []);
     $system->environment->set('LOCO_PRJ', getcwd(), FALSE);
     $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
     $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);

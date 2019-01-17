@@ -1,6 +1,7 @@
 <?php
 namespace Loco\Command;
 
+use Loco\LocoEnv;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -16,7 +17,7 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
       ->setName('env')
       ->setAliases(array())
       ->setDescription('Display the environment variables for a service')
-      ->addArgument('svc', InputArgument::OPTIONAL, 'Service name')
+      ->addOption('service', 's', InputOption::VALUE_REQUIRED, 'Service name')
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
   }
@@ -25,12 +26,9 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
     $system = $this->initSystem($input, $output);
 
     /** @var LocoEnv $env */
-    $env = $input->getArgument('svc')
-      ? $system->services[$input->getArgument('svc')]->createEnv()
-      : $system->createEnv();
-
+    $env = $this->pickEnv($system, $input->getOption('service'));
     foreach ($env->getAllValues() as $key => $value) {
-      $output->writeln("$key=$value");
+      $output->writeln("$key=" . \Loco\Utils\Shell::lazyEscape($value));
     }
 
     return 0;
