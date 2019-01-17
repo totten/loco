@@ -1,5 +1,6 @@
 <?php
 namespace Loco;
+use Loco\Command\CleanCommand;
 use Loco\Command\EnvCommand;
 use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
@@ -64,6 +65,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new ShellCommand();
     $commands[] = new RunCommand();
     $commands[] = new InitCommand();
+    $commands[] = new CleanCommand();
     return $commands;
   }
 

@@ -31,6 +31,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       ->setAliases(array())
       ->setDescription('Run the service(s) in the foreground')
       ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force initialization, overwriting an existing data folder')
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
   }
@@ -72,7 +73,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
           else {
             Shell::applyEnv($env = $svc->createEnv());
             $cmd = $env->evaluate($svc->run);
-            $this->output->writeln("<info>[<comment>$name</comment>] Starting service (<comment>$cmd</comment>)</info>");
+            $this->output->writeln("<info>[<comment>$name</comment>] Start service (<comment>$cmd</comment>)</info>");
             passthru($svc->run, $ret);
             $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
             exit($ret);

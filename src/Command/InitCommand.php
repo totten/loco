@@ -58,7 +58,7 @@ This supports a mix of convention and configuration:
       }
     }
 
-    $output->writeln("<info>[<comment>$svc->name</comment>] Initializing service with data folder \"<comment>$svcVar</comment>\"</info>");
+    $output->writeln("<info>[<comment>$svc->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
     \Loco\Utils\File::mkdir($svcVar);
 
     // We fork so that we can call putenv()+passthru() with impunity.
@@ -128,6 +128,7 @@ This supports a mix of convention and configuration:
       Shell::applyEnv($env);
       foreach (array_values($svc->init) as $stepNum => $init) {
         $cmd = $env->evaluate($init);
+        $output->writeln("<info>[<comment>$svc->name</comment>] Run \"<comment>$cmd</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
         passthru($init, $ret);
         if ($ret !== 0) {
           $output->writeln("<error>[$svc->name] Initialization failed in command \"$cmd\"</error>");

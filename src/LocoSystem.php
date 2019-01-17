@@ -30,6 +30,9 @@ class LocoSystem {
     $system->environment->set('LOCO_PRJ', getcwd(), FALSE);
     $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
     $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);
+    if (file_exists($binDir = getcwd() . '/.loco/bin')) {
+      $system->environment->set('PATH', $binDir . PATH_SEPARATOR . getenv('PATH'), FALSE);
+    }
     $system->global_environment = LocoEnv::create([]); // FIXME
     $system->services = [];
     if (!empty($settings['services'])) {
