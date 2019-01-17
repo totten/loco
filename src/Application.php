@@ -1,6 +1,7 @@
 <?php
 namespace Loco;
 use Loco\Command\EnvCommand;
+use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -62,6 +63,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new EnvCommand();
     $commands[] = new ShellCommand();
     $commands[] = new RunCommand();
+    $commands[] = new InitCommand();
     return $commands;
   }
 
