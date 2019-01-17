@@ -21,7 +21,7 @@ For `php-fpm`, it needs a little extra work because some options have to be set 
 `.loco/config/phpfpm` named `php-fpm.conf.loco.tpl`; use statements like these (*partial excerpt*):
 
 ```
-listen = 127.0.01:{{PHPFPM_PORT}}
+listen = 127.0.0.1:{{PHPFPM_PORT}}
 pm = dynamic
 pm.max_children = 5
 pm.start_servers = 2
@@ -33,8 +33,9 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
 
 ## Critical Comparison
 
-* Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes -- in the same category as sysvinit,
-  runit, or systemd.
+* Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  It's technically in the same
+  category as sysvinit, runit, or systemd -- although it's not as battle-tested and it's not intended for managing
+  the full OS.
 
 * Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
   want, and these are glued together with a few environment variables.  Your work is scoped to a specific project/folder -- and
@@ -172,15 +173,16 @@ loco ... [-s <svc>]                                   Focus on a specific servic
 
 ## Multi service commands. (By default, execute on all services.)
 loco run [-f] [--ram-disk=<size>]                     Start service(s) in foreground
-loco start [-f]                                       Start service service(s) in background
+loco start [-f] [--ram-disk=<size>]                    Start service service(s) in background
 loco stop                                             Stop service service(s) in background
 loco init [-f]                                        Execute initialization
 loco clean                                            Destroy any generated data files
 loco export-systemd -o <dir> [--ram-disk=<size>]      Export all service definitions in systemd format
 
 ## Single service commands. (No services picked by default.)
-loco env [--full]                                     Display environment variables
+loco env                                              Display environment variables
 loco shell -- <cmd>                                   Execute a shell command within the service's environment
+loco sh -- <cmd>                                      Alias for "shell"
 ```
 
 # Download (Rough WIP)
@@ -194,7 +196,7 @@ composer install
 export PATH=$PWD/bin:$PATH
 ```
 
-But I should figure out how to package it in other media; e.g. nix...
+But I should figure out how to package it in other media; e.g. nix or composer...
 
 ```
 rm -f composer.lock && composer2nix --executable && nix-build  && ./result/bin/loco
