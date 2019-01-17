@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+ini_set('display_errors', 1);
+if (PHP_SAPI !== 'cli') {
+  echo "loco is a command-line tool\n";
+  exit(1);
+}
+if (version_compare(PHP_VERSION, '5.6', '<')) {
+  echo "loco requires PHP 5.6+\n";
+  exit(2);
+}
+$found = 0;
+$autoloaders = array(
+  dirname(__DIR__) . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php',
+  dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'autoload.php',
+);
+foreach ($autoloaders as $autoloader) {
+  if (file_exists($autoloader)) {
+    require_once $autoloader;
+    $found = 1;
+    break;
+  }
+}
+if (!$found) {
+  die("Failed to find autoloader");
+}
+\Loco\Application::main(__DIR__);
