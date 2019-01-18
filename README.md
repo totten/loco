@@ -203,7 +203,3 @@ export PATH=$PWD/bin:$PATH
 ```
 
 But I should figure out how to package it in other media; e.g. nix or composer...
-
-```
-rm -f composer.lock && composer2nix --executable && nix-build  && ./result/bin/loco
-```
