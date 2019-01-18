@@ -168,14 +168,14 @@ You may initialize config files using bash commands, e.g.
 services:
   phpfpm:
     init:
-      - 'cat $LOCO_PRJ/php-fpm.conf.ex | sed "s/FOO/bar/" > $LOCO_SVC_VAR/php-fpm.conf'
+      - 'cat $LOCO_PRJ/php-fpm.conf.ex | sed "s/PHPFPM_PORT/$PHPFPM_PORT/" > $LOCO_SVC_VAR/php-fpm.conf'
 ```
 
-Because this is very common, there is a convention for automatic file mappings:
+This is very common, so there is also a *convention* for automatic file mappings:
 
-* Scan the folder `.loco/config/SERVICE_NAME` for files named `*.loco.tpl`.
-* Interpolate any environment variables using the notation `{{ENV_VAR}}`.
-* Write new files to folder `.loco/var/SERVICE_NAME` (excluding the `*.loco.tpl` suffix).
+* Scan the `LOCO_SVC_CFG` folder (e.g. `.loco/config/phpfpm`) for files named `*.loco.tpl`.
+* Interpolate any environment variables using `{{...}}` notation (e.g. `{{PHPFPM_PORT}}`).
+* Write new files to the `LOCO_SVC_VAR` folder (e.g. `.loco/var/phpfpm`) (excluding the `*.loco.tpl` suffix).
 
 > WIP: Pick another templating language to embed.
 
