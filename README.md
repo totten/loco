@@ -70,8 +70,8 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
   local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3 from the
   "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like using `loco` during development; it's easy to edit
   configuration files, track the changes, and reset to clean/baseline data.  But it really doesn't care about protecting data,
-  maintaining long-term state, defense-in-depth, etc.  If I needed to manage a cluster of production servers, I'd pick something
-  else.
+  maintaining long-term state, defense-in-depth, etc.  If you ask a sysadmin to run production services on it, they
+  might call you loco.
 
 ## Specification: YAML Format
 
@@ -131,20 +131,18 @@ Environment variables are stored in multiple scopes, which are (in order of incr
 * __Loco System Scope__: Environment variables defined at the top of the YAML file.
 * __Loco Service Scope__: Environment variables defined in the YAML file for a specific service.
 
-There are several built-in environment variables:
+There are a few built-in environment variables for each scope:
 
-* `LOCO_PRJ` (*scope: loco-system*): The absolute path of your project. (Ex:
-  `/home/me/src/my-web-app`; usually the `PWD`.)
-* `LOCO_VAR` (*scope: loco-system*): The absolute path of the project's dynamic data-folder.
-  Very loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
-* `LOCO_SVC` (*scope: per-service*): The name of the service being launched.
-  (Ex: `phpfpm`)
-* `LOCO_SVC_CFG` (*scope: per-service*): The absolute path of a folder
-  containing configuration-templates (Ex:  `/home/me/src/my-web-app/.loco/config/phpfpm`)
-* `LOCO_SVC_VAR` (*scope: per-service*): The absolute path of a dynamic data-folder
-  for this service. (Ex:  `/home/me/src/my-web-app/.loco/var/phpfpm`)
+* Loco System Scope
+    * `LOCO_PRJ`: The absolute path of your project. (Ex: `/home/me/src/my-web-app`; usually the `PWD`.)
+    * `LOCO_VAR`: The absolute path of the project's dynamic data-folder.
+      Very loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
+* Loco Service Scope
+    * `LOCO_SVC`: The name of the service being launched. (Ex: `phpfpm`)
+    * `LOCO_SVC_CFG`: The absolute path of a folder  containing configuration-templates (Ex: `/home/me/src/my-web-app/.loco/config/phpfpm`)
+    * `LOCO_SVC_VAR`: The absolute path of a dynamic data-folder for this service. (Ex:  `/home/me/src/my-web-app/.loco/var/phpfpm`)
 
-Variables may reference other variables, e.g.
+When defining variables in YAML, one may reference other variables, e.g.
 
 ```yaml
 environment:
@@ -156,7 +154,7 @@ environment:
 
 References are evaluated on-demand: specifically, when launching a subcommand (e.g.  `run:`) or evaluating a
 user-string/template (e.g.  `pid_file:`), `loco` merges the active scopes (per precedence) and recursively evaluates
-any nested references.  `loco` only evaluates a nested reference if it's declared in the YAML file.
+any nested references.  `loco` *only* evaluates a nested reference if it's declared in the YAML file.
 
 ## Specification: Initializing config files
 
