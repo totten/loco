@@ -34,7 +34,7 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
 ## Critical Comparison
 
 * Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  It's technically in the same
-  category as sysvinit, runit, or systemd -- although it's not as battle-tested and it's not intended for managing
+  category as sysvinit, runit, or systemd -- although it's not as battle-tested and it wasn't conceived for managing
   a full OS.
 
 * Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
@@ -68,7 +68,7 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
 
 * `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `grunt` live far left on the
   local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3 from the
-  "dev" side; docker-compose lives 1/3 from the "ops" side.  I like using `loco` during development; it's easy to edit
+  "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like using `loco` during development; it's easy to edit
   configuration files, track the changes, and reset to clean/baseline data.  But it really doesn't care about protecting data,
   maintaining long-term state, defense-in-depth, etc.  If I needed to manage a cluster of production servers, I'd pick something
   else.
@@ -91,10 +91,10 @@ default_environment:
 ## The 'services' defines each of the processes we will run.
 services:
 
-  ## The SERVICE_NAME will be used to identify data-files, log-files, etc.
+  ## The SERVICE_NAMEs will be used to in CLI commands and in naming data-files, log-files, etc.
   SERVICE_NAME:
 
-    ## The 'depends' lists any other services should be started beforehand.
+    ## The 'depends' clause lists any other services should be started beforehand.
     depends:
       - SERVICE_NAME
 
@@ -125,12 +125,18 @@ services:
 
 ## Specification: Environment variables
 
+Environment variables are stored in multiple scopes, which are (in order of increasing priority):
+
+* __Global Scope__: Environment variables inherited from the user's shell.
+* __Loco System Scope__: Environment variables defined at the top of the YAML file.
+* __Loco Service Scope__: Environment variables defined in the YAML file for a specific service.
+
 There are several built-in environment variables:
 
-* `LOCO_PRJ` (*scope: top-level*): The absolute path of your project. (Ex:
-  `/home/me/src/my-web-app`)
-* `LOCO_VAR` (*scope: top-level*): The absolute path of the dynamic data-folder. Very
-  loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
+* `LOCO_PRJ` (*scope: loco-system*): The absolute path of your project. (Ex:
+  `/home/me/src/my-web-app`; usually the `PWD`.)
+* `LOCO_VAR` (*scope: loco-system*): The absolute path of the project's dynamic data-folder.
+  Very loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
 * `LOCO_SVC` (*scope: per-service*): The name of the service being launched.
   (Ex: `phpfpm`)
 * `LOCO_SVC_CFG` (*scope: per-service*): The absolute path of a folder
@@ -138,7 +144,7 @@ There are several built-in environment variables:
 * `LOCO_SVC_VAR` (*scope: per-service*): The absolute path of a dynamic data-folder
   for this service. (Ex:  `/home/me/src/my-web-app/.loco/var/phpfpm`)
 
-When defining environment variables in YAML, you may reference other variables, e.g.
+Variables may reference other variables, e.g.
 
 ```yaml
 environment:
@@ -147,6 +153,10 @@ environment:
   - FOO_LOGS=$FOO_BASE/log
   - FOO_SOCKET=$FOO_BASE/foo.socket
 ```
+
+References are evaluated on-demand: specifically, when launching a subcommand (e.g.  `run:`) or evaluating a
+user-string/template (e.g.  `pid_file:`), `loco` merges the active scopes (per precedence) and recursively evaluates
+any nested references.  `loco` only evaluates a nested reference if it's declared in the YAML file.
 
 ## Specification: Initializing config files
 
@@ -183,12 +193,18 @@ loco start [-f] [--ram-disk=<size>]                   Start service(s) in backgr
 loco stop                                             Stop service(s) in background
 loco init [-f]                                        Execute initialization
 loco clean                                            Destroy any generated data files
-loco export-systemd [-o <dir>] [--ram-disk=<size>]    Export all service definitions in systemd format
 
 ## Single service commands. (No services picked by default.)
 loco env                                              Display environment variables
 loco shell -- <cmd>                                   Execute a shell command within the service's environment
 loco sh -- <cmd>                                      Alias for "shell"
+
+## Manipulating YAML content
+loco import [[svc@]<file> | [svc@]<url> | <svc>@ | -l]    Copy svcs (YAML+tpls) from an external location.
+            [--detect|-D]                                 Auto-detect which services may be applicable
+            [--create|-C]                                 Auto-create new project
+loco copy <from-svc> <to-svc>                             Copy svc (YAML+tpls) within a project
+loco export [--systemd] [-o <dir>] [--ram-disk=<size>]    Export service definitions (in systemd format)
 ```
 
 # Download
@@ -217,3 +233,18 @@ loco sh -- <cmd>                                      Alias for "shell"
     ```
     loco = callPackage (fetchTarball https://github.com/totten/loco/archive/master.tar.gz) {};
     ```
+
+# Status/TODO
+
+This is a working proof-of-concept. Some TODOs:
+
+* Implement support for background launching
+* For BG processes, route console output to log files
+* Add test coverage for variable evaluation
+* Add test coverage for CLI options
+* Add test coverage for start/stop/restart
+* Export to systemd unit
+* Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
+* Add options for updating YAML - import/copy
+* Add options for including YAML
+* Add options for exporting to systemd
