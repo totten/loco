@@ -5,6 +5,7 @@ use Loco\Command\EnvCommand;
 use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
+use Loco\Command\StopCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -66,6 +67,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new RunCommand();
     $commands[] = new InitCommand();
     $commands[] = new CleanCommand();
+    $commands[] = new StopCommand();
     return $commands;
   }
 

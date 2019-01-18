@@ -1,13 +1,18 @@
 <?php
 namespace Loco;
 
+use Psr\Log\NullLogger;
+
 class LocoService {
 
-  /** @var  LocoSystem */
+  /** @var LocoSystem */
   public $system;
 
-  /** @var  string */
+  /** @var string */
   public $name;
+
+  /** @var bool */
+  public $enabled;
 
   /** @var LocoEnv */
   public $environment;
@@ -37,6 +42,7 @@ class LocoService {
     $svc = new LocoService();
     $svc->system = $system;
     $svc->name = $name;
+    $svc->enabled = isset($settings['enabled']) ? $settings['enabled'] : TRUE;
     $svc->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
     $svc->environment->set('LOCO_SVC', $name, FALSE);
     $svc->environment->set('LOCO_SVC_VAR', '$LOCO_VAR/$LOCO_SVC', TRUE);
@@ -61,5 +67,44 @@ class LocoService {
       $this->environment,
     ]);
   }
+
+  /**
+   * @return bool|NULL
+   *   - TRUE: The service is running
+   *   - FALSE: The service is not running
+   *   - NULL: The service is not assessable.
+   */
+  public function isRunning($env = NULL) {
+    $env = $env ?: $this->createEnv();
+
+    $file = $env->evaluate($this->pid_file);
+    if (empty($file) || !file_exists($file)) {
+      return NULL;
+    }
+
+    $pid = $this->getPid($env);
+    return $pid ? ((bool) posix_kill(rtrim($pid),0)) : NULL;
+  }
+
+  /**
+   * @return int|NULL
+   *   - int:
+   *   - NULL: The service is not assessable or not running.
+   */
+  public function getPid($env = NULL) {
+    $env = $env ?: $this->createEnv();
+
+    $file = $env->evaluate($this->pid_file);
+    if (empty($file) || !file_exists($file)) {
+      return NULL;
+    }
+
+    $pid = trim(file_get_contents($file));
+    if (!is_numeric($pid)) {
+      throw new \RuntimeException("PID file ($file) contains invalid PID");
+    }
+    return $pid;
+  }
+
 
 }

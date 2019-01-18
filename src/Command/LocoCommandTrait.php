@@ -61,7 +61,12 @@ trait LocoCommandTrait {
    */
   public function pickServices($system, $svcNames) {
     if (empty($svcNames)) {
-      $todos = array_keys($system->services);
+      $todos = [];
+      foreach ($system->services as $svcName => $svc) {
+        if ($svc->enabled) {
+          $todos[] = $svcName;
+        }
+      }
     }
     else {
       $todos = array_values($svcNames);

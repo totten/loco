@@ -55,12 +55,32 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       }
     }
 
+    foreach (array_keys($services) as $svcName) {
+      if ($services[$svcName]->isRunning()) {
+        $this->output->writeln("<info>[<comment>$svcName</comment>] Service already running. Ignoring.</info>");
+        unset($services[$svcName]);
+      }
+    }
+
+    if (empty($services)) {
+      $output->writeln("<error>No services to run</error>");
+      return 1;
+    }
+
     $installed = FALSE;
+    $hasFirst = [];
+    $blacklist = [];
     while (TRUE) {
       foreach ($services as $name => $svc) {
         /** @var LocoService $svc */
+        /** @var LocoEnv $env */
+        $env = $svc->createEnv();
+
         if (!isset($this->procs[$name]['pid'])) {
-          InitCommand::doInit($system, $svc, $input, $output);
+          if (!isset($hasFirst[$name])) {
+            $hasFirst[$name] = 1;
+            InitCommand::doInit($system, $svc, $input, $output);
+          }
 
           // Launch
           $pid = pcntl_fork();
@@ -71,7 +91,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             $this->procs[$name]['pid'] = $pid;
           }
           else {
-            Shell::applyEnv($env = $svc->createEnv());
+            Shell::applyEnv($env);
             $cmd = $env->evaluate($svc->run);
             $this->output->writeln("<info>[<comment>$name</comment>] Start service (<comment>$cmd</comment>)</info>");
             passthru($svc->run, $ret);
@@ -95,6 +115,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
       sleep($POLL_INTERVAL);
     }
+
 
     return 0;
   }

@@ -1,6 +1,6 @@
 # loco: Local-Compose Process Manager
 
-`loco` is a process-manager for the Git+Yaml crowd.  One creates a `loco.yaml` file with a list of services to start, as in:
+`loco` is a process-manager for the Git+Yaml crowd.  One creates a `loco.yml` file with a list of services to start, as in:
 
 ```yaml
 format: 'loco-0.1'
@@ -97,6 +97,11 @@ services:
     ## The 'depends' lists any other services should be started beforehand.
     depends:
       - SERVICE_NAME
+
+    ## The 'enabled' property determines if the service should autostart.
+    ## Disabled services can still be enabled by (a) explicitly calling
+    ## them with "-s <svc>" or (b) using 'depends'. (Default: true)
+    enabled: BOOL
 
     ## The 'environment' and 'default_environment' work the same as above,
     ## but these are only visible within the service.

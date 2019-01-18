@@ -65,6 +65,9 @@ class LocoEnv {
   }
 
   public function evaluate($valExpr) {
+    if (empty($valExpr)) {
+      return $valExpr;
+    }
     return preg_replace_callback(';\$([a-zA-Z0-9_\{\}]+);', function($matches) use ($valExpr) {
       $name = $matches[1];
       if (preg_match(';^[a-zA-Z0-9_]+$;', $name, $m2)) {
