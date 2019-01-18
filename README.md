@@ -117,7 +117,7 @@ services:
 
     ## The 'run' is the main bash command to execute and monitor.
     run: BASH_COMMAND
-    
+
     ## By default, 'run' works with non-forking/foreground daemons.
     ## If the daemon forks
     pid_file: FILE_PATH
@@ -179,11 +179,11 @@ loco ... [-s <svc>]                                   Focus on a specific servic
 
 ## Multi service commands. (By default, execute on all services.)
 loco run [-f] [--ram-disk=<size>]                     Start service(s) in foreground
-loco start [-f] [--ram-disk=<size>]                    Start service service(s) in background
-loco stop                                             Stop service service(s) in background
+loco start [-f] [--ram-disk=<size>]                   Start service(s) in background
+loco stop                                             Stop service(s) in background
 loco init [-f]                                        Execute initialization
 loco clean                                            Destroy any generated data files
-loco export-systemd -o <dir> [--ram-disk=<size>]      Export all service definitions in systemd format
+loco export-systemd [-o <dir>] [--ram-disk=<size>]    Export all service definitions in systemd format
 
 ## Single service commands. (No services picked by default.)
 loco env                                              Display environment variables
@@ -191,15 +191,29 @@ loco shell -- <cmd>                                   Execute a shell command wi
 loco sh -- <cmd>                                      Alias for "shell"
 ```
 
-# Download (Rough WIP)
+# Download
 
-This is a basic composer-style project, which means one could say:
+* Option 1: Clone the repo; run composer; update the PATH.
+    ```
+    git clone https://github.com/totten/loco
+    cd loco
+    composer install
+    export PATH=$PWD/bin:$PATH
+    loco <...options...>
+    ```
 
-```
-git clone https://github.com/totten/loco
-cd loco
-composer install
-export PATH=$PWD/bin:$PATH
-```
+* Option 2: Use `nix run` (without installing)
+    ```
+    nix run -f 'https://github.com/totten/loco/archive/master.tar.gz' -c loco <...options...>
+    ```
 
-But I should figure out how to package it in other media; e.g. nix or composer...
+* Option 3: Install via `nix-env`
+    ```
+    nix-env -if 'https://github.com/totten/loco/archive/master.tar.gz'
+    loco  <...options...>
+    ```
+
+* Option 4: In a `nix` manifest, use the [callPackage pattern](https://nixos.org/nixos/nix-pills/callpackage-design-pattern.html#idm140737315777312)
+    ```
+    loco = callPackage (fetchTarball https://github.com/totten/loco/archive/master.tar.gz) {};
+    ```
