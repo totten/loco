@@ -20,7 +20,7 @@ class ShellCommand extends \Symfony\Component\Console\Command\Command {
       ->setDescription('Execute a shell command')
       ->addOption('service', 's', InputOption::VALUE_REQUIRED, 'Service name')
       ->addOption('escape', 'e', InputOption::VALUE_REQUIRED, 'Strategy for (re)escaping args to subcommand: (s)trict, (w)eak, (n)one', 's')
-      ->addArgument('cmd', InputArgument::IS_ARRAY, 'Command to execute', ['bash'])
+      ->addArgument('cmd', InputArgument::IS_ARRAY, 'Command to execute', [])
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
   }
@@ -47,7 +47,14 @@ class ShellCommand extends \Symfony\Component\Console\Command\Command {
     if (!$escaper) {
       throw new \RuntimeException("Invalid escaping option: " . $input->getOption('escape'));
     }
-    $cmd = implode(' ', array_map($escaper, $input->getArgument('cmd')));
+
+    if ($input->getArgument('cmd')) {
+      $cmd = implode(' ', array_map($escaper, $input->getArgument('cmd')));
+    }
+    else {
+      // $cmd = 'bash --rcfile <(echo "PS1=\'subshell prompt: \'") -i';
+      $cmd = 'bash -i';
+    }
 
     $output->getErrorOutput()->writeln("RUN: $cmd", OutputInterface::VERBOSITY_VERBOSE);
     if ($input->getOption('no-interaction')) {
