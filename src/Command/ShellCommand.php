@@ -50,8 +50,13 @@ class ShellCommand extends \Symfony\Component\Console\Command\Command {
     $cmd = implode(' ', array_map($escaper, $input->getArgument('cmd')));
 
     $output->getErrorOutput()->writeln("RUN: $cmd", OutputInterface::VERBOSITY_VERBOSE);
-    passthru($cmd, $retVar);
-    return $retVar;
+    if ($input->getOption('no-interaction')) {
+      passthru($cmd, $retVal);
+      return $retVal;
+    }
+    else {
+      return Shell::runInteractively($cmd);
+    }
   }
 
 }

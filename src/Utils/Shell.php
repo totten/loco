@@ -22,4 +22,26 @@ class Shell {
     }
   }
 
+  /**
+   * @param string $cmd
+   * @param int $pollInterval
+   *   Poll interval in micro seconds. A micro second is one millionth of a
+   *   second.
+   * @return int
+   */
+  public static function runInteractively($cmd, $pollInterval = 10000) {
+    $proc = proc_open($cmd, array(STDIN, STDOUT, STDERR), $pipes);
+    if (is_resource($proc)) {
+      do {
+        $status = proc_get_status($proc);
+        usleep($pollInterval);
+      } while ($status['running']);
+      proc_close($proc);
+      return $status['exitcode'];
+    }
+    else {
+      throw new \RuntimeException("Failed to open command: $cmd");
+    }
+  }
+
 }
