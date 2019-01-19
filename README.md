@@ -240,6 +240,7 @@ This is a working proof-of-concept. Some TODOs:
 
 * Implement support for background launching
 * For BG processes, route console output to log files
+* If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
 * Add test coverage for variable evaluation
 * Add test coverage for CLI options
 * Add test coverage for start/stop/restart
