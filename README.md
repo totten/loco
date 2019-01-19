@@ -10,7 +10,7 @@ default_environment:
 services:
   redis:
     run: 'redis-server --port $REDIS_PORT'
-  phpfpm:
+  php-fpm:
     run: 'php-fpm -y "$LOCO_SVC_VAR/php-fpm.conf" --nodaemonize'
     pid_file: '$LOCO_SVC_VAR/php-fpm.pid'
 ```
@@ -18,7 +18,7 @@ services:
 The `redis` service is easy to define because it accepts most configuration on CLI.
 
 For `php-fpm`, it needs a little extra work because some options have to be set in a config file.  Create a template in
-`.loco/config/phpfpm` named `php-fpm.conf.loco.tpl`; use statements like these (*partial excerpt*):
+`.loco/config/php-fpm` named `php-fpm.conf.loco.tpl`; use statements like these (*partial excerpt*):
 
 ```
 listen = 127.0.0.1:{{PHPFPM_PORT}}
@@ -138,9 +138,9 @@ There are a few built-in environment variables for each scope:
     * `LOCO_VAR`: The absolute path of the project's dynamic data-folder.
       Very loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
 * Loco Service Scope
-    * `LOCO_SVC`: The name of the service being launched. (Ex: `phpfpm`)
-    * `LOCO_SVC_CFG`: The absolute path of a folder  containing configuration-templates (Ex: `/home/me/src/my-web-app/.loco/config/phpfpm`)
-    * `LOCO_SVC_VAR`: The absolute path of a dynamic data-folder for this service. (Ex:  `/home/me/src/my-web-app/.loco/var/phpfpm`)
+    * `LOCO_SVC`: The name of the service being launched. (Ex: `php-fpm`)
+    * `LOCO_SVC_CFG`: The absolute path of a folder  containing configuration-templates (Ex: `/home/me/src/my-web-app/.loco/config/php-fpm`)
+    * `LOCO_SVC_VAR`: The absolute path of a dynamic data-folder for this service. (Ex:  `/home/me/src/my-web-app/.loco/var/php-fpm`)
 
 When defining variables in YAML, one may reference other variables, e.g.
 
@@ -164,16 +164,16 @@ You may initialize config files using bash commands, e.g.
 
 ```yaml
 services:
-  phpfpm:
+  php-fpm:
     init:
       - 'cat $LOCO_PRJ/php-fpm.conf.ex | sed "s/PHPFPM_PORT/$PHPFPM_PORT/" > $LOCO_SVC_VAR/php-fpm.conf'
 ```
 
 This is very common, so there is also a *convention* for automatic file mappings:
 
-* Scan the `LOCO_SVC_CFG` folder (e.g. `.loco/config/phpfpm`) for files named `*.loco.tpl`.
+* Scan the `LOCO_SVC_CFG` folder (e.g. `.loco/config/php-fpm`) for files named `*.loco.tpl`.
 * Interpolate any environment variables using `{{...}}` notation (e.g. `{{PHPFPM_PORT}}`).
-* Write new files to the `LOCO_SVC_VAR` folder (e.g. `.loco/var/phpfpm`) (excluding the `*.loco.tpl` suffix).
+* Write new files to the `LOCO_SVC_VAR` folder (e.g. `.loco/var/php-fpm`) (excluding the `*.loco.tpl` suffix).
 
 > WIP: Pick another templating language to embed.
 
