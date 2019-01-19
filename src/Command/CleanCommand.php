@@ -29,9 +29,12 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
-    $svcs = $this->pickServices($system, $input->getOption('service'));
-    foreach ($svcs as $svc) {
-      static::doClean($system, $svc, $input, $output);
+    $svcNames = explode(',', implode(',', $input->getOption('service')));
+    foreach ($svcNames as $svcName) {
+      if (empty($system->services[$svcName])) {
+        throw new \Exception("Unknown service: $svcName");
+      }
+      static::doClean($system, $system->services[$svcName], $input, $output);
     }
     return 0;
   }
