@@ -80,7 +80,6 @@ trait LocoCommandTrait {
    */
   public function pickServices($system, $svcNames) {
     // Expand any nested commas
-    $svcNames = explode(',', implode(',', $svcNames));
 
     if (empty($svcNames)) {
       $todos = [];
@@ -91,7 +90,7 @@ trait LocoCommandTrait {
       }
     }
     else {
-      $todos = array_values($svcNames);
+      $todos = explode(',', implode(',', $svcNames));
     }
 
     $svcs = [];
