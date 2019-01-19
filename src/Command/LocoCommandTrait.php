@@ -24,6 +24,7 @@ trait LocoCommandTrait {
     if (!file_exists($input->getOption('config'))) {
       throw new \Exception("Failed to find loco config file: " . $input->getOption('config'));
     }
+    $output->writeln("<info>Parse configuration \"<comment>" . $input->getOption('config') . "</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
 
     $settings = Yaml::parse(file_get_contents($input->getOption('config')));
     return LocoSystem::create(dirname(dirname($input->getOption('config'))), $settings);
