@@ -189,6 +189,7 @@ loco ... [-s <svc>]                                   Focus on a specific servic
 loco run [-f] [--ram-disk=<size>]                     Start service(s) in foreground
 loco start [-f] [--ram-disk=<size>]                   Start service(s) in background
 loco stop                                             Stop service(s) in background
+loco status                                           List background service(s) and their status(es)
 loco init [-f]                                        Execute initialization
 loco clean                                            Destroy any generated data files
 
