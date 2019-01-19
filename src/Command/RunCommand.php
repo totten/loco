@@ -140,7 +140,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     }
     $started = 1;
 
-    $this->output->writeln("<info>[<comment>main</comment>] Shutdown started</info>");
+    $this->output->writeln("<info>[<comment>loco</comment>] Shutdown started</info>");
 
     $allPids = array();
 
@@ -163,7 +163,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       posix_kill($pid, SIGKILL);
     }
 
-    $this->output->writeln("<info>[<comment>main</comment>] Shutdown finished</info>");
+    $this->output->writeln("<info>[<comment>loco</comment>] Shutdown finished</info>");
     exit(1);
   }
 
