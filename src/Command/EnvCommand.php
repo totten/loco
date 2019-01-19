@@ -17,7 +17,7 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
       ->setName('env')
       ->setAliases(array())
       ->setDescription('Display the environment variables for a service')
-      ->addOption('service', 's', InputOption::VALUE_REQUIRED, 'Service name')
+      ->addArgument('service', InputArgument::OPTIONAL, 'Service name. For an empty-service (common variables only), use "."', '.')
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
   }
@@ -26,7 +26,7 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
     $system = $this->initSystem($input, $output);
 
     /** @var LocoEnv $env */
-    $env = $this->pickEnv($system, $input->getOption('service'));
+    $env = $this->pickEnv($system, $input->getArgument('service'));
     foreach ($env->getAllValues() as $key => $value) {
       $output->writeln("$key=" . \Loco\Utils\Shell::lazyEscape($value));
     }

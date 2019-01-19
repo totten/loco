@@ -20,16 +20,16 @@ class StatusCommand extends \Symfony\Component\Console\Command\Command {
       ->setName('status')
       ->setAliases(array())
       ->setDescription('Display service status')
-      ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->setHelp('Display service status');
     $this->configureSystemOptions();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
-    $svcNames = empty($input->getOption('service'))
-      ? array_keys($system->services)
-      : explode(',', implode(',', $input->getOption('service')));
+    $svcNames = $input->getArgument('service')
+      ? $input->getArgument('service')
+      : array_keys($system->services);
 
     sort($svcNames);
 

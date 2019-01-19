@@ -24,7 +24,7 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
     $this
       ->setName('stop')
       ->setDescription('Stop any running services')
-      ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). (Default: all)')
       ->addOption('sig', 'k', InputOption::VALUE_REQUIRED, 'Kill signal', SIGTERM)
       ->setHelp('Stop any running services');
     $this->configureSystemOptions();
@@ -32,8 +32,8 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
-    $svcs = $this->pickServices($system, $input->getOption('service'));
-    foreach ($svcs as $svc) {
+    $svcs = $this->pickServices($system, $input->getArgument('service'));
+    foreach (array_reverse($svcs) as $svc) {
       static::doStop($system, $svc, $input->getOption('sig'), $input, $output);
     }
     return 0;
@@ -55,6 +55,7 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
         break;
 
       case FALSE:
+        $output->writeln("<info>[<comment>{$svc->name}</comment>] Already stopped</info>", OutputInterface::VERBOSITY_VERBOSE);
         break;
 
       case NULL:

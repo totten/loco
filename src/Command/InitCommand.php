@@ -21,7 +21,7 @@ class InitCommand extends \Symfony\Component\Console\Command\Command {
     $this
       ->setName('init')
       ->setDescription('Init the service(s)')
-      ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force initialization, overwriting an existing data folder')
       ->setHelp('Initialize the service
 
@@ -37,7 +37,7 @@ This supports a mix of convention and configuration:
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
-    $svcs = $this->pickServices($system, $input->getOption('service'));
+    $svcs = $this->pickServices($system, $input->getArgument('service'));
     foreach ($svcs as $svc) {
       static::doInit($system, $svc, $input, $output);
     }

@@ -30,7 +30,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       ->setName('run')
       ->setAliases(array())
       ->setDescription('Run the service(s) in the foreground')
-      ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force initialization, overwriting an existing data folder')
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
@@ -41,7 +41,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     $POLL_INTERVAL = 3;
 
     $system = $this->initSystem($input, $output);
-    $services = $this->pickServices($system, $input->getOption('service'));
+    $services = $this->pickServices($system, $input->getArgument('service'));
 
     $this->output = $output;
     $this->procs = [];

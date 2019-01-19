@@ -53,7 +53,7 @@ trait LocoCommandTrait {
    * @return LocoEnv
    */
   public function pickEnv($system, $svcName) {
-    if (empty($svcName)) {
+    if (empty($svcName) || $svcName === '.') {
       return $system->createEnv();
     }
     elseif (isset($system->services[$svcName])) {
@@ -91,7 +91,7 @@ trait LocoCommandTrait {
       }
     }
     else {
-      $todos = explode(',', implode(',', $svcNames));
+      $todos = $svcNames;
     }
 
     $svcs = [];

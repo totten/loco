@@ -22,16 +22,16 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
     $this
       ->setName('clean')
       ->setDescription('Clean out the service data folders')
-      ->addOption('service', 's', InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY, 'Service name')
+      ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). (Default: all)')
       ->setHelp('Clean out the service data folders');
     $this->configureSystemOptions();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
-    $svcNames = empty($svcNames)
-      ? array_keys($system->services)
-      : explode(',', implode(',', $input->getOption('service')));
+    $svcNames = $input->getArgument('service')
+      ? $input->getArgument('service')
+      : array_keys($system->services);
 
     foreach ($svcNames as $svcName) {
       if (empty($system->services[$svcName])) {
@@ -48,6 +48,9 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
     if (file_exists($svcVar)) {
       $output->writeln("<info>[<comment>$svc->name</comment>] Remove existing data folder \"<comment>$svcVar</comment>\"</info>");
       File::removeAll($svcVar);
+    }
+    else {
+      $output->writeln("<info>[<comment>$svc->name</comment>] Nothing to remove</info>", OutputInterface::VERBOSITY_VERBOSE);
     }
   }
 

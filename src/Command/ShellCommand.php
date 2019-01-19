@@ -17,11 +17,31 @@ class ShellCommand extends \Symfony\Component\Console\Command\Command {
     $this
       ->setName('shell')
       ->setAliases(['sh'])
-      ->setDescription('Execute a shell command')
-      ->addOption('service', 's', InputOption::VALUE_REQUIRED, 'Service name')
+      ->setDescription('Execute a shell command in the service\'s environment')
       ->addOption('escape', 'e', InputOption::VALUE_REQUIRED, 'Strategy for (re)escaping args to subcommand: (s)trict, (w)eak, (n)one', 's')
+      ->addArgument('service', InputArgument::OPTIONAL, 'Service name. For an empty-service (common variables only), use "."', '.')
       ->addArgument('cmd', InputArgument::IS_ARRAY, 'Command to execute', [])
-      ->setHelp('Display the environment variables for a service');
+      ->setHelp('Execute a shell command in the service\'s environment
+
+Example: Open common/base environment - with interactive shell
+$ loco sh
+
+Example: Open mysql environment - with interactive shell
+$ loco sh mysql
+
+Example: Open mysql environment - and run "mysqldump foo"
+$ loco sh mysql -- mysqldump foo | gzip > foo.tar.gz
+
+Example: Open mysql environment -- let the subshell evaluate variables
+$ loco sh mysql -en \'echo "Data is in $LOCO_SVC_VAR"\'
+
+Example: Open common/base environment - and run "mysqldump foo"
+$ loco sh . -- mysqldump foo | gzip > foo.tar.gz
+
+Note: To call a specific command in the common/base environment, you MUST specify
+the placeholder service "."
+');
+//    $this->addUsage('asdf');
     $this->configureSystemOptions();
   }
 
@@ -29,7 +49,7 @@ class ShellCommand extends \Symfony\Component\Console\Command\Command {
     $system = $this->initSystem($input, $output);
 
     /** @var LocoEnv $env */
-    $env = $this->pickEnv($system, $input->getOption('service'));
+    $env = $this->pickEnv($system, $input->getArgument('service'));
     Shell::applyEnv($env);
 
     $escapers = [

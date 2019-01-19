@@ -99,8 +99,8 @@ services:
       - SERVICE_NAME
 
     ## The 'enabled' property determines if the service should autostart.
-    ## Disabled services can still be enabled by (a) explicitly calling
-    ## them with "-s <svc>" or (b) using 'depends'. (Default: true)
+    ## Disabled services can still be enabled by (a) explicitly running
+    ## them or (b) using 'depends'. (Default: true)
     enabled: BOOL
 
     ## The 'environment' and 'default_environment' work the same as above,
@@ -183,20 +183,19 @@ This is very common, so there is also a *convention* for automatic file mappings
 ### Common options
 loco ... [--cwd <dir>]                                Change working directory
 loco ... [-c <configFile>]                            Load alternative config file
-loco ... [-s <svc>]                                   Focus on a specific service. For some commands, this may be used multiple times.
 
 ## Multi service commands. (By default, execute on all services.)
-loco run [-f] [--ram-disk=<size>]                     Start service(s) in foreground
-loco start [-f] [--ram-disk=<size>]                   Start service(s) in background
-loco stop                                             Stop service(s) in background
-loco status                                           List background service(s) and their status(es)
-loco init [-f]                                        Execute initialization
-loco clean                                            Destroy any generated data files
+loco run [-f] [--ram-disk=<size>] [<svc>...]          Start service(s) in foreground
+loco start [-f] [--ram-disk=<size>] [<svc>...]        Start service(s) in background
+loco stop [<svc>...]                                  Stop service(s) in background
+loco status [<svc>...]                                List background service(s) and their status(es)
+loco init [-f] [<svc>...]                             Execute initialization
+loco clean [<svc>...]                                 Destroy any generated data files
 
 ## Single service commands. (No services picked by default.)
-loco env                                              Display environment variables
-loco shell -- <cmd>                                   Execute a shell command within the service's environment
-loco sh -- <cmd>                                      Alias for "shell"
+loco env [<svc>|.]                                    Display environment variables
+loco shell [<svc>|.] -- <cmd>                         Execute a shell command within the service's environment
+loco sh [<svc>|.] -- <cmd>                            Alias for "shell"
 
 ## Manipulating YAML content
 loco generate [-o <dir>] [[svc@]<file> | [svc@]<url> | <svc>@ | -A]   Generate a new project and import services
@@ -204,7 +203,7 @@ loco import [[svc@]<file> | [svc@]<url> | <svc>@ | -A]    Copy svcs (YAML+tpls) 
             [--detect|-D]                                 Auto-detect which services may be applicable
             [--create|-C]                                 Auto-create new project
 loco copy <from-svc> <to-svc>                             Copy svc (YAML+tpls) within a project
-loco export [-s <svc>] [--systemd] [-o <dir>] [--ram-disk=<size>]    Export service definitions (in systemd format)
+loco export [--systemd] [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export service definitions (in systemd format)
 ```
 
 # Download
@@ -335,7 +334,7 @@ Import service "apache" (/nix/store/foobar-loco-lib/apacheHttpd/loco.yaml) [Y/n]
 [nix-shell:~/project]$ loco run
 ```
 
-Can we reconcile the notations for `-s <svc>` and `[<svc>@]<file-or-url>`?
+Can we reconcile the notations for `<svc>` and `[<svc>@]<file-or-url>`?
 
 For nix distribution, perhaps distinguish `loco` (the command) and `locolib` or `loconix` (library of templates for
 common packages which don't provide their own). So typical usage would be `nix-shell -p locolib`, and I guess
