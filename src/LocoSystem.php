@@ -22,15 +22,15 @@ class LocoSystem {
    * @param array $settings
    * @return \Loco\LocoSystem
    */
-  public static function create($settings) {
+  public static function create($prjDir, $settings) {
     $system = new self();
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
     $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
     $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment']: []);
-    $system->environment->set('LOCO_PRJ', getcwd(), FALSE);
+    $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
     $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
     $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);
-    if (file_exists($binDir = getcwd() . '/.loco/bin')) {
+    if (file_exists($binDir = "$prjDir/.loco/bin")) {
       $system->environment->set('PATH', $binDir . PATH_SEPARATOR . getenv('PATH'), FALSE);
     }
     $system->global_environment = LocoEnv::create([]); // FIXME

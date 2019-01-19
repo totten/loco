@@ -4,6 +4,7 @@ namespace Loco\Command;
 use Loco\LocoEnv;
 use Loco\LocoService;
 use Loco\LocoSystem;
+use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -12,17 +13,33 @@ use Symfony\Component\Yaml\Yaml;
 
 trait LocoCommandTrait {
   public function configureSystemOptions() {
-    $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Name of the loco.yml file', '.loco/loco.yml');
+    $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Name of the loco.yml file');
     return $this;
   }
 
   public function initSystem(InputInterface $input, OutputInterface $output) {
+    if (!$input->getOption('config')) {
+      $input->setOption('config', $this->pickConfig());
+    }
     if (!file_exists($input->getOption('config'))) {
       throw new \Exception("Failed to find loco config file: " . $input->getOption('config'));
     }
 
     $settings = Yaml::parse(file_get_contents($input->getOption('config')));
-    return LocoSystem::create($settings);
+    return LocoSystem::create(dirname(dirname($input->getOption('config'))), $settings);
+  }
+
+  public function pickConfig() {
+    $parts = explode(DIRECTORY_SEPARATOR, Shell::getcwd());
+    $suffix = ['.loco', 'loco.yml'];
+    while ($parts) {
+      $path = implode(DIRECTORY_SEPARATOR, array_merge($parts, $suffix));
+      if (file_exists($path)) {
+        return $path;
+      }
+      array_pop($parts);
+    }
+    return NULL;
   }
 
   /**

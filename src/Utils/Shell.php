@@ -44,4 +44,20 @@ class Shell {
     }
   }
 
+  /**
+   * @return string
+   *   Absolute path of the current working directory.
+   *   To the extent possible, we try to *preserve* symlinks (i.e. *not*
+   *   de-referencing).
+   */
+  public static function getcwd() {
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+      return getcwd();
+    }
+    else {
+      exec('pwd', $output);
+      return trim(implode("\n", $output));
+    }
+  }
+
 }
