@@ -73,6 +73,10 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     while (TRUE) {
       foreach ($services as $name => $svc) {
         /** @var LocoService $svc */
+        if (isset($blacklist[$name])) {
+          continue;
+        }
+
         /** @var LocoEnv $env */
         $env = $svc->createEnv();
 
@@ -80,6 +84,13 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
           if (!isset($hasFirst[$name])) {
             $hasFirst[$name] = 1;
             InitCommand::doInit($system, $svc, $input, $output);
+          }
+
+          if (empty($svc->run)) {
+            // NOTE: It's handy to have some init-only/non-run services; e.g. populating DB content
+            $this->output->writeln("<info>[<comment>$name</comment>] Service does not specify \"run\" option</info>");
+            $blacklist[$name] = $name;
+            continue;
           }
 
           // Launch
