@@ -70,6 +70,8 @@ trait LocoCommandTrait {
    * @param array|NULL $svcNames
    *   List of services requested by the user.
    *   If blank, then all services.
+   *   Ex: ['redis', 'mysql']
+   *   Ex: ['redis,mysql']
    * @return array
    *   Array(string $name => LocoService $svc).
    *   List of service-objects, including both directly-requested
@@ -77,6 +79,9 @@ trait LocoCommandTrait {
    *   The list is sorted based on dependencies.
    */
   public function pickServices($system, $svcNames) {
+    // Expand any nested commas
+    $svcNames = explode(',', implode(',', $svcNames));
+
     if (empty($svcNames)) {
       $todos = [];
       foreach ($system->services as $svcName => $svc) {
