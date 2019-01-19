@@ -198,11 +198,12 @@ loco shell -- <cmd>                                   Execute a shell command wi
 loco sh -- <cmd>                                      Alias for "shell"
 
 ## Manipulating YAML content
-loco import [[svc@]<file> | [svc@]<url> | <svc>@ | -l]    Copy svcs (YAML+tpls) from an external location.
+loco generate [-o <dir>] [[svc@]<file> | [svc@]<url> | <svc>@ | -A]   Generate a new project and import services
+loco import [[svc@]<file> | [svc@]<url> | <svc>@ | -A]    Copy svcs (YAML+tpls) from an external location.
             [--detect|-D]                                 Auto-detect which services may be applicable
             [--create|-C]                                 Auto-create new project
 loco copy <from-svc> <to-svc>                             Copy svc (YAML+tpls) within a project
-loco export [--systemd] [-o <dir>] [--ram-disk=<size>]    Export service definitions (in systemd format)
+loco export [-s <svc>] [--systemd] [-o <dir>] [--ram-disk=<size>]    Export service definitions (in systemd format)
 ```
 
 # Download
@@ -246,3 +247,94 @@ This is a working proof-of-concept. Some TODOs:
 * Add options for updating YAML - import/copy
 * Add options for including YAML
 * Add options for exporting to systemd
+
+Future sketches:
+
+```
+## Make a project folder
+me@localhost:~$ mkdir project
+me@localhost:~$ cd project
+me@localhost:~$ git init
+
+## Get some binaries
+me@localhost:~$ nix-shell -p mariadb -p redis -p apacheHttpd -p loco
+
+## Create a new loco.yaml by scanning local system for usable service definitions
+[nix-shell:~/project]$ loco import -CDLi
+Import service "redis" (/nix/store/foobar-loco-lib/redis/loco.yaml) [Y/n]? Y
+Import service "mysql" (/nix/store/foobar-loco-lib/mysql/loco.yaml) [Y/n]? Y
+Import service "apache" (/nix/store/foobar-loco-lib/apacheHttpd/loco.yaml) [Y/n]? Y
+
+## Edit the configuration. Save it for later.
+[nix-shell:~/project]$ vi .loco/loco.yaml
+[nix-shell:~/project]$ git add .loco
+
+## Run
+[nix-shell:~/project]$ loco run
+```
+
+Instead of autodetection, import specific definitions:
+
+```
+## Make a project folder
+me@localhost:~$ mkdir project
+me@localhost:~$ cd project
+## Get some binaries
+me@localhost:~$ nix-shell -p mariadb -p redis -p apacheHttpd -p loco
+## Create a new loco.yaml with a mix of local+published templates
+[nix-shell:~/project]$ loco import -C redis@ apacheHttpd@ github://myuser/mariadb-master-slave
+Import service "redis" (/nix/foobar-redis/loco.yaml) [Y/n]? Y
+Import service "apache" (/nix/foobar-apacheHttpd/loco.yaml) [Y/n]? Y
+Import service "mysql_master" (github://myuser/mariadb-master-slave) [Y/n]? Y
+Import service "mysql_slave" (github://myuser/mariadb-master-slave) [Y/n]? Y
+## Run
+[nix-shell:~/project]$ loco run
+```
+
+Maybe "loco generate" is sugar for "mkdir + loco import -CDi"
+
+```
+## Get some binaries
+me@localhost:~$ nix-shell -p mariadb -p redis -p apacheHttpd -p loco
+
+## Create a new project folder and loco.yaml by scanning local system for usable service definitions
+[nix-shell:~]$ loco generate -o myproject -L
+Import service "redis" (/nix/store/foobar-loco-lib/redis/loco.yaml) [Y/n]? Y
+Import service "mysql" (/nix/store/foobar-loco-lib/mysql/loco.yaml) [Y/n]? Y
+Import service "apache" (/nix/store/foobar-loco-lib/apacheHttpd/loco.yaml) [Y/n]? Y
+[nix-shell:~]$ cd myroject
+
+## Edit the configuration. Save it for later.
+[nix-shell:~/project]$ vi .loco/loco.yaml
+[nix-shell:~/project]$ git add .loco
+
+## Run
+[nix-shell:~/project]$ loco run
+```
+
+And again with specific imports
+
+```
+## Get some binaries
+me@localhost:~$ nix-shell -p mariadb -p redis -p apacheHttpd -p loco
+
+## Create a new project folder and loco.yaml by scanning local system for usable service definitions
+[nix-shell:~]$ loco generate -o myproject redis@ apacheHttpd@ github://myuser/mariadb-master-slave
+Import service "redis" (/nix/store/foobar-loco-lib/redis/loco.yaml) [Y/n]? Y
+Import service "mysql" (/nix/store/foobar-loco-lib/mysql/loco.yaml) [Y/n]? Y
+Import service "apache" (/nix/store/foobar-loco-lib/apacheHttpd/loco.yaml) [Y/n]? Y
+[nix-shell:~]$ cd myroject
+
+## Edit the configuration. Save it for later.
+[nix-shell:~/project]$ vi .loco/loco.yaml
+[nix-shell:~/project]$ git add .loco
+
+## Run
+[nix-shell:~/project]$ loco run
+```
+
+Can we reconcile the notations for `-s <svc>` and `[<svc>@]<file-or-url>`?
+
+For nix distribution, perhaps distinguish `loco` (the command) and `locolib` or `loconix` (library of templates for
+common packages which don't provide their own). So typical usage would be `nix-shell -p locolib`, and I guess
+`locolib` does `makeWrapper` to set a search-path
