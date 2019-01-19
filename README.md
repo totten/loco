@@ -53,10 +53,10 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
     * It makes no pretense of enhanced process-isolation (like hypervisors or Linux cgroups/namespaces). It just uses
       POSIX APIs.
 
-    * It should work on any POSIX-style OS (Linux/OS X/BSD) with PHP+pcntl, and you can easily mix packages from
+    * It should work on any POSIX-style OS (Linux/OS X/BSD) with PHP+pcntl, and you can mix packages from
       different providers (nix, docker, homebrew, apt, etc).
 
-    * All platforms (including OSX) get native performance for IO/filesystem operations.
+    * All host platforms (including OSX) can achieve native performance for IO/filesystem operations.
 
     * There's no requirement for port-mapping or volume-mapping, so it's easier to inspect with off-the-shelf
       text-editors/IDEs/tools.
@@ -70,8 +70,8 @@ Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` 
   local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3 from the
   "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like using `loco` during development; it's easy to edit
   configuration files, track the changes, and reset to clean/baseline data.  But it really doesn't care about protecting data,
-  maintaining long-term state, defense-in-depth, etc.  If you ask a sysadmin to run production services on it, they
-  might call you loco.
+  maintaining long-term state, defense-in-depth/process-isolation, etc.  If you ask a sysadmin to run production services on it, they
+  might call you... loco.
 
 ## Specification: YAML Format
 
