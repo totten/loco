@@ -67,7 +67,13 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       return 1;
     }
 
-    $installed = FALSE;
+    pcntl_signal(SIGINT, [$this, 'onshutdown']);
+    register_shutdown_function([$this, 'onshutdown']);
+
+    // Track which thread is responsible for shutdown.
+    global $shutdownPid;
+    $shutdownPid = posix_getpid();
+
     $hasFirst = [];
     $blacklist = [];
     while (TRUE) {
@@ -120,20 +126,16 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
         }
       }
 
-      if (!$installed) {
-        pcntl_signal(SIGINT, [$this, 'onshutdown']);
-      }
-
       sleep($POLL_INTERVAL);
     }
-
 
     return 0;
   }
 
   public function onshutdown() {
+    global $shutdownPid;
     static $started = FALSE;
-    if ($started) {
+    if ($started || $shutdownPid !== posix_getpid()) {
       return;
     }
     $started = 1;
@@ -150,6 +152,8 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
         $allPids[] = $this->procs[$name]['pid'];
       }
     }
+
+    // print_r(['onshutdown', 'pid' => posix_getpid(), '$shutdownPid' => $shutdownPid, 'allPids' => $allPids, 'procs' => $this->procs]);
 
     foreach ($allPids as $pid) {
       posix_kill($pid, SIGTERM);
