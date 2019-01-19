@@ -2,12 +2,16 @@
 <?php
 ini_set('display_errors', 1);
 if (PHP_SAPI !== 'cli') {
-  echo "loco is a command-line tool\n";
+  fwrite(STDERR, "loco is a command-line tool\n");
   exit(1);
 }
 if (version_compare(PHP_VERSION, '5.6', '<')) {
-  echo "loco requires PHP 5.6+\n";
+  fwrite(STDERR, "loco requires PHP 5.6+\n");
   exit(2);
+}
+if (!extension_loaded('pcntl')) {
+  fwrite(STDERR, "loco requires PHP extension: pcntl\n");
+  exit(3);
 }
 $found = 0;
 $autoloaders = array(
