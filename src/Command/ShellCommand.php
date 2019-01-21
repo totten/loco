@@ -72,8 +72,8 @@ the placeholder service "."
       $cmd = implode(' ', array_map($escaper, $input->getArgument('cmd')));
     }
     else {
-      // $cmd = 'bash --rcfile <(echo "PS1=\'subshell prompt: \'") -i';
-      $cmd = 'bash -i';
+      $cmd = 'bash --rcfile ' . escapeshellarg($this->findCreateRcFile($input));
+      // $cmd = 'bash -i';
     }
 
     $output->getErrorOutput()->writeln("RUN: $cmd", OutputInterface::VERBOSITY_VERBOSE);
@@ -84,6 +84,31 @@ the placeholder service "."
     else {
       return Shell::runInteractively($cmd);
     }
+  }
+
+  protected function renderRc($svcName = NULL) {
+    $ps1 = $svcName && $svcName !== '.' ? "loco($svcName)" : 'loco';
+    $template = '[ -n "$PS1" ] && [ -e ~/.bashrc ] && source ~/.bashrc
+[ -n "$PS1" ] && PS1=\'\n\033[1;32m[%%PS1TXT%%:\w]\$\033[0m \'
+shopt -u nullglob';
+    return strtr($template, [
+      '%%PS1TXT%%' => $ps1,
+    ]);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @return string
+   */
+  protected function findCreateRcFile(InputInterface $input) {
+    $rcContent = $this->renderRc($input->getArgument('service'));
+    $md5 = md5($rcContent . ';;' . posix_getuid());
+    $file = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'loco-' . $md5 . '.sh';
+    if (!file_exists($file)) {
+      file_put_contents($file, $rcContent);
+      chmod($file, 0600);
+    }
+    return $file;
   }
 
 }
