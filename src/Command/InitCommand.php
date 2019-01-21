@@ -127,11 +127,11 @@ This supports a mix of convention and configuration:
       // Child
       Shell::applyEnv($env);
       foreach (array_values($svc->init) as $stepNum => $init) {
-        $cmd = $env->evaluate($init);
-        $output->writeln("<info>[<comment>$svc->name</comment>] Run \"<comment>$cmd</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+        $cmdPrintable = $env->evaluate($init, 'keep');
+        $output->writeln("<info>[<comment>$svc->name</comment>] Run \"<comment>$cmdPrintable</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
         passthru($init, $ret);
         if ($ret !== 0) {
-          $output->writeln("<error>[$svc->name] Initialization failed in command \"$cmd\"</error>");
+          $output->writeln("<error>[$svc->name] Initialization failed in command \"$cmdPrintable\"</error>");
           exit(1 + $stepNum);
         }
       }

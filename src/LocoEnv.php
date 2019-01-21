@@ -43,9 +43,16 @@ class LocoEnv {
     return $this->specs[$key] ?: NULL;
   }
 
-  public function getValue($key) {
+  public function getValue($key, $onMissing = 'exception') {
     if (!isset($this->specs[$key])) {
-      throw new \RuntimeException("Unknown variable: $key");
+      switch ($onMissing) {
+        case 'keep':
+          return '$' . $key;
+        case 'exception':
+        default:
+        throw new \RuntimeException("Unknown variable: $key");
+      }
+
     }
     if ($this->specs[$key]['isDynamic']) {
       $this->specs[$key] = [
@@ -64,18 +71,18 @@ class LocoEnv {
     return $values;
   }
 
-  public function evaluate($valExpr) {
+  public function evaluate($valExpr, $onMissing = 'exception') {
     if (empty($valExpr)) {
       return $valExpr;
     }
-    return preg_replace_callback(';\$([a-zA-Z0-9_\{\}]+);', function($matches) use ($valExpr) {
+    return preg_replace_callback(';\$([a-zA-Z0-9_\{\}]+);', function($matches) use ($valExpr, $onMissing) {
       $name = $matches[1];
       if (preg_match(';^[a-zA-Z0-9_]+$;', $name, $m2)) {
-        $v2 = $this->getValue($name);
+        $v2 = $this->getValue($name, $onMissing);
         return $v2;
       }
       elseif (preg_match(';^\{([a-zA-Z0-9_]+)\}$;', $name, $m2)) {
-        $v2 = $this->getValue($m2[1]);
+        $v2 = $this->getValue($m2[1], $onMissing);
         return $v2;
       }
       else {
