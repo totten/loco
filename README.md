@@ -237,6 +237,7 @@ loco export [--systemd] [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export serv
 
 This is a working proof-of-concept. Some TODOs:
 
+* Port to Go or Rust s.t. binary doesn't depend on `php`+`pcntl`. Learn enough of Go or Rust to write a port.
 * Implement support for background launching
 * For BG processes, route console output to log files
 * If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
@@ -248,8 +249,9 @@ This is a working proof-of-concept. Some TODOs:
 * Add options for updating YAML - import/copy
 * Add options for including YAML
 * Add options for exporting to systemd
+* Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
 
-Future sketches:
+Sketching how it might work with imports and project initialization:
 
 ```
 ## Make a project folder
