@@ -1,6 +1,6 @@
 # loco: Local-Compose Process Manager
 
-`loco` is a process-manager for the Git+Yaml crowd.  One creates a `loco.yml` file with a list of services to start, as in:
+`loco` is a process-manager for the Git+Yaml crowd.  It's like `docker-compose` minus `docker`. One creates a `loco.yml` file with a list of services to start, as in:
 
 ```yaml
 format: 'loco-0.1'
@@ -30,6 +30,8 @@ pm.max_spare_servers = 3
 ```
 
 Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` to stop.
+
+`loco` is a functional proof-of-concept. I've been using it with some nuanced compositions (e.g. Apache + PHP + Redis + MariaDB master+slave), but there are several items listed under "Status/TODO" below.
 
 ## Critical Comparison
 
