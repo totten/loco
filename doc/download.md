@@ -1,6 +1,6 @@
 # loco: Download
 
-* Option 1: Clone the repo; run composer; update the PATH.
+* Option 1: Install PHP 5.6/7.x with the `pcntl` extension. Clone the repo; run composer; update the PATH.
     ```
     git clone https://github.com/totten/loco
     cd loco
