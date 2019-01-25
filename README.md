@@ -31,6 +31,8 @@ pm.max_spare_servers = 3
 
 Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` to stop.
 
+For a more detailed example (Apache+PHP+MySQL+Redis+Mailcatcher), see [locolamp](https://github.com/totten/locolamp)
+
 `loco` is a functional proof-of-concept. I've been using it with some nuanced compositions (e.g. Apache + PHP + Redis + MariaDB master+slave), but there are several items listed under "Status/TODO" below.
 
 ## Critical Comparison
