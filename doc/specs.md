@@ -146,6 +146,10 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
 * Add test coverage for variable evaluation
 * Add test coverage for CLI options
 * Add test coverage for start/stop/restart
+* When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
+* Find a more meaningful protocol to detect when a service has really come online, then:
+    * Use this to improve/fix launching of dependencies (so that we don't need 'sleep' hacks in any of the config files)
+    * Use this to improve/fix timing of the startup messages.
 * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
 * Add options for importing YAML statically (i.e. copying from a URL/Github project and putting the content into `.loco`)
   ```bash
