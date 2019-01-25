@@ -33,7 +33,10 @@ class LocoSystem {
     if (file_exists($binDir = "$prjDir/.loco/bin")) {
       $system->environment->set('PATH', $binDir . PATH_SEPARATOR . getenv('PATH'), FALSE);
     }
-    $system->global_environment = LocoEnv::create([]); // FIXME
+    $system->global_environment = LocoEnv::create([]);
+    foreach ($_ENV as $k => $v) {
+      $system->global_environment->set($k, $v, FALSE);
+    }
     $system->services = [];
     if (!empty($settings['services'])) {
       foreach ($settings['services'] as $serviceName => $serviceSettings) {
