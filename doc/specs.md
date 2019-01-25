@@ -133,23 +133,31 @@ loco copy <from-svc> <to-svc>                             Copy svc (YAML+tpls) w
 loco export [--systemd] [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export service definitions (in systemd format)
 ```
 
-# Status/TODO
+# Status/TODOs
 
-This is a working proof-of-concept. Some TODOs:
+This is a working proof-of-concept. Some TODOs (no particular oder):
 
-* Port to Go or Rust s.t. binary doesn't depend on `php`+`pcntl`. Learn enough of Go or Rust to write a port.
 * Implement support for background launching
 * For BG processes, route console output to log files
 * If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
 * Add test coverage for variable evaluation
 * Add test coverage for CLI options
 * Add test coverage for start/stop/restart
-* Export to systemd unit
 * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
-* Add options for updating YAML - import/copy
-* Add options for including YAML
-* Add options for exporting to systemd
+* Add options for importing YAML statically (i.e. copying from a URL/Github project and putting the content into `.loco`)
+  ```bash
+  loco import 'https://github.com/someone/mysql-template'
+  ```
+* Add options for including YAML dynamically (i.e. loading from a URL/Github project by referencing it in `.loco/loco.yml`)
+  ```yaml
+  services:
+    mysql:
+      include: 'https://github.com/someone/mysql-template'
+  ```
+* Add options for scanning environment and comparing against a library of service templates
+* Add options for exporting from YAML to systemd unit files
 * Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
+* Port to Go or Rust to allow more flexible distribution. Learn enough of Go or Rust to write a port.
 
 Sketching how it might work with imports and project initialization:
 
