@@ -9,28 +9,39 @@ environment:
  - REDIS_PORT=6379
 services:
   redis:
-    run: 'redis-server --port $REDIS_PORT'
+    run: 'redis-server --port "$REDIS_PORT" --dir "$LOCO_SVC_VAR"'
   php-fpm:
     run: 'php-fpm -y "$LOCO_SVC_VAR/php-fpm.conf" --nodaemonize'
     pid_file: '$LOCO_SVC_VAR/php-fpm.pid'
 ```
 
-The `redis` service is easy to define because it accepts most configuration via CLI.
+The `redis` service is easy to define because it accepts most configuration via command-line arguments. Note the use of `$LOCO_SVC_VAR` to put any runtime data in a managed data folder.
 
-For `php-fpm`, it needs a little extra work because some options have to be set in a config file.  One creates a template
+For `php-fpm`, it needs a little extra work because some options require a config file.  One creates a template
 (e.g. `.loco/config/php-fpm/php-fpm.conf.loco.tpl`) with content like this (*partial excerpt*):
 
 ```
+[global]
+pid = {{LOCO_SVC_VAR}}/php-fpm.pid
+...
+[www]
 listen = 127.0.0.1:{{PHPFPM_PORT}}
+...
 ```
 
-Finally, call `loco run` to start and monitor all the services.  Press `Ctrl-C` to stop.
+Finally, start the services with:
 
-`loco` is a functional proof-of-concept. The example works for me, but there are several items listed under "Specifications/TODO" (below).
+```
+$ loco run
+```
+
+To stop, press Ctrl-C.
+
+`loco` is a functional proof-of-concept. For more details, see the [working example](https://github.com/totten/locolamp) and [draft specification/todos](doc/specs.md).
 
 ## More information
 
-* [Example: locolamp: Using nix-shell+loco to setup Apache+MySQL+PHP+NodeJS+Redis+Mailcatcher](https://github.com/totten/locolamp)
+* [Example: *loco*lamp: Using nix-shell+loco to setup Apache+MySQL+PHP+NodeJS+Redis+Mailcatcher](https://github.com/totten/locolamp)
 * [About: Motivation and critical comparison](doc/about.md)
 * [Download](doc/download.md)
-* [Specifications: CLI, File Formats, TODOs](doc/specs.md)
+* [Specifications: CLI, File Formats, Environment Variables, TODOs, etc](doc/specs.md)
