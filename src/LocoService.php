@@ -29,6 +29,9 @@ class LocoService {
   /** @var string|NULL */
   public $pid_file;
 
+  /** @var string|NULL */
+  public $message;
+
   /** @var array */
   public $depends;
 
@@ -50,6 +53,7 @@ class LocoService {
     $svc->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
     $svc->init = isset($settings['init']) ? ((array) $settings['init']) : [];
     $svc->run = isset($settings['run']) ? $settings['run'] : NULL;
+    $svc->message = isset($settings['message']) ? $settings['message'] : NULL;
     $svc->pid_file = isset($settings['pid_file']) ? $settings['pid_file'] : NULL;
     $svc->depends = isset($settings['depends']) ? ((array) $settings['depends']) : [];
     return $svc;

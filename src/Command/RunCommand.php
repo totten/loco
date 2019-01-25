@@ -76,6 +76,8 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
     $hasFirst = [];
     $blacklist = [];
+    $postStartupMessages = [];
+
     while (TRUE) {
       foreach ($services as $name => $svc) {
         /** @var LocoService $svc */
@@ -106,6 +108,9 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
           }
           elseif ($pid) {
             $this->procs[$name]['pid'] = $pid;
+            if ($svc->message) {
+              $postStartupMessages[] = $env->evaluate("<info>[<comment>$name</comment>] {$svc->message}</info>");
+            }
           }
           else {
             Shell::applyEnv($env);
@@ -127,6 +132,18 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       }
 
       sleep($POLL_INTERVAL);
+
+      if (!empty($postStartupMessages)) {
+        $this->output->writeln("\n");
+        $this->output->writeln("<info>======================[ Startup Summary ]======================</info>");
+        foreach ($postStartupMessages as $message) {
+          $this->output->writeln($message);
+        }
+        $this->output->writeln("\n<info>Services have been started. To shutdown <comment>loco</comment>, press <comment>Ctrl-C</comment>.</info>");
+        $this->output->writeln("<info>===============================================================</info>");
+
+        $postStartupMessages = [];
+      }
     }
 
     return 0;

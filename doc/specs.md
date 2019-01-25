@@ -48,6 +48,9 @@ services:
     ## By default, 'run' works with non-forking/foreground daemons.
     ## If the daemon forks
     pid_file: FILE_PATH
+
+    ## A message to display after the services have started.
+    message: STRING
 ```
 
 ## Specification: Environment variables
