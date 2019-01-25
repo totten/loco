@@ -29,6 +29,15 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
     /** @var LocoEnv $env */
     $env = $this->pickEnv($system, $input->getArgument('service'));
     $allValues = $env->getAllValues();
+
+    // Pithiness: only show things that have changed
+    $globalValues = $system->global_environment->getAllValues();
+    foreach (array_keys($allValues) as $k) {
+      if (isset($globalValues[$k]) && $globalValues[$k] === $allValues[$k]) {
+        unset($allValues[$k]);
+      }
+    }
+
     foreach ($allValues as $key => $value) {
       $output->writeln("$key=" . \Loco\Utils\Shell::lazyEscape($value));
     }
