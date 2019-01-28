@@ -1,6 +1,6 @@
 # loco: Local-Compose Process Manager
 
-`loco` is a process-manager for the Git+Yaml crowd.  It's like `docker-compose` minus `docker`. One creates a `loco.yml` file with a list of services to start, as in:
+`loco` is a developer-oriented process-manager.  It's like `docker-compose` minus `docker`. One creates a `loco.yml` file with a list of services to start, as in:
 
 ```yaml
 format: 'loco-0.1'
@@ -17,8 +17,7 @@ services:
 
 The `redis` service is easy to define because it accepts most configuration via command-line arguments. Note the use of `$LOCO_SVC_VAR` to put any runtime data in a managed data folder.
 
-For `php-fpm`, it needs a little extra work because some options require a config file.  One creates a template
-(e.g. `.loco/config/php-fpm/php-fpm.conf.loco.tpl`) with content like this (*partial excerpt*):
+For `php-fpm`, we need a config file to set some options.  One creates a template (e.g. `.loco/config/php-fpm/php-fpm.conf.loco.tpl` per convention) which incorporates the environment variables, as with:
 
 ```
 [global]
@@ -41,7 +40,7 @@ To stop, press Ctrl-C.
 
 ## More information
 
-* [Example: *loco*lamp: Using nix-shell+loco to setup Apache+MySQL+PHP+NodeJS+Redis+Mailcatcher](https://github.com/totten/locolamp)
-* [About: Motivation and critical comparison](doc/about.md)
-* [Download](doc/download.md)
-* [Specifications: CLI, File Formats, Environment Variables, TODOs, etc](doc/specs.md)
+* [__*loco*lamp__: Example project using nix-shell+loco to setup Apache+MySQL+PHP+NodeJS+Redis+Mailcatcher](https://github.com/totten/locolamp)
+* [__About__: Motivation and critical comparison](doc/about.md)
+* [__Download__](doc/download.md)
+* [__Specifications__: CLI, File Formats, Environment Variables, TODOs, etc](doc/specs.md)
