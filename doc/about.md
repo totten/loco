@@ -17,17 +17,14 @@ So I've moved to `nix` -- which provides a cross-platform package manager.  The 
 it gives a lot of the values I wanted from Docker (e.g.  reproducing specific builds; safely mixing versions and
 switching versions; avoiding conflicts with the host OS; using manifest-files and/or binaries for distribution).
 
-It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping services.  (*That gets into
-NixOS and NixOps -- which pose the same issue for me as Docker on OSX.*) I like how `docker-compose` handles this
-problem: create a project with its own YAML file; start+stop the project; stitch together the services with
-environment-variables.  I just need it to run local processes (without the Docker bits).  Hence, the "local-compose"
-(`loco`).
+It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping nix-based services, such as Redis or MySQL.  (*That gets into NixOS and NixOps -- which pose the same issue for me as Docker on OSX.*) You have to run each command manually (or setup a local process management script). I like how `docker-compose` handles this problem: create a project with its own YAML file; start+stop the project; stitch together the services with environment-variables.  I just need it to run local processes (without the Docker bits).  Hence, the "local-compose" (`loco`).
 
 ## Critical Comparison
 
-* Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  It's technically in the same
-  category as sysvinit, runit, or systemd -- although it's not as battle-tested and it wasn't conceived for managing
-  a full OS. It just runs developmental software as the current user.
+* Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  That puts it in the same
+  category as sysvinit, runit, or systemd -- but it wasn't conceived for managing a full OS, so it lacks (e.g.) setuid
+  support. It is easier to reproduce on additional workstations because it doesn't require any root/sudo/superuser privileges,
+  and it generally doesn't rely on the host OS for configuration management. It just runs a couple processes as a regular user.
 
 * Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
   want, and these are glued together with a few environment variables.  Your work is scoped to a specific project/folder -- and
