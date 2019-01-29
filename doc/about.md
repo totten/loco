@@ -17,23 +17,29 @@ So I've moved to `nix` -- which provides a cross-platform package manager.  The 
 it gives a lot of the values I wanted from Docker (e.g.  reproducing specific builds; safely mixing versions and
 switching versions; avoiding conflicts with the host OS; using manifest-files and/or binaries for distribution).
 
-It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping nix-based services, such as Redis or MySQL.  (*That gets into NixOS and NixOps -- which pose the same issue for me as Docker on OSX.*) You have to run each command manually (or setup a local process management script). I like how `docker-compose` handles this problem: create a project with its own YAML file; start+stop the project; stitch together the services with environment-variables.  I just need it to run local processes (without the Docker bits).  Hence, the "local-compose" (`loco`).
+It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping nix-based services, such as
+Redis or MySQL.  (*That gets into NixOS and NixOps -- which, as near as I can tell, would pose the same issue as Docker
+on OSX.*) You have to run each command manually (or setup a local process management script).  I like how
+`docker-compose` handles this problem: create a project with its own YAML file; start+stop the project; stitch together
+the services with environment-variables.  I just need it to run local processes (without the Docker bits).  Hence, the
+"local-compose" (`loco`).
 
 ## Critical Comparison
 
-* Strictly speaking, `loco` a process-manager.  It starts, stops, and restarts processes.  That puts it in the same
+* Strictly speaking, `loco` is a process-manager.  It starts, stops, and restarts processes.  That puts it in the same
   category as sysvinit, runit, or systemd -- but it wasn't conceived for managing a full OS, so it lacks (e.g.) setuid
   support. It is easier to reproduce on additional workstations because it doesn't require any root/sudo/superuser privileges,
   and it generally doesn't rely on the host OS for configuration management. It just runs a couple processes as a regular user.
 
 * Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
-  want, and these are glued together with a few environment variables.  Your work is scoped to a specific project/folder -- and
-  not the host OS.
+  want, and these are glued together with a few environment variables.  Your work is scoped to a specific
+  project/folder -- and not the host OS.  To cleanup, just delete the folder.  To try out a variant of the config, just
+  make a copy of the folder (or a branch of the git repo).
 
 * Architecturally, it is thinner, less opinionated, and more-limited in value/scope than docker/docker-compose/k8s; which means:
 
     * It makes no pretense of providing binary-distribution, network/machine management, or enhanced process-isolation.
-      It just uses POSIX API's like `chdir()`, `exec()`, and `getpid()`.
+      It just uses POSIX API's like `exec()` and `getpid()`.
 
     * All host platforms (including OSX) can achieve native performance.
 
@@ -42,11 +48,14 @@ It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and st
     * The configuration options for each service are presented in their canonical forms -- the CLI commands and file-formats
       match the official upstream docs.
 
-* Practically, I'd use it in combination with some other package-distribution channel (`nix run`, `docker run`, `apt`, etc).
+* Practically, I'd use it in combination with some other package-distribution channel (`nix run`, `nix-shell`, `docker run`, `apt-get`, `brew`, etc).
   But it's not very opinionated about which you use.
 
-* `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `composer` live far left on the
+* `loco` is at the proof-of-concept stage. It's not widely used. There are a number of TODOs in [specs.md](specs.md).
+
+* `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `npm` live far left on the
   local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3
-  from the "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like this architecture for development.  But
-  it really doesn't care about protecting data, maintaining long-term state, defense-in-depth/process-isolation, etc. 
-  If you ask a sysadmin to run production services on it, they might call you...  loco.
+  from the "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like this architecture for doing development
+  on a multi-tier app.  But it really doesn't care about protecting data, maintaining long-term state,
+  defense-in-depth/process-isolation, etc.  If you ask a sysadmin to run production services on it, they might call
+  you...  loco.
