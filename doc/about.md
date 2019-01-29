@@ -19,10 +19,12 @@ switching versions; avoiding conflicts with the host OS; using manifest-files an
 
 It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping nix-based services, such as
 Redis or MySQL.  (*That gets into NixOS and NixOps -- which, as near as I can tell, would pose the same issue as Docker
-on OSX.*) You have to run each command manually (or setup a local process management script).  I like how
-`docker-compose` handles this problem: create a project with its own YAML file; start+stop the project; stitch together
-the services with environment-variables.  I just need it to run local processes (without the Docker bits).  Hence, the
-"local-compose" (`loco`).
+on OSX.*) You have to run each command manually... or write some custom launch scripts. I've been using a custom
+launch script, but its design started to break-down as I worked on more interesting compositions.
+
+`docker-compose` handles this problem nicely: create a project with its own YAML file; start+stop the project; stitch
+together the services with environment-variables.  I just need it to run a little differently...  skip the Docker-Linux
+abstractions and use bog-standard local processes instead.  Hence, the "local-compose" (`loco`).
 
 ## Critical Comparison
 
