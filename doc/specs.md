@@ -140,30 +140,36 @@ loco export [--systemd] [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export serv
 
 This is a working proof-of-concept. Some TODOs (no particular oder):
 
-* Implement support for background launching
-* For BG processes, route console output to log files
-* If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
-* Add test coverage for variable evaluation
-* Add test coverage for CLI options
-* Add test coverage for start/stop/restart
-* When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
-* Find a more meaningful protocol to detect when a service has really come online, then:
-    * Use this to improve/fix launching of dependencies (so that we don't need 'sleep' hacks in any of the config files)
-    * Use this to improve/fix timing of the startup messages.
-* Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
-* Add options for importing YAML statically (i.e. copying from a URL/Github project and putting the content into `.loco`)
-  ```bash
-  loco import 'https://github.com/someone/mysql-template'
-  ```
-* Add options for including YAML dynamically (i.e. loading from a URL/Github project by referencing it in `.loco/loco.yml`)
-  ```yaml
-  services:
-    mysql:
+* Sharing / maintaining / mixing / reusing configurations
+    * Add options for importing YAML statically (i.e. copying from a URL/Github project and putting the content into `.loco`) -- e.g. bash command:
+      ```bash
+      loco import 'https://github.com/someone/mysql-template'
+      ```
+    * Add options for including YAML dynamically (i.e. loading from a URL/Github project by referencing it in `.loco/loco.yml`) -- e.g. yaml attribute:
+      ```yaml
       include: 'https://github.com/someone/mysql-template'
-  ```
-* Add options for scanning environment and comparing against a library of service templates
-* Add options for exporting from YAML to systemd unit files
-* Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
+      ```
+    * Add options for scanning environment and comparing against a library of service templates -- e.g. bash command:
+      ```bash
+      loco import --detect
+      ```
+    * Add options for exporting from YAML to systemd unit files
+* Process management
+    * Implement support for background launching
+    * For BG processes, route console output to log files
+    * Find a more meaningful protocol to detect when a service has really come online, then:
+        * Use this to improve/fix launching of dependencies (so that we don't need 'sleep' hacks in any of the config files)
+        * Use this to improve/fix timing of the startup messages.
+* Quality assurance
+    * Add test coverage for variable evaluation
+    * Add test coverage for CLI options
+    * Add test coverage for start/stop/restart
+* Other Usability
+    * If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
+    * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
+    * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
+    * Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
+    * Submit to nixpkgs
 * Port to Go or Rust to allow more flexible distribution. Learn enough of Go or Rust to write a port.
 
 Sketching how it might work with imports and project initialization:
