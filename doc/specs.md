@@ -51,6 +51,10 @@ services:
 
     ## A message to display after the services have started.
     message: STRING
+    
+    ## TODO: Support for automatically restart whenever a template or config file changes
+    # watch:
+    # - FILE_GLOB
 
 ## TODO: Support for mixing configurations from a third-party library.
 # include:
@@ -171,7 +175,9 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
 * Other Usability
     * If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
     * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
-    * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
+    * Allow flagging some services to *always* init on startup.
+    * Allow flagging some services to *autorestart* when certain files are changed.
+* Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
     * Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
 * Distributability
     * Submit to nixpkgs
