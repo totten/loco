@@ -51,6 +51,10 @@ services:
 
     ## A message to display after the services have started.
     message: STRING
+
+## TODO: Support for mixing configurations from a third-party library.
+# include:
+# - URL_OF_TARBALL
 ```
 
 ## Specification: Environment variables
@@ -169,8 +173,9 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
     * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
     * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
     * Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
+* Distributability
     * Submit to nixpkgs
-* Port to Go or Rust to allow more flexible distribution. Learn enough of Go or Rust to write a port.
+    * Port to Go or Rust to allow more flexible distribution. (PHP+pcntl is not common.) Learn enough of Go or Rust to write a port.
 
 Sketching how it might work with imports and project initialization:
 
