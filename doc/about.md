@@ -17,7 +17,7 @@ So I've moved to `nix` -- which provides a cross-platform package manager.  The 
 it gives a lot of the values I wanted from Docker (e.g.  reproducing specific builds; safely mixing versions and
 switching versions; avoiding conflicts with the host OS; using manifest-files and/or binaries for distribution).
 
-It does have an issue -- on OSX/Ubuntu, there's no mechanism for starting and stopping nix-based services, such as
+It does have an issue -- on OSX/Ubuntu, there's no nix-friendly mechanism for starting and stopping services, such as
 Redis or MySQL.  (*That gets into NixOS and NixOps -- which, as near as I can tell, would pose the same issue as Docker
 on OSX.*) You have to run each command manually... or write some custom launch scripts. I've been using a custom
 launch script, but its design started to break-down as I worked on more interesting compositions.
