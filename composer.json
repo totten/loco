@@ -1,6 +1,7 @@
 {
     "name": "totten/loco",
     "require": {
+        "marcj/topsort": "^1.1",
         "symfony/yaml": "~3.0",
         "symfony/finder": "~3.0",
         "symfony/console": "~3.0"
