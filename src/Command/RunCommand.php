@@ -98,27 +98,27 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             // NOTE: It's handy to have some init-only/non-run services; e.g. populating DB content
             $this->output->writeln("<info>[<comment>$name</comment>] Service does not specify \"run\" option</info>");
             $blacklist[$name] = $name;
-            continue;
-          }
-
-          // Launch
-          $pid = pcntl_fork();
-          if ($pid == -1) {
-            die("($name) Failed to fork");
-          }
-          elseif ($pid) {
-            $this->procs[$name]['pid'] = $pid;
-            if ($svc->message) {
-              $postStartupMessages[] = $env->evaluate("<info>[<comment>$name</comment>] {$svc->message}</info>");
-            }
           }
           else {
-            Shell::applyEnv($env);
-            $cmd = $env->evaluate($svc->run);
-            $this->output->writeln("<info>[<comment>$name</comment>] Start service (<comment>$cmd</comment>)</info>");
-            passthru($svc->run, $ret);
-            $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
-            exit($ret);
+            $pid = pcntl_fork();
+            if ($pid == -1) {
+              die("($name) Failed to fork");
+            }
+            elseif ($pid) {
+              $this->procs[$name]['pid'] = $pid;
+            }
+            else {
+              Shell::applyEnv($env);
+              $cmd = $env->evaluate($svc->run);
+              $this->output->writeln("<info>[<comment>$name</comment>] Start service (<comment>$cmd</comment>)</info>");
+              passthru($svc->run, $ret);
+              $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
+              exit($ret);
+            }
+          }
+
+          if ($svc->message) {
+            $postStartupMessages[] = $env->evaluate("<info>[<comment>$name</comment>] {$svc->message}</info>");
           }
         }
         else {
@@ -139,7 +139,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
         foreach ($postStartupMessages as $message) {
           $this->output->writeln($message);
         }
-        $this->output->writeln("\n<info>Services have been started. To shutdown <comment>loco</comment>, press <comment>Ctrl-C</comment>.</info>");
+        $this->output->writeln("\n<info>Services have been started. To shutdown, press <comment>Ctrl-C</comment>.</info>");
         $this->output->writeln("<info>===============================================================</info>");
 
         $postStartupMessages = [];
