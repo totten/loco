@@ -56,6 +56,11 @@ services:
     # watch:
     # - FILE_GLOB
 
+    ## The 'cleanup' lists extra bash commands to run when destroying
+    ## the service.
+    cleanup:
+      - BASH_COMMAND
+
 ## The "volume" is a special service. It automatically appears as a
 ## dependency before any other services.
 volume: ...SERVICE_SPEC...

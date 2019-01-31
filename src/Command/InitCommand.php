@@ -49,7 +49,7 @@ This supports a mix of convention and configuration:
 
     if ($svc->isInitialized($env)) {
       if ($input->hasOption('force') && $input->getOption('force')) {
-        CleanCommand::doClean($svc, $input, $output);
+        $svc->cleanup($output, $env);
       }
       else {
         $output->writeln("<info>[<comment>$svc->name</comment>] Initialization is not required</info>", OutputInterface::VERBOSITY_VERBOSE);

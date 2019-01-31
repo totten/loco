@@ -22,8 +22,8 @@ class LocoService {
   /** @var LocoEnv */
   public $default_environment;
 
-  /** @var string */
-  public $init;
+  /** @var array */
+  public $init, $cleanup;
 
   /** @var string|NULL */
   public $run;
@@ -53,11 +53,12 @@ class LocoService {
     $svc->environment->set('LOCO_SVC_VAR', '$LOCO_VAR/$LOCO_SVC', TRUE);
     $svc->environment->set('LOCO_SVC_CFG', '$LOCO_CFG/$LOCO_SVC', TRUE);
     $svc->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
-    $svc->init = isset($settings['init']) ? ((array) $settings['init']) : [];
-    $svc->run = isset($settings['run']) ? $settings['run'] : NULL;
-    $svc->message = isset($settings['message']) ? $settings['message'] : NULL;
-    $svc->pid_file = isset($settings['pid_file']) ? $settings['pid_file'] : NULL;
-    $svc->depends = isset($settings['depends']) ? ((array) $settings['depends']) : [];
+    foreach (['init', 'cleanup', 'depends'] as $key) {
+      $svc->{$key} = isset($settings[$key]) ? ((array) $settings[$key]) : [];
+    }
+    foreach (['run', 'message', 'pid_file'] as $key) {
+      $svc->{$key} = isset($settings[$key]) ? $settings[$key] : NULL;
+    }
     return $svc;
   }
 
@@ -166,5 +167,20 @@ class LocoService {
 
     // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
   }
+
+  public function cleanup(OutputInterface $output, LocoEnv $env = NULL) {
+    $env = $env ?: $this->createEnv();
+
+    $svcVar = $env->getValue('LOCO_SVC_VAR');
+    if (file_exists($svcVar)) {
+      Shell::runAll($output, $env, $this->cleanup, $this->name);
+      $output->writeln("<info>[<comment>$this->name</comment>] Cleanup folder: <comment>$svcVar</comment></info>");
+      \Loco\Utils\File::removeAll($svcVar);
+    }
+    else {
+      $output->writeln("<info>[<comment>$this->name</comment>] Nothing to cleanup</info>", OutputInterface::VERBOSITY_VERBOSE);
+    }
+  }
+
 
 }
