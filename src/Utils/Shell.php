@@ -1,6 +1,8 @@
 <?php
 namespace Loco\Utils;
 
+use Loco\LocoEnv;
+
 class Shell {
 
   /**
@@ -19,6 +21,37 @@ class Shell {
   public static function applyEnv($env) {
     foreach ($env->getAllValues() as $key => $value) {
       putenv("$key=$value");
+    }
+  }
+
+  /**
+   * Temporarily load environment variables and run some code.
+   *
+   * @param LocoEnv $env
+   * @param callable $callable
+   */
+  public static function withEnv($env, $callable) {
+    $backups = [];
+    foreach ($env->getAllValues() as $key => $value) {
+      $oldValue = getenv($key);
+      if ($oldValue !== $value) {
+        $backups[$key] = $oldValue;
+        putenv("$key=$value");
+      }
+    }
+
+    try {
+      $callable();
+    }
+    finally {
+      foreach ($backups as $key => $value) {
+        if ($value === FALSE) {
+          putenv("$key");
+        }
+        else {
+          putenv("$key=$value");
+        }
+      }
     }
   }
 
