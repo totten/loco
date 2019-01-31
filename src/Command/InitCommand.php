@@ -107,36 +107,17 @@ This supports a mix of convention and configuration:
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    */
   protected static function doInitBash(LocoService $svc, LocoEnv $env, OutputInterface $output) {
-    $pid = pcntl_fork();
-    if ($pid == -1) {
-      die("($svc->name) Failed to fork");
-    }
-    elseif ($pid) {
-      // Parent
-      $res = pcntl_waitpid($pid, $pidStatus);
-      $exitCode = pcntl_wexitstatus($pidStatus);
-      if ($exitCode === 0) {
-        $output->writeln("<info>[<comment>$svc->name</comment>] Initialization finished</info>", OutputInterface::VERBOSITY_VERBOSE);
-      }
-      else {
-        $failedStep = $exitCode - 1;
-        throw new \RuntimeException("[$svc->name] Initialization failed at step #$failedStep: " . $svc->init[$failedStep]);
-      }
-    }
-    else {
-      // Child
-      Shell::applyEnv($env);
+    Shell::withEnv($env, function() use ($svc, $env, $output) {
       foreach (array_values($svc->init) as $stepNum => $init) {
         $cmdPrintable = $env->evaluate($init, 'keep');
         $output->writeln("<info>[<comment>$svc->name</comment>] Run \"<comment>$cmdPrintable</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
         passthru($init, $ret);
         if ($ret !== 0) {
-          $output->writeln("<error>[$svc->name] Initialization failed in command \"$cmdPrintable\"</error>");
-          exit(1 + $stepNum);
+          throw new \RuntimeException("[$svc->name] Initialization failed in command \"$cmdPrintable\"");
         }
       }
-      exit(0);
-    }
+    });
+
   }
 
 }
