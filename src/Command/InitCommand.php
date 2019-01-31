@@ -47,8 +47,7 @@ This supports a mix of convention and configuration:
   public static function doInit(LocoService $svc, InputInterface $input, OutputInterface $output) {
     $env = $svc->createEnv();
 
-    $svcVar = $env->getValue('LOCO_SVC_VAR');
-    if (file_exists($svcVar)) {
+    if ($svc->isInitialized($env)) {
       if ($input->hasOption('force') && $input->getOption('force')) {
         CleanCommand::doClean($svc, $input, $output);
       }

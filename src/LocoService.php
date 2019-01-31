@@ -76,12 +76,21 @@ class LocoService {
   }
 
   /**
+   * @param LocoEnv $env
+   * @return bool
+   */
+  public function isInitialized(LocoEnv $env = NULL) {
+    $env = $env ?: $this->createEnv();
+    return file_exists($env->getValue('LOCO_SVC_VAR'));
+  }
+
+  /**
    * @return bool|NULL
    *   - TRUE: The service is running
    *   - FALSE: The service is not running
    *   - NULL: The service is not assessable.
    */
-  public function isRunning($env = NULL) {
+  public function isRunning(LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $file = $env->evaluate($this->pid_file);
@@ -98,7 +107,7 @@ class LocoService {
    *   - int:
    *   - NULL: The service is not assessable or not running.
    */
-  public function getPid($env = NULL) {
+  public function getPid(LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $file = $env->evaluate($this->pid_file);
