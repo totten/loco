@@ -127,7 +127,7 @@ class LocoService {
 
     $svcVar = $env->getValue('LOCO_SVC_VAR');
     if (!empty($svcVar)) {
-      $output->writeln("<info>[<comment>$this->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
+      $output->writeln("<info>[<comment>$this->name</comment>] Initialize folder: <comment>$svcVar</comment></info>");
       \Loco\Utils\File::mkdir($svcVar);
     }
 
@@ -160,7 +160,7 @@ class LocoService {
         preg_replace(';\.loco\.tpl$;', '', $srcFile)
       );
 
-      $output->writeln("<info>[<comment>$this->name</comment>] Generate \"<comment>$destFile</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+      $output->writeln("<info>[<comment>$this->name</comment>] Generate file: <comment>$destFile</comment></info>", OutputInterface::VERBOSITY_VERBOSE);
       \Loco\Utils\File::mkdir(dirname($destFile));
       file_put_contents($destFile, strtr(file_get_contents($srcFile), $envTokens));
     }

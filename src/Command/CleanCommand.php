@@ -46,11 +46,11 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
     $env = $svc->createEnv();
     $svcVar = $env->getValue('LOCO_SVC_VAR');
     if (file_exists($svcVar)) {
-      $output->writeln("<info>[<comment>$svc->name</comment>] Remove existing data folder \"<comment>$svcVar</comment>\"</info>");
+      $output->writeln("<info>[<comment>$svc->name</comment>] Cleanup folder: <comment>$svcVar</comment></info>");
       File::removeAll($svcVar);
     }
     else {
-      $output->writeln("<info>[<comment>$svc->name</comment>] Nothing to remove</info>", OutputInterface::VERBOSITY_VERBOSE);
+      $output->writeln("<info>[<comment>$svc->name</comment>] Nothing to cleanup</info>", OutputInterface::VERBOSITY_VERBOSE);
     }
   }
 

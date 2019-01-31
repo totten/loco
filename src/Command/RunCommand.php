@@ -110,7 +110,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             else {
               Shell::applyEnv($env);
               $cmd = $env->evaluate($svc->run);
-              $this->output->writeln("<info>[<comment>$name</comment>] Start service (<comment>$cmd</comment>)</info>");
+              $this->output->writeln("<info>[<comment>$name</comment>] Start service: <comment>$cmd</comment></info>");
               passthru($svc->run, $ret);
               $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
               exit($ret);

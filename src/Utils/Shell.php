@@ -88,7 +88,7 @@ class Shell {
     Shell::withEnv($env, function() use ($env, $output, $cmds, $name) {
       foreach ($cmds as $cmd) {
         $cmdPrintable = $env->evaluate($cmd, 'keep');
-        $output->writeln("<info>[<comment>$name</comment>] Run \"<comment>$cmdPrintable</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+        $output->writeln("<info>[<comment>$name</comment>] Run command: <comment>$cmdPrintable</comment></info>", OutputInterface::VERBOSITY_VERBOSE);
         // passthru($cmd, $ret);
         $ret = static::runInteractively($cmd);
         if ($ret !== 0) {
