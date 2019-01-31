@@ -58,8 +58,10 @@ This supports a mix of convention and configuration:
       }
     }
 
-    $output->writeln("<info>[<comment>$svc->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
-    \Loco\Utils\File::mkdir($svcVar);
+    if (!empty($svcVar)) {
+      $output->writeln("<info>[<comment>$svc->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
+      \Loco\Utils\File::mkdir($svcVar);
+    }
 
     // We fork so that we can call putenv()+passthru() with impunity.
 

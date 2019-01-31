@@ -56,6 +56,10 @@ services:
     # watch:
     # - FILE_GLOB
 
+## The "volume" is a special service. It automatically appears as a
+## dependency before any other services.
+volume: ...SERVICE_SPEC...
+
 ## TODO: Support for mixing configurations from a third-party library.
 # include:
 # - URL_OF_TARBALL

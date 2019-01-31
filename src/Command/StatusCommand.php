@@ -3,6 +3,7 @@ namespace Loco\Command;
 
 use Loco\LocoEnv;
 use Loco\LocoService;
+use Loco\LocoVolume;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;
@@ -39,7 +40,7 @@ class StatusCommand extends \Symfony\Component\Console\Command\Command {
       $svc = $system->services[$svcName];
       $env = $svc->createEnv();
 
-      if (empty($svc->pid_file)) {
+      if (empty($svc->pid_file) && !($svc instanceof LocoVolume)) {
         $name = $svc->name;
         $process = '?';
       }
