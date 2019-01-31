@@ -39,18 +39,18 @@ This supports a mix of convention and configuration:
     $system = $this->initSystem($input, $output);
     $svcs = $this->pickServices($system, $input->getArgument('service'));
     foreach ($svcs as $svc) {
-      static::doInit($system, $svc, $input, $output);
+      static::doInit($svc, $input, $output);
     }
     return 0;
   }
 
-  public static function doInit(LocoSystem $sys, LocoService $svc, InputInterface $input, OutputInterface $output) {
+  public static function doInit(LocoService $svc, InputInterface $input, OutputInterface $output) {
     $env = $svc->createEnv();
 
     $svcVar = $env->getValue('LOCO_SVC_VAR');
     if (file_exists($svcVar)) {
       if ($input->hasOption('force') && $input->getOption('force')) {
-        CleanCommand::doClean($sys, $svc, $input, $output);
+        CleanCommand::doClean($svc, $input, $output);
       }
       else {
         $output->writeln("<info>[<comment>$svc->name</comment>] Initialization is not required</info>", OutputInterface::VERBOSITY_VERBOSE);

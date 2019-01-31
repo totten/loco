@@ -91,7 +91,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
         if (!isset($this->procs[$name]['pid'])) {
           if (!isset($hasFirst[$name])) {
             $hasFirst[$name] = 1;
-            InitCommand::doInit($system, $svc, $input, $output);
+            InitCommand::doInit($svc, $input, $output);
           }
 
           if (empty($svc->run)) {

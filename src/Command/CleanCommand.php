@@ -37,12 +37,12 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
       if (empty($system->services[$svcName])) {
         throw new \Exception("Unknown service: $svcName");
       }
-      static::doClean($system, $system->services[$svcName], $input, $output);
+      static::doClean($system->services[$svcName], $input, $output);
     }
     return 0;
   }
 
-  public static function doClean(LocoSystem $sys, LocoService $svc, InputInterface $input, OutputInterface $output) {
+  public static function doClean(LocoService $svc, InputInterface $input, OutputInterface $output) {
     $env = $svc->createEnv();
     $svcVar = $env->getValue('LOCO_SVC_VAR');
     if (file_exists($svcVar)) {
