@@ -1,6 +1,8 @@
 <?php
 namespace Loco;
 
+use Symfony\Component\Console\Output\OutputInterface;
+
 class LocoVolume extends LocoService {
 
   /**
@@ -26,5 +28,10 @@ class LocoVolume extends LocoService {
   public function getPid($env = NULL) {
     return NULL;
   }
+
+  protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
+    // Not supported on volumes -- note the order of init() steps.
+  }
+
 
 }
