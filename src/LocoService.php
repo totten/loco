@@ -2,7 +2,6 @@
 namespace Loco;
 
 use Loco\Utils\Shell;
-use Psr\Log\NullLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
