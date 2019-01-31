@@ -2,6 +2,7 @@
 namespace Loco\Utils;
 
 use Loco\LocoEnv;
+use Symfony\Component\Console\Output\OutputInterface;
 
 class Shell {
 
@@ -75,6 +76,26 @@ class Shell {
     else {
       throw new \RuntimeException("Failed to open command: $cmd");
     }
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Loco\LocoEnv $env
+   * @param array $cmds
+   * @param string $name
+   */
+  public static function runAll(OutputInterface $output, LocoEnv $env, $cmds, $name = 'loco') {
+    Shell::withEnv($env, function() use ($env, $output, $cmds, $name) {
+      foreach ($cmds as $cmd) {
+        $cmdPrintable = $env->evaluate($cmd, 'keep');
+        $output->writeln("<info>[<comment>$name</comment>] Run \"<comment>$cmdPrintable</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+        // passthru($cmd, $ret);
+        $ret = static::runInteractively($cmd);
+        if ($ret !== 0) {
+          throw new \RuntimeException("[$name] Command failed: \"$cmdPrintable\"");
+        }
+      }
+    });
   }
 
   /**

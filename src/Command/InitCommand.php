@@ -58,68 +58,8 @@ This supports a mix of convention and configuration:
       }
     }
 
-    if (!empty($svcVar)) {
-      $output->writeln("<info>[<comment>$svc->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
-      \Loco\Utils\File::mkdir($svcVar);
-    }
-
-    // We fork so that we can call putenv()+passthru() with impunity.
-
-    self::doInitFileTpl($svc, $env, $output);
-    self::doInitBash($svc, $env, $output);
+    $svc->init($output, $env);
   }
 
-  /**
-   * @param \Loco\LocoService $svc
-   * @param \Loco\LocoEnv $env
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  protected static function doInitFileTpl(LocoService $svc, LocoEnv $env, OutputInterface $output) {
-    $cfgDir = $env->getValue('LOCO_SVC_CFG');
-    $destDir = $env->getValue('LOCO_SVC_VAR');
-    if (!file_exists($cfgDir)) {
-      return;
-    }
-
-    $envTokens = [];
-    foreach ($env->getAllValues() as $key => $value) {
-      $envTokens['{{' . $key . '}}'] = $value;
-    }
-
-    $finder = new Finder();
-    foreach ($finder->in($cfgDir)->name('*.loco.tpl') as $srcFile) {
-      $destFile = preg_replace(
-        ';^' . preg_quote($cfgDir, ';') . ';',
-        $destDir,
-        preg_replace(';\.loco\.tpl$;', '', $srcFile)
-      );
-
-      $output->writeln("<info>[<comment>$svc->name</comment>] Generate \"<comment>$destFile</comment>\"</info>", Output::VERBOSITY_VERBOSE);
-      \Loco\Utils\File::mkdir(dirname($destFile));
-      file_put_contents($destFile, strtr(file_get_contents($srcFile), $envTokens));
-    }
-
-    // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
-
-  }
-
-  /**
-   * @param \Loco\LocoService $svc
-   * @param \Loco\LocoEnv $env
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  protected static function doInitBash(LocoService $svc, LocoEnv $env, OutputInterface $output) {
-    Shell::withEnv($env, function() use ($svc, $env, $output) {
-      foreach (array_values($svc->init) as $stepNum => $init) {
-        $cmdPrintable = $env->evaluate($init, 'keep');
-        $output->writeln("<info>[<comment>$svc->name</comment>] Run \"<comment>$cmdPrintable</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
-        passthru($init, $ret);
-        if ($ret !== 0) {
-          throw new \RuntimeException("[$svc->name] Initialization failed in command \"$cmdPrintable\"");
-        }
-      }
-    });
-
-  }
 
 }

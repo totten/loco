@@ -1,7 +1,10 @@
 <?php
 namespace Loco;
 
+use Loco\Utils\Shell;
 use Psr\Log\NullLogger;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Finder\Finder;
 
 class LocoService {
 
@@ -110,5 +113,50 @@ class LocoService {
     return $pid;
   }
 
+  public function init(OutputInterface $output, LocoEnv $env = NULL) {
+    $env = $env ?: $this->createEnv();
+
+    $svcVar = $env->getValue('LOCO_SVC_VAR');
+    if (!empty($svcVar)) {
+      $output->writeln("<info>[<comment>$this->name</comment>] Initialize service with data folder \"<comment>$svcVar</comment>\"</info>");
+      \Loco\Utils\File::mkdir($svcVar);
+    }
+
+    $this->doInitFileTpl($output, $env);
+    Shell::runAll($output, $env, $this->init, $this->name);
+  }
+
+  /**
+   * @param \Loco\LocoEnv $env
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
+    $env = $env ?: $this->createEnv();
+    $cfgDir = $env->getValue('LOCO_SVC_CFG');
+    $destDir = $env->getValue('LOCO_SVC_VAR');
+    if (!file_exists($cfgDir)) {
+      return;
+    }
+
+    $envTokens = [];
+    foreach ($env->getAllValues() as $key => $value) {
+      $envTokens['{{' . $key . '}}'] = $value;
+    }
+
+    $finder = new Finder();
+    foreach ($finder->in($cfgDir)->name('*.loco.tpl') as $srcFile) {
+      $destFile = preg_replace(
+        ';^' . preg_quote($cfgDir, ';') . ';',
+        $destDir,
+        preg_replace(';\.loco\.tpl$;', '', $srcFile)
+      );
+
+      $output->writeln("<info>[<comment>$this->name</comment>] Generate \"<comment>$destFile</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+      \Loco\Utils\File::mkdir(dirname($destFile));
+      file_put_contents($destFile, strtr(file_get_contents($srcFile), $envTokens));
+    }
+
+    // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
+  }
 
 }
