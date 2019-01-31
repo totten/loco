@@ -125,14 +125,21 @@ class LocoService {
   public function init(OutputInterface $output, LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
+    $this->doInitMkdir($output, $env);
+    $this->doInitFileTpl($output, $env);
+    Shell::runAll($output, $env, $this->init, $this->name);
+  }
+
+  /**
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Loco\LocoEnv $env
+   */
+  protected function doInitMkdir(OutputInterface $output, LocoEnv $env) {
     $svcVar = $env->getValue('LOCO_SVC_VAR');
     if (!empty($svcVar)) {
       $output->writeln("<info>[<comment>$this->name</comment>] Initialize folder: <comment>$svcVar</comment></info>");
       \Loco\Utils\File::mkdir($svcVar);
     }
-
-    $this->doInitFileTpl($output, $env);
-    Shell::runAll($output, $env, $this->init, $this->name);
   }
 
   /**
