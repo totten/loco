@@ -36,13 +36,13 @@ class LocoService {
   public $depends;
 
   /**
-   * @param LocoService $system
+   * @param LocoSystem $system
    * @param string $name
    * @param array $settings
    * @return \Loco\LocoService
    */
   public static function create($system, $name, $settings) {
-    $svc = new LocoService();
+    $svc = new static();
     $svc->system = $system;
     $svc->name = $name;
     $svc->enabled = isset($settings['enabled']) ? $settings['enabled'] : TRUE;
