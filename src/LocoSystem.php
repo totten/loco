@@ -2,6 +2,8 @@
 
 namespace Loco;
 
+use MJS\TopSort\Implementations\StringSort;
+
 class LocoSystem {
 
   public $format;
@@ -53,6 +55,33 @@ class LocoSystem {
     }
 
     return $system;
+  }
+
+  /**
+   * Determine the full set of dependencies for a service.
+   *
+   * @param string|array $svcNames
+   *   List of desired service names.
+   * @return array
+   *   List of all required service names (with topological sorting),
+   *   including the original services and any recurisve dependencies.
+   */
+  public function findDeps($svcNames) {
+    $svcNames = (array) $svcNames;
+
+    $deps = [];
+    while (!empty($svcNames)) {
+      $todo = array_shift($svcNames);
+      if (!isset($this->services[$todo])) {
+        throw new \RuntimeException("Cannot resolve service dependency: $todo");
+      }
+      $deps[$todo] = $this->services[$todo]->depends;
+      $svcNames = array_diff(array_merge($svcNames, $this->services[$todo]->depends), array_keys($deps));
+    }
+
+    $sorter = new StringSort();
+    $sorter->set($deps);
+    return (array) $sorter->sort();
   }
 
   /**

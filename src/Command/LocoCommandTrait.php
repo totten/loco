@@ -5,6 +5,7 @@ use Loco\LocoEnv;
 use Loco\LocoService;
 use Loco\LocoSystem;
 use Loco\Utils\Shell;
+use MJS\TopSort\Implementations\StringSort;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -83,40 +84,18 @@ trait LocoCommandTrait {
     // Expand any nested commas
 
     if (empty($svcNames)) {
-      $todos = [];
+      $svcNames = [];
       foreach ($system->services as $svcName => $svc) {
         if ($svc->enabled) {
-          $todos[] = $svcName;
+          $svcNames[] = $svcName;
         }
       }
-    }
-    else {
-      $todos = $svcNames;
     }
 
     $svcs = [];
-    while (!empty($todos)) {
-      $retries = [];
-      foreach ($todos as $todo) {
-        if (!isset($system->services[$todo])) {
-          throw new \RuntimeException("Unrecognized service name: $todo");
-        }
-        $missingDeps = array_diff($system->services[$todo]->depends ?: [], array_keys($svcs));
-        if (empty($missingDeps)) {
-          $svcs[$todo] = $system->services[$todo];
-        }
-        else {
-          $retries = array_unique(array_merge($retries, $missingDeps, [$todo]));
-        }
-      }
-
-      if (count($retries) > 0 && $this->isEqualArray($retries, $todos)) {
-        throw new \RuntimeException("Service sequencing cannot be completed. The following services are involved with a dependency loop: "
-          . implode(' ', $todos));
-      }
-      $todos = $retries;
+    foreach ($system->findDeps($svcNames) as $svcName) {
+      $svcs[$svcName] = $system->services[$svcName];
     }
-
     return $svcs;
   }
 
