@@ -38,6 +38,7 @@ This supports a mix of convention and configuration:
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
     $svcs = $this->pickServices($system, $input->getArgument('service'));
+    $output->writeln("<info>[<comment>loco</comment>] Initialize services: " . $this->formatList(array_keys($svcs)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
     foreach ($svcs as $svc) {
       static::doInit($svc, $input, $output);
     }

@@ -33,6 +33,8 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
       ? $input->getArgument('service')
       : array_keys($system->services);
 
+    $output->writeln("<info>[<comment>loco</comment>] Cleanup services: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+
     foreach ($svcNames as $svcName) {
       if (empty($system->services[$svcName])) {
         throw new \Exception("Unknown service: $svcName");

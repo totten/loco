@@ -33,6 +33,7 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
     $svcs = $this->pickServices($system, $input->getArgument('service'));
+    $output->writeln("<info>[<comment>loco</comment>] Stop services: " . $this->formatList(array_keys($svcs)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
     foreach (array_reverse($svcs) as $svc) {
       static::doStop($system, $svc, $input->getOption('sig'), $input, $output);
     }

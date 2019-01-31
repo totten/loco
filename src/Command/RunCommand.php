@@ -42,6 +42,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
     $system = $this->initSystem($input, $output);
     $services = $this->pickServices($system, $input->getArgument('service'));
+    $output->writeln("<info>[<comment>loco</comment>] Run services: " . $this->formatList(array_keys($services)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
 
     $this->output = $output;
     $this->procs = [];

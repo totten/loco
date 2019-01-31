@@ -99,6 +99,20 @@ trait LocoCommandTrait {
     return $svcs;
   }
 
+  /**
+   * @param array $words
+   * @param string $style
+   *   comment|info|error
+   * @param string $delim
+   * @return string
+   */
+  public function formatList($words, $style = 'comment', $delim = ' ') {
+    return implode($delim, array_map(
+      function($svcName) use ($style) { return "<$style>$svcName</$style>"; },
+      $words
+    ));
+  }
+
   protected function isEqualArray($a, $b) {
     sort($a);
     sort($b);
