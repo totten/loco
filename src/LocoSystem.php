@@ -45,11 +45,11 @@ class LocoSystem {
     }
 
     if (!empty($settings['volume'])) {
-      $volume = LocoVolume::create($system, 'volume', $settings['volume']);
+      $volume = LocoVolume::create($system, 'VOLUME', $settings['volume']);
       foreach ($system->services as $svcName => $svc) {
         $svc->depends[] = $volume->name;
       }
-      $system->services['volume'] = $volume;
+      $system->services[$volume->name] = $volume;
     }
 
     return $system;
