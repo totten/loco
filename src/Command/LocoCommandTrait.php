@@ -4,6 +4,7 @@ namespace Loco\Command;
 use Loco\LocoEnv;
 use Loco\LocoService;
 use Loco\LocoSystem;
+use Loco\LocoVolume;
 use Loco\Utils\Shell;
 use MJS\TopSort\Implementations\StringSort;
 use Symfony\Component\Console\Input\InputArgument;
@@ -62,6 +63,33 @@ trait LocoCommandTrait {
     }
     else {
       throw new \RuntimeException("Unrecognized service: $svcName");
+    }
+  }
+
+  /**
+   * Determine which services may forced (overridden with new data).
+   *
+   * The "--force" option only applies to specifically identified services; excludes implicit dependencies.
+   *
+   * @param bool $isForce
+   *   Whether the user requested "force".
+   * @param array $requestedServices
+   *   Services requested by the admin.
+   * @param array $actualServices
+   *   Total list of potential services (incl dependencies).
+   *   Array(string $svcName => LocoService $service).
+   * @return array
+   *   Array(string $svcName).
+   */
+  protected function pickForceables($isForce, $requestedServices, $actualServices) {
+    if (!$isForce) {
+      return [];
+    }
+    elseif (empty($requestedServices)) {
+      return array_diff(array_keys($actualServices), [LocoVolume::DEFAULT_NAME]);
+    }
+    else {
+      return $requestedServices;
     }
   }
 

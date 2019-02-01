@@ -3,6 +3,7 @@ namespace Loco\Command;
 
 use Loco\LocoEnv;
 use Loco\LocoService;
+use Loco\LocoVolume;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,6 +43,8 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
     $system = $this->initSystem($input, $output);
     $services = $this->pickServices($system, $input->getArgument('service'));
+    $forceables = $this->pickForceables($input->getOption('force'), $input->getArgument('service'), $services);
+
     $output->writeln("<info>[<comment>loco</comment>] Run services: " . $this->formatList(array_keys($services)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
 
     $this->output = $output;
@@ -92,7 +95,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
         if (!isset($this->procs[$name]['pid'])) {
           if (!isset($hasFirst[$name])) {
             $hasFirst[$name] = 1;
-            InitCommand::doInit($svc, $input, $output);
+            InitCommand::doInit($svc, in_array($svc->name, $forceables), $output);
           }
 
           if (empty($svc->run)) {

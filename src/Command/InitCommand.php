@@ -38,28 +38,29 @@ This supports a mix of convention and configuration:
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
     $svcs = $this->pickServices($system, $input->getArgument('service'));
+    $forceables = $this->pickForceables($input->getOption('force'), $input->getArgument('service'), $svcs);
+
     $output->writeln("<info>[<comment>loco</comment>] Initialize services: " . $this->formatList(array_keys($svcs)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
     foreach ($svcs as $svc) {
-      static::doInit($svc, $input, $output);
+      static::doInit($svc, in_array($svc->name, $forceables), $output);
     }
     return 0;
   }
 
-  public static function doInit(LocoService $svc, InputInterface $input, OutputInterface $output) {
+  public static function doInit(LocoService $svc, $isForceable, OutputInterface $output) {
     $env = $svc->createEnv();
 
     if ($svc->isInitialized($env)) {
-      if ($input->hasOption('force') && $input->getOption('force')) {
+      if ($isForceable) {
         $svc->cleanup($output, $env);
       }
       else {
         $output->writeln("<info>[<comment>$svc->name</comment>] Initialization is not required</info>", OutputInterface::VERBOSITY_VERBOSE);
-        return 0;
+        return;
       }
     }
 
     $svc->init($output, $env);
   }
-
 
 }
