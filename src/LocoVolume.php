@@ -5,6 +5,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LocoVolume extends LocoService {
 
+  const DEFAULT_NAME = 'VOLUME';
+
   /**
    * @param LocoSystem $system
    * @param string $name
@@ -19,7 +21,7 @@ class LocoVolume extends LocoService {
     return $svc;
   }
 
-  public function isRunning($env = NULL) {
+  public function isInitialized($env = NULL) {
     $env = $env ?: $this->createEnv();
     return file_exists($env->evaluate('$LOCO_VAR/.loco-volume'));
     // return file_exists($env->evaluate('$LOCO_SVC_VAR'));
