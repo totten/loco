@@ -48,6 +48,8 @@ class LocoEnv {
       switch ($onMissing) {
         case 'keep':
           return '$' . $key;
+        case 'null':
+          return NULL;
         case 'exception':
         default:
         throw new \RuntimeException("Unknown variable: $key");
