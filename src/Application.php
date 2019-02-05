@@ -2,6 +2,7 @@
 namespace Loco;
 use Loco\Command\CleanCommand;
 use Loco\Command\EnvCommand;
+use Loco\Command\ExportCommand;
 use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
@@ -70,6 +71,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new CleanCommand();
     $commands[] = new StopCommand();
     $commands[] = new StatusCommand();
+    // $commands[] = new ExportCommand();
     return $commands;
   }
 
