@@ -63,7 +63,13 @@ services:
 
 ## The "volume" is a special service. It automatically appears as a
 ## dependency before any other services.
-volume: ...SERVICE_SPEC...
+volume:
+  # Setup the data-volume with a ramdisk service
+  # Depends: https://github.com/totten/ramdisk
+  ramdisk: SIZE_IN_MB
+
+  # Or with custom commands...
+  ...SERVICE_SPEC...
 
 ## TODO: Support for mixing configurations from a third-party library.
 # include:
