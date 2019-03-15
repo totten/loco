@@ -17,14 +17,16 @@ So I've moved to `nix` -- which provides a cross-platform package manager.  The 
 it gives a lot of the values I wanted from Docker (e.g.  reproducing specific builds; safely mixing versions and
 switching versions; avoiding conflicts with the host OS; using manifest-files and/or binaries for distribution).
 
-It does have an issue -- on OSX/Ubuntu, there's no nix-friendly mechanism for starting and stopping services, such as
-Redis or MySQL.  (*That gets into NixOS and NixOps -- which, as near as I can tell, would pose the same issue as Docker
-on OSX.*) You have to run each command manually... or write some custom launch scripts. I've been using a custom
-launch script, but its design started to break-down as I worked on more interesting compositions.
+It does have a major issue issue -- on OSX/Ubuntu, there's no nix-friendly mechanism for starting and stopping
+services, such as Redis or MySQL.  (*That gets into NixOS and NixOps -- which, as near as I can tell, would pose the
+same issue as Docker or Vagrant.*) You have to run each command manually...  or write some custom launch scripts.  I've
+been using a custom launch script, but its design started to break-down as I worked on more interesting compositions.
 
-`docker-compose` handles this problem nicely: create a project with its own YAML file; start+stop the project; stitch
-together the services with environment-variables.  I just need it to run a little differently...  skip the Docker-Linux
-abstractions and use bog-standard local processes instead.  Hence, the "local-compose" (`loco`).
+`docker-compose` provides a nice mental model for this problem: create a project with its own YAML file; start+stop the
+project; stitch together the services with environment-variables.  I just need it to run a little differently...
+skipping the Docker-Linux abstractions; using bog-standard local processes instead.
+
+Hence, `loco` is the "local-compose" tool.
 
 ## Critical Comparison
 
@@ -33,7 +35,7 @@ abstractions and use bog-standard local processes instead.  Hence, the "local-co
   support. It is easier to reproduce on additional workstations because it doesn't require any root/sudo/superuser privileges,
   and it generally doesn't rely on the host OS for configuration management. It just runs a couple processes as a regular user.
 
-* Stylistically, it's more like docker-compose -- one creates a per-project YAML dot-file.  The file lists all the services you
+* Stylistically, it's more like docker-compose -- one creates a per-project YAML file.  The file lists all the services you
   want, and these are glued together with a few environment variables.  Your work is scoped to a specific
   project/folder -- and not the host OS.  To cleanup, just delete the folder.  To try out a variant of the config, just
   make a copy of the folder (or a branch of the git repo).
@@ -54,10 +56,12 @@ abstractions and use bog-standard local processes instead.  Hence, the "local-co
   But it's not very opinionated about which you use.
 
 * `loco` is at the proof-of-concept stage. It's not widely used. There are a number of TODOs in [specs.md](specs.md).
+  In particular, it needs some kind of Internet-friendly "include" mechanism for assimilating pre-existing service
+  definitions (*roughy the same purpose as Docker registry*).
 
-* `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `npm` live far left on the
-  local "development" side; Ansible and `ssh` live far right on the network "operations" side; `loco` lives about 1/3
-  from the "dev" side; `docker-compose` lives 1/3 from the "ops" side.  I like this architecture for doing development
-  on a multi-tier app.  But it really doesn't care about protecting data, maintaining long-term state,
+* `loco` is more "dev" than "ops".  If you imagine dev-ops as a spectrum, tools like `make` and `npm` live far left on
+  the local "development" side; Ansible and `ssh` live far right on the network "operations" side; `docker-compose`
+  lives 1/3 from the "ops" side; `loco` lives about 1/3 from the "dev" side.  I like this architecture for doing
+  development on a multi-tier app.  But it really doesn't care about protecting data, maintaining long-term state,
   defense-in-depth/process-isolation, etc.  If you ask a sysadmin to run production services on it, they might call
   you...  loco.
