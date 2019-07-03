@@ -192,6 +192,7 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
     * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
     * Allow flagging some services to *always* init on startup.
     * Allow flagging some services to *autorestart* when certain files are changed.
+    * In `loco sh` and `loco env`, allow sourcing shell startup scripts like `git-completion.bash`
 * Implement support for mapping LOCO_VAR to a ram disk. (Debate: Better to take that from CLI or YAML? YAML might be more stable.)
     * Bug: (Observed OSX+nix-shell php72) When ShellCommand launches bash, bash doesn't recognize arrow-keys. But other programs (mysql, nano, vi, joe) do.
 * Distributability
