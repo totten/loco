@@ -8,8 +8,7 @@ class SystemdVolume {
 
   public function buildFilename() {
     $env = $this->service->createEnv();
-    return $this->input->getOption('out') . DIRECTORY_SEPARATOR
-      . $this->mountServiceName($env->getValue('LOCO_VAR'));
+    return $this->mountServiceName($env->getValue('LOCO_VAR'));
   }
 
   /**

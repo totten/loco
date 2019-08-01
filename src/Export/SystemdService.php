@@ -11,8 +11,7 @@ class SystemdService {
   use SystemdExportTrait;
 
   public function buildFilename() {
-    return $this->input->getOption('out') . DIRECTORY_SEPARATOR
-      . SystemdUtil::escape($this->input->getOption('prefix') . $this->service->name) . '.service';
+    return SystemdUtil::escape($this->input->getOption('prefix') . $this->service->name) . '.service';
   }
 
   /**

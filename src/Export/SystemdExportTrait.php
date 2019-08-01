@@ -30,6 +30,9 @@ trait SystemdExportTrait {
    */
   protected $output;
 
+  public abstract function buildSystemdIni();
+  public abstract function buildFilename();
+
   public static function create(LocoService $svc, InputInterface $input, OutputInterface $output) {
     $self = new static();
     $self->service = $svc;
@@ -40,7 +43,7 @@ trait SystemdExportTrait {
   }
 
   public function export() {
-    $filename = $this->buildFilename();
+    $filename = rtrim($this->input->getOption('out'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->buildFilename();
     $svc = $this->service;
 
     $this->output->writeln("<info>[<comment>{$svc->name}</comment>] Generate file <comment>{$filename}</comment></info>");
