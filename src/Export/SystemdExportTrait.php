@@ -59,8 +59,37 @@ trait SystemdExportTrait {
     file_put_contents($filename, $buf);
   }
 
+  /**
+   * Determine the name for a "mount" service for the given path.
+   *
+   * @param string $dir
+   *   Ex: '/mnt/stuff'
+   * @return string
+   *   Ex: 'mnt-stuff.mount'
+   */
   protected function mountServiceName($dir) {
     return SystemdUtil::escapePath($dir) . '.mount';
+  }
+
+  /**
+   * Determine the systemd unit name
+   *
+   * @param string $prefix
+   * @param string $svc
+   *   Loco service name
+   *   Ex: 'apache-vdr'
+   * @return string
+   *   Systemd unit name
+   *   Ex: 'loco-apache-vdr.service'
+   */
+  protected function serviceName($prefix, $svc) {
+    $name = $prefix . $svc;
+    if (!preg_match('/^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_\-]+/', $name)) {
+      // This test may be stricter than necessary. Easier to start conservative and relax as necessary.
+      throw new \RuntimeException("Malformed service name [$name]");
+    }
+
+    return $name . ".service";
   }
 
 }

@@ -11,7 +11,7 @@ class SystemdService {
   use SystemdExportTrait;
 
   public function buildFilename() {
-    return SystemdUtil::escape($this->input->getOption('prefix') . $this->service->name) . '.service';
+    return $this->serviceName($this->input->getOption('prefix'), $this->service->name);
   }
 
   /**
@@ -31,7 +31,10 @@ class SystemdService {
       $ini['Unit'][] = "Requires=" . $this->mountServiceName($env->getValue('LOCO_VAR'));
     }
     foreach ($svc->depends as $depend) {
-      $ini['Unit'][] = "Requires=" . SystemdUtil::escape($this->input->getOption('prefix') . $depend) . ".target";
+      // Uppercase service ("VOLUME") is special; not mapped automatically.
+      if (strtoupper($depend) !== $depend) {
+        $ini['Unit'][] = "Requires=" . $this->serviceName($this->input->getOption('prefix'), $depend);
+      }
     }
 
     if ($svc->pid_file) {
@@ -42,7 +45,7 @@ class SystemdService {
       $ini['Service'][] = "Type=simple";
     }
     $ini['Service'][] = "PermissionsStartOnly=true";
-    $ini['Service'][] = "ExecStartPre=/bin/bash -c " .  escapeshellarg(LOCO_BIN . ' init ' . $svc->name);
+    $ini['Service'][] = "ExecStartPre=/bin/bash -c " .  escapeshellarg(/*LOCO_BIN*/ 'loco' . ' init -v ' . $svc->name);
     $ini['Service'][] = "ExecStart=/bin/bash -c " .  escapeshellarg($svc->run);
     $ini['Service'][] = "TimeoutSec=300";
     $ini['Service'][] = "PrivateTmp=true";

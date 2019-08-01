@@ -5,16 +5,13 @@ namespace Loco\Utils;
 class SystemdUtil {
 
   public static function escape($name) {
-    $PASSTHRU = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+    $PASSTHRU = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_.';
 
     $buf = '';
     for ($i = 0; $i < strlen($name); $i++) {
       $c = $name{$i};
 
-      if ($c === '/') {
-        $buf .= '-';
-      }
-      elseif (strpos($PASSTHRU, $c) !== FALSE) {
+      if (strpos($PASSTHRU, $c) !== FALSE) {
         $buf .= $c;
       }
       elseif ($i !== 0 && $c === '.') {
@@ -30,7 +27,10 @@ class SystemdUtil {
   public static function escapePath($name) {
     $name = trim($name, '/');
     $name = preg_replace(';/+;', '/', $name);
-    return self::escape($name);
+    $parts = explode('/', $name);
+    return implode('-', array_map(function ($part) {
+      return self::escape($part);
+    }, $parts));
   }
 
 }
