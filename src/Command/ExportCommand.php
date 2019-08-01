@@ -41,7 +41,10 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
     $svcs = $this->pickServices($system, $input->getArgument('service'));
 
     $out = $input->getOption('out');
-    if (!is_dir($out) || !file_exists($out)) {
+    if (empty($out)) {
+      throw new \Exception("Must specify output folder (--out)");
+    }
+    elseif (!is_dir($out) || !file_exists($out)) {
       if (!mkdir($out, 0777, TRUE)) {
         throw new \RuntimeException("Failed to make output folder: $out");
       }
