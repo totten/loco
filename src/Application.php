@@ -71,7 +71,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new CleanCommand();
     $commands[] = new StopCommand();
     $commands[] = new StatusCommand();
-    // $commands[] = new ExportCommand();
+    $commands[] = new ExportCommand();
     return $commands;
   }
 
