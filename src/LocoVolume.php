@@ -16,8 +16,8 @@ class LocoVolume extends LocoService {
   public static function create($system, $name, $settings) {
     if (!empty($settings['ramdisk'])) {
       $defaults = [
-        'init'=> ['ramdisk start "$LOCO_VAR" "$LOCO_RAMDISK"'],
-        'cleanup'=> ['ramdisk stop "$LOCO_VAR"'],
+        'init' => ['ramdisk start "$LOCO_VAR" "$LOCO_RAMDISK"'],
+        'cleanup' => ['ramdisk stop "$LOCO_VAR"'],
         'message' => 'Loco data volume is a ram disk "<comment>$LOCO_VAR</comment>".',
       ];
       $settings = array_merge($defaults, $settings);
@@ -48,6 +48,5 @@ class LocoVolume extends LocoService {
   protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
     // Not supported on volumes -- note the order of init() steps.
   }
-
 
 }

@@ -1,13 +1,11 @@
 <?php
 namespace Loco\Command;
 
-use Loco\LocoEnv;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class ShellCommand extends \Symfony\Component\Console\Command\Command {
 
@@ -41,14 +39,14 @@ $ loco sh . -- mysqldump foo | gzip > foo.tar.gz
 Note: To call a specific command in the common/base environment, you MUST specify
 the placeholder service "."
 ');
-//    $this->addUsage('asdf');
+    //    $this->addUsage('asdf');
     $this->configureSystemOptions();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
 
-    /** @var LocoEnv $env */
+    /** @var \Loco\LocoEnv $env */
     $env = $this->pickEnv($system, $input->getArgument('service'));
     Shell::applyEnv($env);
 

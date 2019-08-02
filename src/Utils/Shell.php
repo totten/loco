@@ -28,7 +28,7 @@ class Shell {
   /**
    * Temporarily load environment variables and run some code.
    *
-   * @param LocoEnv $env
+   * @param \Loco\LocoEnv $env
    * @param callable $callable
    */
   public static function withEnv($env, $callable) {

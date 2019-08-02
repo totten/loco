@@ -1,19 +1,16 @@
 <?php
 namespace Loco\Command;
 
-use Loco\LocoEnv;
-use Loco\LocoService;
 use Loco\LocoSystem;
 use Loco\LocoVolume;
 use Loco\Utils\Shell;
-use MJS\TopSort\Implementations\StringSort;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Yaml\Yaml;
 
 trait LocoCommandTrait {
+
   public function configureSystemOptions() {
     $this->addOption('config', 'c', InputOption::VALUE_REQUIRED, 'Name of the loco.yml file');
     return $this;
@@ -48,11 +45,11 @@ trait LocoCommandTrait {
   /**
    * Determine the environment which applies for a given service-name.
    *
-   * @param LocoSystem $system
+   * @param \Loco\LocoSystem $system
    * @param string|NULL $svcName
    *   The name of the service whose environment we want.
    *   If blank, then fallback to the shared system environment.
-   * @return LocoEnv
+   * @return \Loco\LocoEnv
    */
   public function pickEnv($system, $svcName) {
     if (empty($svcName) || $svcName === '.') {
@@ -96,7 +93,7 @@ trait LocoCommandTrait {
   /**
    * Get an ordered listed of services.
    *
-   * @param LocoSystem $system
+   * @param \Loco\LocoSystem $system
    * @param array|NULL $svcNames
    *   List of services requested by the user.
    *   If blank, then all services.
@@ -136,7 +133,9 @@ trait LocoCommandTrait {
    */
   public function formatList($words, $style = 'comment', $delim = ' ') {
     return implode($delim, array_map(
-      function($svcName) use ($style) { return "<$style>$svcName</$style>"; },
+      function($svcName) use ($style) {
+        return "<$style>$svcName</$style>";
+      },
       $words
     ));
   }

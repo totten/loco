@@ -1,15 +1,11 @@
 <?php
 namespace Loco\Command;
 
-use Loco\LocoEnv;
-use Loco\LocoService;
-use Loco\LocoVolume;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class RunCommand extends \Symfony\Component\Console\Command\Command {
 
@@ -22,7 +18,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
   public $procs;
 
   /**
-   * @var OutputInterface
+   * @var \Symfony\Component\Console\Output\OutputInterface
    */
   protected $output;
 
@@ -51,7 +47,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     $this->procs = [];
 
     foreach ($services as $svcName => $svc) {
-      /** @var LocoService $svc */
+      /** @var \Loco\LocoService $svc */
       $this->procs[$svcName] = [];
       if (!empty($svc->pid_file)) {
         $env = $svc->createEnv();
@@ -84,12 +80,12 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
     while (TRUE) {
       foreach ($services as $name => $svc) {
-        /** @var LocoService $svc */
+        /** @var \Loco\LocoService $svc */
         if (isset($blacklist[$name])) {
           continue;
         }
 
-        /** @var LocoEnv $env */
+        /** @var \Loco\LocoEnv $env */
         $env = $svc->createEnv();
 
         if (!isset($this->procs[$name]['pid'])) {

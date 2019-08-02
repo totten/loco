@@ -7,34 +7,44 @@ use Symfony\Component\Finder\Finder;
 
 class LocoService {
 
-  /** @var LocoSystem */
+  /**
+   * @var LocoSystem */
   public $system;
 
-  /** @var string */
+  /**
+   * @var string */
   public $name;
 
-  /** @var bool */
+  /**
+   * @var bool */
   public $enabled;
 
-  /** @var LocoEnv */
+  /**
+   * @var LocoEnv */
   public $environment;
 
-  /** @var LocoEnv */
+  /**
+   * @var LocoEnv */
   public $default_environment;
 
-  /** @var array */
+  /**
+   * @var array */
   public $init, $cleanup;
 
-  /** @var string|NULL */
+  /**
+   * @var string|NULL */
   public $run;
 
-  /** @var string|NULL */
+  /**
+   * @var string|NULL */
   public $pid_file;
 
-  /** @var string|NULL */
+  /**
+   * @var string|NULL */
   public $message;
 
-  /** @var array */
+  /**
+   * @var array */
   public $depends;
 
   /**
@@ -99,7 +109,7 @@ class LocoService {
     }
 
     $pid = $this->getPid($env);
-    return $pid ? ((bool) posix_kill(rtrim($pid),0)) : NULL;
+    return $pid ? ((bool) posix_kill(rtrim($pid), 0)) : NULL;
   }
 
   /**
@@ -188,6 +198,5 @@ class LocoService {
       $output->writeln("<info>[<comment>$this->name</comment>] Nothing to cleanup</info>", OutputInterface::VERBOSITY_VERBOSE);
     }
   }
-
 
 }

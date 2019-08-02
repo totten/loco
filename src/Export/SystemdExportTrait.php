@@ -3,7 +3,6 @@
 namespace Loco\Export;
 
 use Loco\LocoService;
-use Loco\LocoSystem;
 use Loco\Utils\SystemdUtil;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -11,27 +10,28 @@ use Symfony\Component\Console\Output\OutputInterface;
 trait SystemdExportTrait {
 
   /**
-   * @var LocoSystem
+   * @var \Loco\LocoSystem
    */
   protected $system;
 
   /**
-   * @var LocoService
+   * @var \Loco\LocoService
    */
   protected $service;
 
   /**
-   * @var InputInterface
+   * @var \Symfony\Component\Console\Input\InputInterface
    */
   protected $input;
 
   /**
-   * @var OutputInterface
+   * @var \Symfony\Component\Console\Output\OutputInterface
    */
   protected $output;
 
-  public abstract function buildSystemdIni();
-  public abstract function buildFilename();
+  abstract public function buildSystemdIni();
+
+  abstract public function buildFilename();
 
   public static function create(LocoService $svc, InputInterface $input, OutputInterface $output) {
     $self = new static();

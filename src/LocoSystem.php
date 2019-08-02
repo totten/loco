@@ -8,16 +8,20 @@ class LocoSystem {
 
   public $format;
 
-  /** @var LocoEnv */
+  /**
+   * @var LocoEnv */
   public $default_environment;
 
-  /** @var LocoEnv */
+  /**
+   * @var LocoEnv */
   public $global_environment;
 
-  /** @var LocoEnv */
+  /**
+   * @var LocoEnv */
   public $environment;
 
-  /** @var array */
+  /**
+   * @var array */
   public $services;
 
   /**
@@ -28,7 +32,7 @@ class LocoSystem {
     $system = new self();
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
     $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
-    $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment']: []);
+    $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
     $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
     $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
     $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);

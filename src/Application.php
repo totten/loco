@@ -1,5 +1,6 @@
 <?php
 namespace Loco;
+
 use Loco\Command\CleanCommand;
 use Loco\Command\EnvCommand;
 use Loco\Command\ExportCommand;
@@ -8,12 +9,9 @@ use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
 use Loco\Command\StatusCommand;
 use Loco\Command\StopCommand;
-use Symfony\Component\Console\Input\ArrayInput;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 class Application extends \Symfony\Component\Console\Application {
 

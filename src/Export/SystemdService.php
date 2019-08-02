@@ -2,10 +2,6 @@
 
 namespace Loco\Export;
 
-use Loco\Application;
-use Loco\LocoService;
-use Loco\Utils\SystemdUtil;
-
 class SystemdService {
 
   use SystemdExportTrait;
@@ -15,7 +11,7 @@ class SystemdService {
   }
 
   /**
-   * @param LocoService $svc
+   * @param \Loco\LocoService $svc
    * @return array
    */
   public function buildSystemdIni() {
@@ -53,8 +49,8 @@ class SystemdService {
       $ini['Service'][] = "Type=simple";
     }
     $ini['Service'][] = "PermissionsStartOnly=true";
-    $ini['Service'][] = "ExecStartPre=/bin/bash -c " .  escapeshellarg(/*LOCO_BIN*/ 'loco' . ' init -v ' . $svc->name);
-    $ini['Service'][] = "ExecStart=/bin/bash -c " .  escapeshellarg($svc->run);
+    $ini['Service'][] = "ExecStartPre=/bin/bash -c " . escapeshellarg(/*LOCO_BIN*/ 'loco' . ' init -v ' . $svc->name);
+    $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($svc->run);
     $ini['Service'][] = "TimeoutSec=300";
     $ini['Service'][] = "PrivateTmp=true";
     $ini['Service'][] = "LimitNOFILE=500000";

@@ -1,12 +1,10 @@
 <?php
 namespace Loco\Command;
 
-use Loco\LocoEnv;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-
 
 class EnvCommand extends \Symfony\Component\Console\Command\Command {
 
@@ -26,7 +24,7 @@ class EnvCommand extends \Symfony\Component\Console\Command\Command {
   protected function execute(InputInterface $input, OutputInterface $output) {
     $system = $this->initSystem($input, $output);
 
-    /** @var LocoEnv $env */
+    /** @var \Loco\LocoEnv $env */
     $env = $this->pickEnv($system, $input->getArgument('service'));
     $allValues = $env->getAllValues();
 

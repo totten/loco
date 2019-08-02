@@ -48,11 +48,13 @@ class LocoEnv {
       switch ($onMissing) {
         case 'keep':
           return '$' . $key;
+
         case 'null':
           return NULL;
+
         case 'exception':
         default:
-        throw new \RuntimeException("Unknown variable: $key");
+          throw new \RuntimeException("Unknown variable: $key");
       }
 
     }
@@ -75,7 +77,7 @@ class LocoEnv {
 
   public function getAllValues() {
     $values = [];
-    foreach ($this->specs as $key=> $spec) {
+    foreach ($this->specs as $key => $spec) {
       $values[$key] = $this->getValue($key);
     }
     return $values;

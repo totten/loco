@@ -39,9 +39,11 @@ class File {
 
       if (!file_exists($dir)) {
         // skip
-      } elseif (is_link($dir)) {
+      }
+      elseif (is_link($dir)) {
         unlink($dir);
-      } elseif (is_dir($dir)) {
+      }
+      elseif (is_dir($dir)) {
         rmdir($dir);
       }
     }
