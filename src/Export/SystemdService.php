@@ -21,6 +21,14 @@ class SystemdService {
   public function buildSystemdIni() {
     $svc = $this->service;
     $env = $svc->createEnv();
+    // FIXME: Prettier way to address near-duplication btwn Svc::createEnv() and this.
+    $activeVars = array_merge(
+      $this->system->default_environment->getKeys(),
+      $svc->default_environment->getKeys(),
+      // NOT: $this->system->global_environment->getKeys(),
+      $this->system->environment->getKeys(),
+      $svc->environment->getKeys()
+    );
 
     $ini = ['Unit' => [], 'Service' => [], 'Install' => []];
 
@@ -54,11 +62,9 @@ class SystemdService {
     $ini['Service'][] = "Group=" . $this->input->getOption('group');
     $ini['Service'][] = "WorkingDirectory=" . $env->getValue('LOCO_PRJ');
 
-    $envValues = array_filter($env->getAllValues(), function($value, $key) {
-      // Include any vars customized by loco config.
-      $g = $this->system->global_environment;
-      if ($g->getValue($key, 'null') !== $value) {
-        $gv = $g->getValue($key, 'null');
+    $envValues = array_filter($env->getAllValues(), function($value, $key) use ($activeVars) {
+      // Include any vars referenced/customized by loco config.
+      if (in_array($key, $activeVars)) {
         return TRUE;
       }
 

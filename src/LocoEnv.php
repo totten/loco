@@ -65,6 +65,14 @@ class LocoEnv {
     return $this->specs[$key]['value'];
   }
 
+  /**
+   * @return array
+   *   List of variable names
+   */
+  public function getKeys() {
+    return array_keys($this->specs);
+  }
+
   public function getAllValues() {
     $values = [];
     foreach ($this->specs as $key=> $spec) {
