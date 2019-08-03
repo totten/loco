@@ -17,11 +17,11 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
     $this
       ->setName('export')
       ->setAliases(array())
-      ->setDescription('Export service definitions to systemd (EXPERIMENTAL)')
+      ->setDescription('(EXPERIMENTAL) Export service definitions to systemd')
       ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->addOption('out', 'o', InputOption::VALUE_REQUIRED, 'Output folder')
-      ->addOption('fmt', NULL, InputOption::VALUE_REQUIRED, 'Output format', 'systemd')
-      ->addOption('prefix', NULL, InputOption::VALUE_REQUIRED, 'Prefix to apply to exported service names', 'loco_')
+      // ->addOption('fmt', NULL, InputOption::VALUE_REQUIRED, 'Output format', 'systemd')
+      ->addOption('prefix', NULL, InputOption::VALUE_REQUIRED, 'Prefix to apply to exported service names', 'loco-')
       ->addOption('user', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentUser['name'])
       ->addOption('group', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentGroup['name'])
       ->addOption('include-env', NULL, InputOption::VALUE_REQUIRED, 'Env vars to exclude. Regex-enabled.', 'PATH|NIX_SSL_.*')
@@ -46,17 +46,19 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
     $gens = [];
     $gens['systemd']['Loco\LocoVolume'] = 'Loco\Export\SystemdVolume::create';
     $gens['systemd']['Loco\LocoService'] = 'Loco\Export\SystemdService::create';
+    $fmt = 'systemd';
+    // $fmt = $input->getOption('fmt');
 
     foreach ($svcs as $svc) {
-      if (isset($gens[$input->getOption('fmt')][get_class($svc)])) {
-        $exporter = call_user_func($gens[$input->getOption('fmt')][get_class($svc)], $svc, $input, $output);
+      if (isset($gens[$fmt][get_class($svc)])) {
+        $exporter = call_user_func($gens[$fmt][get_class($svc)], $svc, $input, $output);
         $exporter->export();
       }
       else {
         throw new \RuntimeException(sprintf("Cannot export %s from class %s to format %s",
           $svc->name,
           get_class($svc),
-          $input->getOption('fmt')
+          $fmt
           ));
       }
     }
