@@ -1,6 +1,7 @@
 <?php
 namespace Loco\Utils;
 
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 class File {
@@ -10,6 +11,33 @@ class File {
       mkdir($dir, $mode, TRUE);
     }
   }
+
+  /**
+   * @param string $path
+   * @return string updated $path
+   */
+  public static function toAbsolutePath($path) {
+    $fs = new Filesystem();
+    if (empty($path)) {
+      $res = getcwd();
+    }
+    elseif ($fs->isAbsolutePath($path)) {
+      $res = $path;
+    }
+    elseif (getenv('PWD')) {
+      $res = getenv('PWD') . DIRECTORY_SEPARATOR . $path;
+    }
+    else {
+      $res = getcwd() . DIRECTORY_SEPARATOR . $path;
+    }
+    if (is_dir($res)) {
+      return realpath($res);
+    }
+    else {
+      return $res;
+    }
+  }
+
 
   /**
    * @param string $base
