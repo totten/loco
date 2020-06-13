@@ -2,7 +2,9 @@
 
 namespace Loco;
 
+use Loco\Utils\File;
 use MJS\TopSort\Implementations\StringSort;
+use Symfony\Component\Filesystem\Filesystem;
 
 class LocoSystem {
 
@@ -29,18 +31,27 @@ class LocoSystem {
    * @return \Loco\LocoSystem
    */
   public static function create($prjDir, $settings) {
+    $prjDir = File::toAbsolutePath($prjDir);
+
     $system = new self();
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
     $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
     $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
-    $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
-    $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
-    $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);
+    if ($system->environment->getSpec('LOCO_PRJ') === NULL) {
+      $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
+    }
+    if ($system->environment->getSpec('LOCO_CFG') === NULL) {
+      $system->environment->set('LOCO_CFG', '$LOCO_PRJ/.loco/config', TRUE);
+    }
+    if ($system->environment->getSpec('LOCO_VAR') === NULL) {
+      $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);
+    }
     if (file_exists($binDir = "$prjDir/.loco/bin")) {
       $system->environment->set('PATH', $binDir . PATH_SEPARATOR . getenv('PATH'), FALSE);
     }
     $system->global_environment = LocoEnv::create([]);
-    foreach ($_ENV as $k => $v) {
+    $globalEnv = version_compare(PHP_VERSION, '7.1.alpha', '>=') ? getenv() : $_ENV;
+    foreach ($globalEnv as $k => $v) {
       $system->global_environment->set($k, $v, FALSE);
     }
     $system->services = [];

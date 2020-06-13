@@ -40,7 +40,7 @@ class LocoEnv {
   }
 
   public function getSpec($key) {
-    return $this->specs[$key] ?: NULL;
+    return $this->specs[$key] ?? NULL;
   }
 
   public function getValue($key, $onMissing = 'exception') {
