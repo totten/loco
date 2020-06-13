@@ -12,7 +12,15 @@ class LocoEnv {
   public static function merge($locoEnvs) {
     $merged = new static();
     foreach ($locoEnvs as $locoEnv) {
-      $merged->specs = array_merge($merged->specs, $locoEnv->specs);
+      foreach ($locoEnv->specs as $envKey => $envSpec) {
+        if (!isset($merged->specs[$envKey])) {
+          $merged->specs[$envKey] = $envSpec;
+        }
+        else {
+          $envSpec['parent'] = $merged->specs[$envKey];
+          $merged->specs[$envKey] = $envSpec;
+        }
+      }
     }
     return $merged;
   }
@@ -33,6 +41,7 @@ class LocoEnv {
 
   public function set($key, $value, $isDynamic = FALSE) {
     $this->specs[$key] = [
+      'name' => $key,
       'value' => $value,
       'isDynamic' => $isDynamic,
     ];
@@ -60,7 +69,8 @@ class LocoEnv {
     }
     if ($this->specs[$key]['isDynamic']) {
       $this->specs[$key] = [
-        'value' => $this->evaluate($this->specs[$key]['value']),
+        'name' => $key,
+        'value' => $this->evaluateSpec($this->specs[$key], 'exception'),
         'isDynamic' => FALSE,
       ];
     }
@@ -83,7 +93,35 @@ class LocoEnv {
     return $values;
   }
 
+  /**
+   * @param string $valExpr
+   *   Ex: '$FOO/bar'
+   * @param string $onMissing
+   *   Ex: 'exception', 'null', 'keep'
+   * @return string|NULL
+   */
   public function evaluate($valExpr, $onMissing = 'exception') {
+    $spec = [
+      'name' => NULL,
+      'value' => $valExpr,
+      'isDynamic' => TRUE,
+    ];
+    return $this->evaluateSpec($spec, $onMissing);
+  }
+
+  /**
+   * @param array $spec
+   *   Ex: ['name' => 'PATH', 'value' => '/foo/bar:$PATH', 'isDynamic' => TRUE]
+   * @param string $onMissing
+   *   Ex: 'exception', 'null', 'keep'
+   * @return string|NULL
+   */
+  public function evaluateSpec($spec, $onMissing = 'exception') {
+    if (!$spec['isDynamic']) {
+      return $spec['value'];
+    }
+    $valExpr = $spec['value'];
+
     if (empty($valExpr)) {
       return $valExpr;
     }
@@ -92,20 +130,25 @@ class LocoEnv {
     $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
     $funcExprRegex = '\$\((' . $funcNameRegex .') (' . $varExprRegex . ')\)'; // Ex: '$(basename $FOO)'
 
-    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $onMissing, $varExprRegex, $funcExprRegex) {
+    $lookupVar = function($name) use ($onMissing, $spec) {
+      $name = preg_replace(';^\{(.*)\}$;', '\1', $name);
+      if ($name === $spec['name']) {
+        // Recursive value expression! Consult parent environment.
+        return isset($spec['parent'])
+          ? $this->evaluateSpec($spec['parent'], $onMissing)
+          : '';
+      }
+      elseif (preg_match(';^[a-zA-Z0-9_]+$;', $name)) {
+        return $this->getValue($name, $onMissing);
+      }
+    };
+
+    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $onMissing, $varExprRegex, $funcExprRegex, $spec, $lookupVar) {
       if (preg_match(";^$varExprRegex$;", $mainMatch[1], $matches)) {
-        $name = $matches[1];
-        if (preg_match(';^[a-zA-Z0-9_]+$;', $name, $m2)) {
-          $v2 = $this->getValue($name, $onMissing);
-          return $v2;
-        }
-        elseif (preg_match(';^\{([a-zA-Z0-9_]+)\}$;', $name, $m2)) {
-          $v2 = $this->getValue($m2[1], $onMissing);
-          return $v2;
-        }
+        return $lookupVar($matches[1]);
       }
       elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
-        $target = $this->evaluate($matches[2], $onMissing);
+        $target = $lookupVar($matches[3]);
         $func = $matches[1];
         switch ($func) {
           case 'dirname':
@@ -117,7 +160,6 @@ class LocoEnv {
           default:
             throw new \RuntimeException("Invalid function expression: " . $valExpr);
         }
-
       }
 
       throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);

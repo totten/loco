@@ -109,6 +109,13 @@ References are evaluated on-demand: specifically, when launching a subcommand (e
 user-string/template (e.g.  `pid_file:`), `loco` merges the active scopes (per precedence) and recursively evaluates
 any nested references.  `loco` *only* evaluates a nested reference if it's declared in the YAML file.
 
+Variables may defined recursively, incorporating avalue from the parent scope:
+
+```yaml
+environment:
+  - PATH=/opt/foo/bin:$PATH
+```
+
 Additionally, there is limited support for computations (eg `dirname` and `basename`).
 
 ```yaml
@@ -195,7 +202,6 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
     * Add test coverage for CLI options
     * Add test coverage for start/stop/restart
 * Other Usability
-    * If a variable definition references itself, then check parent scope(s) (Ex: `PATH=$LOCO_PRJ/bin:$PATH`)
     * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
     * Allow flagging some services to *always* init on startup.
     * Allow flagging some services to *autorestart* when certain files are changed.

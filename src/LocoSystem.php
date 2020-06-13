@@ -46,8 +46,8 @@ class LocoSystem {
     if ($system->environment->getSpec('LOCO_VAR') === NULL) {
       $system->environment->set('LOCO_VAR', '$LOCO_PRJ/.loco/var', TRUE);
     }
-    if (file_exists($binDir = "$prjDir/.loco/bin")) {
-      $system->environment->set('PATH', $binDir . PATH_SEPARATOR . getenv('PATH'), FALSE);
+    if ($system->environment->getSpec('PATH') === NULL && file_exists($binDir = "$prjDir/.loco/bin")) {
+      $system->environment->set('PATH', $binDir . PATH_SEPARATOR . '${PATH}', TRUE);
     }
     $system->global_environment = LocoEnv::create([]);
     $globalEnv = version_compare(PHP_VERSION, '7.1.alpha', '>=') ? getenv() : $_ENV;
