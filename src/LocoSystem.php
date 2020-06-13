@@ -4,29 +4,46 @@ namespace Loco;
 
 use Loco\Utils\File;
 use MJS\TopSort\Implementations\StringSort;
-use Symfony\Component\Filesystem\Filesystem;
 
 class LocoSystem {
 
+  /**
+   * The raw, unprocessed configuration data (per loco.yml).
+   *
+   * There is little point in modifying data once it gets into $config.
+   * This is to allow extra reads of new/improvisational options.
+   *
+   * @var array
+   */
+  public $config;
+
+  /**
+   * @var string
+   */
   public $format;
 
   /**
-   * @var LocoEnv */
+   * @var LocoEnv
+   */
   public $default_environment;
 
   /**
-   * @var LocoEnv */
+   * @var LocoEnv
+   */
   public $global_environment;
 
   /**
-   * @var LocoEnv */
+   * @var LocoEnv
+   */
   public $environment;
 
   /**
-   * @var array */
+   * @var array
+   */
   public $services;
 
   /**
+   * @param string $prjDir
    * @param array $settings
    * @return \Loco\LocoSystem
    */
@@ -34,7 +51,9 @@ class LocoSystem {
     $prjDir = File::toAbsolutePath($prjDir);
 
     $system = new self();
+    $system->config = $settings;
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
+
     $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
     $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
     if ($system->environment->getSpec('LOCO_PRJ') === NULL) {
@@ -54,6 +73,8 @@ class LocoSystem {
     foreach ($globalEnv as $k => $v) {
       $system->global_environment->set($k, $v, FALSE);
     }
+    Loco::filter('loco.system.create', ['system' => $system]);
+
     $system->services = [];
     if (!empty($settings['services'])) {
       foreach ($settings['services'] as $serviceName => $serviceSettings) {
@@ -103,11 +124,14 @@ class LocoSystem {
    * @return LocoEnv
    */
   public function createEnv() {
-    return LocoEnv::merge([
+    $srcs = [
       $this->default_environment,
       $this->global_environment,
       $this->environment,
-    ]);
+    ];
+    $env = LocoEnv::merge($srcs);
+    Loco::filter('loco.system.mergeEnv', ['system' => $this, 'srcs' => $srcs, 'env' => $env]);
+    return $env;
   }
 
 }
