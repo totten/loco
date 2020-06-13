@@ -109,6 +109,13 @@ References are evaluated on-demand: specifically, when launching a subcommand (e
 user-string/template (e.g.  `pid_file:`), `loco` merges the active scopes (per precedence) and recursively evaluates
 any nested references.  `loco` *only* evaluates a nested reference if it's declared in the YAML file.
 
+Additionally, there is limited support for computations (eg `dirname` and `basename`).
+
+```yaml
+environment:
+  - FOO_BASE=$(dirname $LOCO_VAR)/sibling
+```
+
 ## Specification: Initializing config files
 
 Many services require a configuration file with deployment-specific details.

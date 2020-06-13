@@ -87,19 +87,40 @@ class LocoEnv {
     if (empty($valExpr)) {
       return $valExpr;
     }
-    return preg_replace_callback(';\$([a-zA-Z0-9_\{\}]+);', function($matches) use ($valExpr, $onMissing) {
-      $name = $matches[1];
-      if (preg_match(';^[a-zA-Z0-9_]+$;', $name, $m2)) {
-        $v2 = $this->getValue($name, $onMissing);
-        return $v2;
+
+    $varExprRegex = '\$([a-zA-Z0-9_\{\}]+)'; // Ex: '$FOO' or '${FOO}'
+    $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
+    $funcExprRegex = '\$\((' . $funcNameRegex .') (' . $varExprRegex . ')\)'; // Ex: '$(basename $FOO)'
+
+    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $onMissing, $varExprRegex, $funcExprRegex) {
+      if (preg_match(";^$varExprRegex$;", $mainMatch[1], $matches)) {
+        $name = $matches[1];
+        if (preg_match(';^[a-zA-Z0-9_]+$;', $name, $m2)) {
+          $v2 = $this->getValue($name, $onMissing);
+          return $v2;
+        }
+        elseif (preg_match(';^\{([a-zA-Z0-9_]+)\}$;', $name, $m2)) {
+          $v2 = $this->getValue($m2[1], $onMissing);
+          return $v2;
+        }
       }
-      elseif (preg_match(';^\{([a-zA-Z0-9_]+)\}$;', $name, $m2)) {
-        $v2 = $this->getValue($m2[1], $onMissing);
-        return $v2;
+      elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
+        $target = $this->evaluate($matches[2], $onMissing);
+        $func = $matches[1];
+        switch ($func) {
+          case 'dirname':
+            return dirname($target);
+
+          case 'basename':
+            return basename($target);
+
+          default:
+            throw new \RuntimeException("Invalid function expression: " . $valExpr);
+        }
+
       }
-      else {
-        throw new \RuntimeException("Malformed variable expression: " . $name);
-      }
+
+      throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
     }, $valExpr);
   }
 
