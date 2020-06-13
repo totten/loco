@@ -6,6 +6,10 @@
 ## The 'format' declaration allows future change in the file-format.
 format: 'VERSION-CODE'
 
+## List of plugin paths to search. If omitted, then default is '.loco/plugin/*.php'
+plugins:
+  - FILE_GLOB
+
 ## The 'environment' and 'default_environment' list project-wide variables.
 ## These are visible to all services. The `default_environment` is
 ## advisory and will not override values that have been inherited
