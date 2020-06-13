@@ -1,6 +1,7 @@
 <?php
 namespace Loco\Command;
 
+use Loco\Loco;
 use Loco\LocoSystem;
 use Loco\LocoVolume;
 use Loco\Utils\Shell;
@@ -26,10 +27,16 @@ trait LocoCommandTrait {
     $output->writeln("<info>Parse configuration \"<comment>" . $input->getOption('config') . "</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
 
     $settings = Yaml::parse(file_get_contents($input->getOption('config')));
+    $settings = Loco::filter('loco.config.filter', ['config' => $settings])['config'];
     return LocoSystem::create(dirname(dirname($input->getOption('config'))), $settings);
   }
 
   public function pickConfig() {
+    $c = Loco::filter('loco.config.find', ['file' => NULL]);
+    if ($c['file']) {
+      return $c['file'];
+    }
+
     $parts = explode(DIRECTORY_SEPARATOR, Shell::getcwd());
     $suffix = ['.loco', 'loco.yml'];
     while ($parts) {
