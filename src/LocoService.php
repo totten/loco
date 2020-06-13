@@ -48,6 +48,13 @@ class LocoService {
   public $depends;
 
   /**
+   * @var array
+   *   Set of overrides for systemd-specific options.
+   *   Ex: ['Service' => ['Type' => 'forking']]
+   */
+  public $systemd;
+
+  /**
    * @param LocoSystem $system
    * @param string $name
    * @param array $settings
@@ -57,6 +64,7 @@ class LocoService {
     $svc = new static();
     $svc->system = $system;
     $svc->name = $name;
+    $svc->systemd = $settings['systemd'] ?? [];
     $svc->enabled = isset($settings['enabled']) ? $settings['enabled'] : TRUE;
     $svc->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
     $svc->environment->set('LOCO_SVC', $name, FALSE);

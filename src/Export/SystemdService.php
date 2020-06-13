@@ -46,13 +46,11 @@ class SystemdService {
       }
     }
 
+    $ini['Service'][] = "Type=" . ($svc->systemd['Service']['Type'] ?? 'exec');
     if ($svc->pid_file) {
-      $ini['Service'][] = "Type=forking";
       $ini['Service'][] = "PIDFile=" . $env->evaluate($svc->pid_file);
     }
-    else {
-      $ini['Service'][] = "Type=simple";
-    }
+
     $ini['Service'][] = "ExecStartPre=/bin/bash -c " . escapeshellarg(/*LOCO_BIN*/ 'loco' . ' init -v ' . $svc->name);
     $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($svc->run);
     $ini['Service'][] = "User=" . $this->input->getOption('user');
