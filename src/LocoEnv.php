@@ -22,6 +22,8 @@ class LocoEnv {
         }
       }
     }
+
+    Loco::filter('loco.env.merge', ['env' => $merged, 'srcs' => $locoEnvs]);
     return $merged;
   }
 
@@ -36,6 +38,7 @@ class LocoEnv {
       list ($key, $valExpr) = explode('=', $asgnExpr, 2);
       $env->set($key, $valExpr, TRUE);
     }
+    Loco::filter('loco.env.create', ['env' => $env, 'assignments' => $asgnExprs]);
     return $env;
   }
 
