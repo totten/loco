@@ -33,19 +33,18 @@ Loco::dispatcher()->addListener('loco.app.commands', function($e) {
 });
 ```
 
-## Loading
+## Plugin loading
 
-The environment variable `LOCO_PLUGIN_PATH` specifies a list of folders to
-search for *global plugins*. All global plugins will be activated immediately
-during startup.
+*Global plugins* are loaded from the `LOCO_PLUGIN_PATH`. All `*.php` files
+in `LOCO_PLUGIN_PATH` will be loaded automatically during startup.
 
-The default value of `LOCO_PLUGIN_PATH` is:
+If otherwise unspecified, the default value of `LOCO_PLUGIN_PATH` is:
 
 ```bash
 LOCO_PLUGIN_PATH=/etc/loco/plugin:/usr/share/loco/plugin:/usr/local/share/loco/plugin:$HOME/.config/loco/plugin
 ```
 
-After loading the *global plugins, `loco` reads the the `loco.yml` and then loads *local plugins*.
+After loading the global plugins, `loco` reads the the `loco.yml` and then loads any *local plugins* (i.e. *project-specific* plugins).
 
 This sequencing meaning that some early events (e.g.  `loco.app.boot` or
 `loco.config.find`) are only available to *global plugins*.
