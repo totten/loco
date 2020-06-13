@@ -8,6 +8,16 @@ use Symfony\Component\Finder\Finder;
 class LocoService {
 
   /**
+   * The raw, unprocessed configuration data (per loco.yml).
+   *
+   * There is little point in modifying data once it gets into $config.
+   * This is to allow extra reads of new/improvisational options.
+   *
+   * @var array
+   */
+  public $config;
+
+  /**
    * @var LocoSystem */
   public $system;
 
@@ -62,6 +72,7 @@ class LocoService {
    */
   public static function create($system, $name, $settings) {
     $svc = new static();
+    $svc->config = $settings;
     $svc->system = $system;
     $svc->name = $name;
     $svc->systemd = $settings['systemd'] ?? [];
@@ -77,6 +88,8 @@ class LocoService {
     foreach (['run', 'message', 'pid_file'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? $settings[$key] : NULL;
     }
+
+    Loco::filter('loco.service.create', ['service' => $svc]);
     return $svc;
   }
 
@@ -84,13 +97,16 @@ class LocoService {
    * @return \Loco\LocoEnv
    */
   public function createEnv() {
-    return LocoEnv::merge([
+    $srcs = [
       $this->system->default_environment,
       $this->default_environment,
       $this->system->global_environment,
       $this->system->environment,
       $this->environment,
-    ]);
+    ];
+    $env = LocoEnv::merge($srcs);
+    Loco::filter('loco.service.mergeEnv', ['service' => $this, 'srcs' => $srcs, 'env' => $env]);
+    return $env;
   }
 
   /**
