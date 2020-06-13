@@ -19,6 +19,8 @@ class Application extends \Symfony\Component\Console\Application {
    * Primary entry point for execution of the standalone command.
    */
   public static function main($binDir) {
+    Loco::plugins()->init();
+    Loco::dispatcher()->dispatch('loco.app.boot');
     $application = new Application('loco', '@package_version@');
     $application->run();
   }
@@ -52,6 +54,7 @@ class Application extends \Symfony\Component\Console\Application {
         throw new \RuntimeException("Failed to use directory specified, $workingDir as working directory.");
       }
     }
+    Loco::dispatcher()->dispatch('loco.app.run');
     return parent::doRun($input, $output);
   }
 
@@ -70,6 +73,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new StopCommand();
     $commands[] = new StatusCommand();
     $commands[] = new ExportCommand();
+    $commands = Loco::filter('loco.app.commands', ['commands' => $commands])['commands'];
     return $commands;
   }
 
