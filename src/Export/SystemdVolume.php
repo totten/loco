@@ -20,7 +20,7 @@ class SystemdVolume {
 
     $ini = ['Unit' => [], 'Mount' => [], 'Install' => []];
 
-    $ini['Unit'][] = "Description=" . $this->input->getOption('prefix') . $svc->name;
+    $ini['Unit'][] = "Description=" . $this->input->getOption('app') . '-' . $svc->name;
 
     $ini['Mount'][] = "What=tmpfs";
     $ini['Mount'][] = "Type=tmpfs";

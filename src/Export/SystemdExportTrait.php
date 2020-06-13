@@ -2,7 +2,6 @@
 
 namespace Loco\Export;
 
-use Loco\LocoService;
 use Loco\Utils\SystemdUtil;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -33,10 +32,16 @@ trait SystemdExportTrait {
 
   abstract public function buildFilename();
 
-  public static function create(LocoService $svc, InputInterface $input, OutputInterface $output) {
+  /**
+   * @param \Loco\LocoService|NULL $svc
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @return static
+   */
+  public static function create($svc, InputInterface $input, OutputInterface $output) {
     $self = new static();
     $self->service = $svc;
-    $self->system = $svc->system;
+    $self->system = $svc ? $svc->system : NULL;
     $self->input = $input;
     $self->output = $output;
     return $self;
@@ -44,19 +49,9 @@ trait SystemdExportTrait {
 
   public function export() {
     $filename = rtrim($this->input->getOption('out'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->buildFilename();
-    $svc = $this->service;
-
-    $this->output->writeln("<info>[<comment>{$svc->name}</comment>] Generate file <comment>{$filename}</comment></info>");
-
+    $this->output->writeln("<info>Generate file <comment>{$filename}</comment></info>");
     $ini = $this->buildSystemdIni();
-
-    $buf = '';
-    foreach ($ini as $section => $lines) {
-      $buf .= "[" . $section . "]\n";
-      $buf .= implode("\n", $lines);
-      $buf .= "\n\n";
-    }
-    file_put_contents($filename, $buf);
+    $this->writeUnit($filename, $ini);
   }
 
   /**
@@ -74,7 +69,7 @@ trait SystemdExportTrait {
   /**
    * Determine the systemd unit name
    *
-   * @param string $prefix
+   * @param string $appName
    * @param string $svc
    *   Loco service name
    *   Ex: 'apache-vdr'
@@ -82,14 +77,30 @@ trait SystemdExportTrait {
    *   Systemd unit name
    *   Ex: 'loco-apache-vdr.service'
    */
-  protected function serviceName($prefix, $svc) {
-    $name = $prefix . $svc;
+  protected function serviceName($appName, $svc) {
+    $name = $appName . '-' . $svc;
     if (!preg_match('/^[ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_\-]+/', $name)) {
       // This test may be stricter than necessary. Easier to start conservative and relax as necessary.
       throw new \RuntimeException("Malformed service name [$name]");
     }
 
     return $name . ".service";
+  }
+
+  /**
+   * @param string $filename
+   * @param array $ini
+   *   Array(string $section => string[] $lines].
+   *   Ex: ['Service' => ['Environment=FOO=bar']]
+   */
+  protected function writeUnit($filename, $ini) {
+    $buf = '';
+    foreach ($ini as $section => $lines) {
+      $buf .= "[" . $section . "]\n";
+      $buf .= implode("\n", $lines);
+      $buf .= "\n\n";
+    }
+    file_put_contents($filename, $buf);
   }
 
 }

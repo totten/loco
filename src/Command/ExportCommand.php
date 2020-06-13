@@ -21,7 +21,7 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
       ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->addOption('out', 'o', InputOption::VALUE_REQUIRED, 'Output folder')
       // ->addOption('fmt', NULL, InputOption::VALUE_REQUIRED, 'Output format', 'systemd')
-      ->addOption('prefix', NULL, InputOption::VALUE_REQUIRED, 'Prefix to apply to exported service names', 'loco-')
+      ->addOption('app', NULL, InputOption::VALUE_REQUIRED, 'App name. All exported services are grouped under an app.', 'loco')
       ->addOption('user', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentUser['name'])
       ->addOption('group', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentGroup['name'])
       ->addOption('include-env', NULL, InputOption::VALUE_REQUIRED, 'Env vars to exclude. Regex-enabled.', 'PATH|NIX_SSL_.*')
@@ -43,11 +43,12 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
       }
     }
 
+    \Loco\Export\SystemdApplication::create(NULL, $input, $output)->export();
+
     $gens = [];
     $gens['systemd']['Loco\LocoVolume'] = 'Loco\Export\SystemdVolume::create';
     $gens['systemd']['Loco\LocoService'] = 'Loco\Export\SystemdService::create';
     $fmt = 'systemd';
-    // $fmt = $input->getOption('fmt');
 
     foreach ($svcs as $svc) {
       if (isset($gens[$fmt][get_class($svc)])) {

@@ -1,0 +1,15 @@
+{
+  "Unit": [
+    "StartLimitIntervalSec=500",
+    "StartLimitBurst=5"
+  ],
+  "Service": [
+    "PermissionsStartOnly=true",
+    "TimeoutSec=300",
+    "PrivateTmp=true",
+    "LimitNOFILE=500000",
+    "Restart=on-failure",
+    "RestartSec=10s"
+  ],
+  "Install": []
+}
