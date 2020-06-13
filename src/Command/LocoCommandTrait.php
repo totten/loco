@@ -24,11 +24,26 @@ trait LocoCommandTrait {
     if (!file_exists($input->getOption('config'))) {
       throw new \Exception("Failed to find loco config file: " . $input->getOption('config'));
     }
-    $output->writeln("<info>Parse configuration \"<comment>" . $input->getOption('config') . "</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+    $configFile = $input->getOption('config');
+    $prjDir = dirname(dirname($input->getOption('config')));
 
-    $settings = Yaml::parse(file_get_contents($input->getOption('config')));
-    $settings = Loco::filter('loco.config.filter', ['config' => $settings])['config'];
-    return LocoSystem::create(dirname(dirname($input->getOption('config'))), $settings);
+    $output->writeln("<info>Parse configuration \"<comment>" . $configFile . "</comment>\"</info>", OutputInterface::VERBOSITY_VERBOSE);
+    $settings = Yaml::parse(file_get_contents($configFile));
+
+    $output->writeln("<info>Load local plugins</info>", OutputInterface::VERBOSITY_VERBOSE);
+    if (!array_key_exists('plugins', $settings)) {
+      $settings['plugins'] = ['.loco/plugin/*.php'];
+    }
+    Loco::filter('loco.config.plugins', [['file' => $configFile, 'prj' => $prjDir, 'config' => $settings]]);
+    if (!empty($settings['plugins'])) {
+      foreach ($settings['plugins'] as $pluginPathGlob) {
+        Loco::plugins()->load($pluginPathGlob);
+      }
+    }
+
+    $output->writeln("<info>Filter configuration</info>", OutputInterface::VERBOSITY_VERBOSE);
+    $settings = Loco::filter('loco.config.filter', ['file' => $configFile, 'prj' => $prjDir, 'config' => $settings])['config'];
+    return LocoSystem::create($prjDir, $settings);
   }
 
   public function pickConfig() {
