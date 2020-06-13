@@ -20,7 +20,7 @@ class Application extends \Symfony\Component\Console\Application {
    */
   public static function main($binDir) {
     Loco::plugins()->init();
-    Loco::dispatcher()->filter('loco.app.boot', []);
+    Loco::filter('loco.app.boot', []);
     $application = new Application('loco', '@package_version@');
     $application->run();
   }
@@ -54,7 +54,7 @@ class Application extends \Symfony\Component\Console\Application {
         throw new \RuntimeException("Failed to use directory specified, $workingDir as working directory.");
       }
     }
-    Loco::dispatcher()->filter('loco.app.run', []);
+    Loco::filter('loco.app.run', []);
     return parent::doRun($input, $output);
   }
 
