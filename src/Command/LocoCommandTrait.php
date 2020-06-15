@@ -43,7 +43,7 @@ trait LocoCommandTrait {
 
     $output->writeln("<info>Filter configuration</info>", OutputInterface::VERBOSITY_VERBOSE);
     $settings = Loco::filter('loco.config.filter', ['file' => $configFile, 'prj' => $prjDir, 'config' => $settings])['config'];
-    return LocoSystem::create($prjDir, $settings);
+    return LocoSystem::create($configFile, $prjDir, $settings);
   }
 
   public function pickConfig() {

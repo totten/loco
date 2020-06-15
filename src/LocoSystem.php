@@ -48,11 +48,13 @@ class LocoSystem {
   public $export;
 
   /**
+   * @param string $configFile
+   *   Ex: /srv/foo/.loco/loco.yml
    * @param string $prjDir
    * @param array $settings
    * @return \Loco\LocoSystem
    */
-  public static function create($prjDir, $settings) {
+  public static function create($configFile, $prjDir, $settings) {
     $prjDir = File::toAbsolutePath($prjDir);
 
     $system = new self();
@@ -61,6 +63,7 @@ class LocoSystem {
 
     $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
     $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
+    $system->environment->set('LOCO_CFG_YML', $configFile, FALSE);
     if ($system->environment->getSpec('LOCO_PRJ') === NULL) {
       $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
     }
