@@ -30,11 +30,17 @@ class LocoService {
   public $enabled;
 
   /**
-   * @var LocoEnv */
+   * Environment variables (defined at service-level in loco.yml).
+   *
+   * @var LocoEnv
+   */
   public $environment;
 
   /**
-   * @var LocoEnv */
+   * Default values for environment variables (defined at service-level in loco.yml).
+   *
+   * @var LocoEnv
+   */
   public $default_environment;
 
   /**

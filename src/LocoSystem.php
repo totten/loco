@@ -23,16 +23,22 @@ class LocoSystem {
   public $format;
 
   /**
+   * Default values for environment variables (defined at system-level in loco.yml).
+   *
    * @var LocoEnv
    */
   public $default_environment;
 
   /**
+   * Environment variables inherited from the parent shell/process.
+   *
    * @var LocoEnv
    */
   public $global_environment;
 
   /**
+   * Environment variables (defined at system-level in loco.yml).
+   *
    * @var LocoEnv
    */
   public $environment;
