@@ -25,8 +25,7 @@ class SystemdService {
     $appSvcName = $this->input->getOption('app') . '.service';
     $iniTemplate = __DIR__ . '/SystemdServiceTemplate.json';
 
-    // FIXME: Prettier way to address near-duplication btwn Svc::createEnv() and this.
-    $activeVars = array_merge(
+    $significantVars = array_merge(
       $this->system->default_environment->getKeys(),
       $svc->default_environment->getKeys(),
       // NOT: $this->system->global_environment->getKeys(),
@@ -69,12 +68,15 @@ class SystemdService {
       ?? $svc->system->config['export']['include_env']
       ?? self::INCULDE_ENV_DEFAULT;
 
-    $envValues = array_filter($env->getAllValues(), function($value, $key) use ($activeVars, $includeEnvPat) {
+    // When 'loco run -X' runs, it will re-compute defaults+mandatory values. However, we may want to reproduce
+    // some of the original environment.
+    $envValues = array_filter($this->system->global_environment->getAllValues(), function($value, $key) use ($significantVars, $includeEnvPat) {
       // Include any vars referenced/customized by loco config.
-      if (in_array($key, $activeVars)) {
+      if (in_array($key, $significantVars)) {
         return TRUE;
       }
 
+      // Include any vars whitelisted by the loco config (`export: include_env: REGEXP`).
       if (preg_match($includeEnvPat, $key)) {
         return TRUE;
       }
