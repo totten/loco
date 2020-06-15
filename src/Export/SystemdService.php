@@ -6,12 +6,6 @@ class SystemdService {
 
   use SystemdExportTrait;
 
-  /**
-   * Specifies a white list of pre-existing/global environment variables that
-   * can be inherited and propagated to the service.
-   */
-  const INCULDE_ENV_DEFAULT = '/^(PATH|NIX_SSL_.*)$/';
-
   public function buildFilename() {
     return $this->serviceName($this->input->getOption('app'), $this->service->name);
   }
@@ -33,6 +27,8 @@ class SystemdService {
       $svc->environment->getKeys()
     );
 
+    $exportOptions = $svc->createExportOptions();
+
     $ini = json_decode(file_get_contents($iniTemplate), 1);
 
     $ini['Unit'][] = "Description=" . $this->input->getOption('app') . '-' . $svc->name;
@@ -51,7 +47,7 @@ class SystemdService {
       }
     }
 
-    $ini['Service'][] = "Type=" . ($svc->systemd['Service']['Type'] ?? 'exec');
+    $ini['Service'][] = "Type=" . $exportOptions['type'];
     if ($svc->pid_file) {
       $ini['Service'][] = "PIDFile=" . $env->evaluate($svc->pid_file);
     }
@@ -64,20 +60,17 @@ class SystemdService {
     $ini['Service'][] = "Group=" . $this->input->getOption('group');
     $ini['Service'][] = "WorkingDirectory=" . $env->getValue('LOCO_PRJ');
 
-    $includeEnvPat = $svc->config['export']['include_env']
-      ?? $svc->system->config['export']['include_env']
-      ?? self::INCULDE_ENV_DEFAULT;
 
     // When 'loco run -X' runs, it will re-compute defaults+mandatory values. However, we may want to reproduce
     // some of the original environment.
-    $envValues = array_filter($this->system->global_environment->getAllValues(), function($value, $key) use ($significantVars, $includeEnvPat) {
+    $envValues = array_filter($this->system->global_environment->getAllValues(), function($value, $key) use ($significantVars, $exportOptions) {
       // Include any vars referenced/customized by loco config.
       if (in_array($key, $significantVars)) {
         return TRUE;
       }
 
       // Include any vars whitelisted by the loco config (`export: include_env: REGEXP`).
-      if (preg_match($includeEnvPat, $key)) {
+      if (preg_match($exportOptions['include_env'], $key)) {
         return TRUE;
       }
 

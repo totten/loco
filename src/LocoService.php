@@ -129,6 +129,32 @@ class LocoService {
   }
 
   /**
+   * Synthesize the effective export options for this service.
+   *
+   * @return array
+   */
+  public function createExportOptions() {
+    $defaults = [
+      /**
+       * Specifies the preferred systemd "Type".
+       */
+      'type' => 'exec',
+
+      /**
+       * Specifies a white list of pre-existing/global environment variables that
+       * can be inherited and propagated to the service.
+       */
+      'include_env' => '/^(PATH|NIX_SSL_.*)$/',
+    ];
+
+    return array_merge(
+      $defaults,
+      $this->system->config['export'] ?? [],
+      $this->config['export'] ?? []
+    );
+  }
+
+  /**
    * @param LocoEnv $env
    * @return bool
    */
