@@ -6,6 +6,12 @@ class SystemdService {
 
   use SystemdExportTrait;
 
+  /**
+   * Specifies a white list of pre-existing/global environment variables that
+   * can be inherited and propagated to the service.
+   */
+  const INCULDE_ENV_DEFAULT = '/^(PATH|NIX_SSL_.*)$/';
+
   public function buildFilename() {
     return $this->serviceName($this->input->getOption('app'), $this->service->name);
   }
@@ -57,14 +63,17 @@ class SystemdService {
     $ini['Service'][] = "Group=" . $this->input->getOption('group');
     $ini['Service'][] = "WorkingDirectory=" . $env->getValue('LOCO_PRJ');
 
-    $envValues = array_filter($env->getAllValues(), function($value, $key) use ($activeVars) {
+    $includeEnvPat = $svc->config['export']['include_env']
+      ?? $svc->system->config['export']['include_env']
+      ?? self::INCULDE_ENV_DEFAULT;
+
+    $envValues = array_filter($env->getAllValues(), function($value, $key) use ($activeVars, $includeEnvPat) {
       // Include any vars referenced/customized by loco config.
       if (in_array($key, $activeVars)) {
         return TRUE;
       }
 
-      $pat = sprintf('/^(' . $this->input->getOption('include-env') . ')$/');
-      if (preg_match($pat, $key)) {
+      if (preg_match($includeEnvPat, $key)) {
         return TRUE;
       }
 

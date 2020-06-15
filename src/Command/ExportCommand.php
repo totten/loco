@@ -24,7 +24,6 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
       ->addOption('app', NULL, InputOption::VALUE_REQUIRED, 'App name. All exported services are grouped under an app.', 'loco')
       ->addOption('user', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentUser['name'])
       ->addOption('group', NULL, InputOption::VALUE_REQUIRED, 'User to execute the service as', $currentGroup['name'])
-      ->addOption('include-env', NULL, InputOption::VALUE_REQUIRED, 'Env vars to exclude. Regex-enabled.', 'PATH|NIX_SSL_.*')
       ->setHelp('Export service definitions to another format');
     $this->configureSystemOptions();
   }

@@ -43,6 +43,11 @@ class LocoSystem {
   public $services;
 
   /**
+   * @var array
+   */
+  public $export;
+
+  /**
    * @param string $prjDir
    * @param array $settings
    * @return \Loco\LocoSystem

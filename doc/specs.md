@@ -19,6 +19,14 @@ environment:
 default_environment:
   - KEY=VALUE
 
+## The 'export' lists extra options that would be used for exporting to
+## another process-manager (eg systemd).
+export:
+  ## When exporting, all explicit env-vars are included with the export.
+  ## Additionally, you may use a regex to pass-through more vars.
+  ## Default: '/^(PATH|NIX_SSL_.*)$/'
+  include_env: 'REGEX'
+
 ## The 'services' defines each of the processes we will run.
 services:
 
@@ -64,6 +72,13 @@ services:
     ## the service.
     cleanup:
       - BASH_COMMAND
+
+    ## The 'export' lists extra options that would be used for exporting to
+    ## another process-manager (eg systemd).
+    export:
+      ## Optionally, override the list of pass-through vars
+      include_env: 'REGEX'
+
 
 ## The "volume" is a special service. It automatically appears as a
 ## dependency before any other services.
