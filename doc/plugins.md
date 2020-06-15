@@ -88,3 +88,7 @@ The following events are defined:
    * __Argument__: `$e['system']`: the instance of LocoSystem which needs an environment
    * __Argument__: `$e['srcs']`: an array of `LocoEnv`, ordered by priority
    * __Argument__: `$e['env']`: the new `LocoEnv` built by combining the various sources
+* `loco.systemd.export`: Fires whenever a service is exported to systemd
+   * __Argument__: `$e['service']`: the `LocoService` which needs an environment
+   * __Argument__: `$e['ini']`: an array representation of the systemd unit, in the form `array(string $section => string[] $lines)`
+   * __Argument__: `$e['filename']`: the file that will be generated

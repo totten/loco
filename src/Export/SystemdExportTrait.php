@@ -2,6 +2,7 @@
 
 namespace Loco\Export;
 
+use Loco\Loco;
 use Loco\Utils\SystemdUtil;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -51,6 +52,7 @@ trait SystemdExportTrait {
     $filename = rtrim($this->input->getOption('out'), DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $this->buildFilename();
     $this->output->writeln("<info>Generate file <comment>{$filename}</comment></info>");
     $ini = $this->buildSystemdIni();
+    $ini = Loco::filter('loco.systemd.export', ['service' => $this->service, 'filename' => $filename, 'ini' => $ini])['ini'];
     $this->writeUnit($filename, $ini);
   }
 
