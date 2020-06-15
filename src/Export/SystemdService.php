@@ -57,8 +57,10 @@ class SystemdService {
       $ini['Service'][] = "PIDFile=" . $env->evaluate($svc->pid_file);
     }
 
-    $ini['Service'][] = "ExecStartPre=/bin/bash -c " . escapeshellarg(/*LOCO_BIN*/ 'loco' . ' init -v ' . $svc->name);
-    $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($svc->run);
+    // LOCO_BIN ?
+    $locoRun = sprintf('loco run -X -v -c %s %s', escapeshellarg($env->getValue('LOCO_CFG_YML')), escapeshellarg($svc->name));
+    $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($locoRun);
+
     $ini['Service'][] = "User=" . $this->input->getOption('user');
     $ini['Service'][] = "Group=" . $this->input->getOption('group');
     $ini['Service'][] = "WorkingDirectory=" . $env->getValue('LOCO_PRJ');
