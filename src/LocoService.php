@@ -18,15 +18,18 @@ class LocoService {
   public $config;
 
   /**
-   * @var LocoSystem */
+   * @var LocoSystem
+   */
   public $system;
 
   /**
-   * @var string */
+   * @var string
+   */
   public $name;
 
   /**
-   * @var bool */
+   * @var bool
+   */
   public $enabled;
 
   /**
@@ -44,23 +47,33 @@ class LocoService {
   public $default_environment;
 
   /**
-   * @var array */
-  public $init, $cleanup;
+   * @var array
+   */
+  public $init;
 
   /**
-   * @var string|NULL */
+   * @var array
+   */
+  public $cleanup;
+
+  /**
+   * @var string|null
+   */
   public $run;
 
   /**
-   * @var string|NULL */
+   * @var string|null
+   */
   public $pid_file;
 
   /**
-   * @var string|NULL */
+   * @var string|null
+   */
   public $message;
 
   /**
-   * @var array */
+   * @var array
+   */
   public $depends;
 
   /**
@@ -183,8 +196,8 @@ class LocoService {
   }
 
   /**
-   * @param \Loco\LocoEnv $env
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Loco\LocoEnv $env
    */
   protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
