@@ -22,10 +22,14 @@ default_environment:
 ## The 'export' lists extra options that would be used for exporting to
 ## another process-manager (eg systemd).
 export:
-  ## When exporting, all explicit env-vars are included with the export.
-  ## Additionally, you may use a regex to pass-through more vars.
+  ## When exporting, you may pass-through environment variables from the
+  ## runtime context to the systemd unit.
   ## Default: '/^(PATH|NIX_SSL_.*)$/'
   include_env: 'REGEX'
+
+  ## The preferred systemd service "Type", e.g. "simple" or "exec".
+  ## Default: 'exec'
+  type: SYSTEMD_TYPE
 
 ## The 'services' defines each of the processes we will run.
 services:
@@ -76,8 +80,7 @@ services:
     ## The 'export' lists extra options that would be used for exporting to
     ## another process-manager (eg systemd).
     export:
-      ## Optionally, override the list of pass-through vars
-      include_env: 'REGEX'
+      ## For list of keys, see documentation of the system-level "export" clause
 
 
 ## The "volume" is a special service. It automatically appears as a
@@ -189,7 +192,7 @@ loco import [[svc@]<file> | [svc@]<url> | <svc>@ | -A]    Copy svcs (YAML+tpls) 
             [--detect|-D]                                 Auto-detect which services may be applicable
             [--create|-C]                                 Auto-create new project
 loco copy <from-svc> <to-svc>                             Copy svc (YAML+tpls) within a project
-loco export [--systemd] [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export service definitions (in systemd format)
+loco export [-o <dir>] [--ram-disk=<size>] [<svc>...]    Export service definitions (in systemd format)
 ```
 
 # Status/TODOs
@@ -209,7 +212,6 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
       ```bash
       loco import --detect
       ```
-    * Add options for exporting from YAML to systemd unit files
 * Process management
     * Implement support for background launching
     * For BG processes, route console output to log files
