@@ -29,11 +29,64 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       ->setDescription('Run the service(s) in the foreground')
       ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). Separated by commas or spaces. (Default: all)')
       ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force initialization, overwriting an existing data folder')
+      ->addOption('exec', 'X', InputOption::VALUE_NONE, "Run a single service via exec().\nMay be useful for integration with other process managers.\nLoco will handle initialization/setup.\nLoco will NOT handle dependencies, volumes, restarts, etc.")
       ->setHelp('Display the environment variables for a service');
     $this->configureSystemOptions();
   }
 
   protected function execute(InputInterface $input, OutputInterface $output) {
+    if ($input->getOption('exec')) {
+      $this->executeInExecMode($input, $output);
+    }
+    else {
+      $this->executeInManagedMode($input, $output);
+    }
+  }
+
+  /**
+   * In "exec" mode, we setup the environment and config files, but then pass
+   * off execution to the underlying service.
+   *
+   * This may be useful for integrating with other process-managers; e.g.
+   * in systemd, use `ExecStart=loco run -X redis'.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @throws \Exception
+   */
+  public function executeInExecMode(InputInterface $input, OutputInterface $output) {
+    $system = $this->initSystem($input, $output);
+
+    if (count($input->getArgument('service')) !== 1) {
+      throw new \Exception("When using --exec, please specify exactly one service.");
+    }
+
+    foreach ($input->getArgument('service') as $name) {
+      /** @var \Loco\LocoService $svc */
+      if (!isset($system->services[$name])) {
+        throw new \Exception("Invalid service: $name");
+      }
+      $svc = $system->services[$name];
+
+      InitCommand::doInit($svc, $input->getOption('force'), $output);
+      $env = $svc->createEnv();
+      Shell::applyEnv($svc->createEnv());
+      $cmd = $env->evaluate($svc->run);
+      $output->writeln("<info>[<comment>$name</comment>] Exec: <comment>/bin/bash -c " . escapeshellarg($cmd) . "</comment></info>");
+      pcntl_exec('/bin/bash', ['-c', $cmd]);
+    }
+    throw new \Exception("This line should not be executable.");
+  }
+
+  /**
+   * In "managed" mode, we spawn processes for each service. Services are
+   * launched based on their dependency graph, and they are automatically restarted.
+   *
+   * @param \Symfony\Component\Console\Input\InputInterface $input
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @return int
+   */
+  protected function executeInManagedMode(InputInterface $input, OutputInterface $output) {
     declare(ticks = 1);
     $POLL_INTERVAL = 3;
 
