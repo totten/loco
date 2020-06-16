@@ -19,18 +19,6 @@ environment:
 default_environment:
   - KEY=VALUE
 
-## The 'export' lists extra options that would be used for exporting to
-## another process-manager (eg systemd).
-export:
-  ## When exporting, you may pass-through environment variables from the
-  ## runtime context to the systemd unit.
-  ## Default: '/^(PATH|NIX_SSL_.*)$/'
-  include_env: 'REGEX'
-
-  ## The preferred systemd service "Type", e.g. "simple" or "exec".
-  ## Default: 'exec'
-  type: SYSTEMD_TYPE
-
 ## The 'services' defines each of the processes we will run.
 services:
 
@@ -93,6 +81,18 @@ volume:
   # Or with custom commands...
   ...SERVICE_SPEC...
 
+## The 'export' lists extra options that would be used for exporting to
+## another process-manager (eg systemd).
+export:
+  ## When exporting, you may pass-through environment variables from the
+  ## runtime context to the systemd unit.
+  ## Default: '/^(PATH|NIX_SSL_.*)$/'
+  include_env: 'REGEX'
+
+  ## The preferred systemd service "Type", e.g. "simple", "exec", "forking".
+  ## Default: 'exec'
+  type: SYSTEMD_TYPE
+
 ## TODO: Support for mixing configurations from a third-party library.
 # include:
 # - URL_OF_TARBALL
@@ -100,11 +100,26 @@ volume:
 
 ## Specification: Environment variables
 
-Environment variables are stored in multiple scopes, which are (in order of increasing priority):
+Environment variables are stored in multiple scopes. These include (in order of decreasing priority):
 
-* __Global Scope__: Environment variables inherited from the user's shell.
-* __Loco System Scope__: Environment variables defined at the top of the YAML file.
-* __Loco Service Scope__: Environment variables defined in the YAML file for a specific service.
+1. __Mandatory Loco Service Environment (`services: *: environment`)__: Mandatory variables defined in the YAML file for a specific service.
+2. __Mandatory Loco System Environment (`environment`)__: Mandatory variables defined at the top of the YAML file.
+3. __Global Environment__: Environment variables inherited from the user's shell.
+4. __Default Loco Service Environment (`services: *: default_environment`)__: Default variables defined in the YAML file for a specific service.
+5. __Default Loco System Environment (`default_environment`)__: Default variables defined at the top of the YAML file.
+
+If the same variable is defined in two scopes, then the narrower scope overrides the broader scope.
+
+```yaml
+## From the perspective of the `cookiemonster` service, the `SNACK` variable is overriden with value `chocolate_chip_cookie`.
+environment:
+  - SNACK=apple
+
+services:
+  cookiemonster:
+    environment:
+      - SNACK=chocolate_chip_cookie
+```
 
 There are a few built-in environment variables for each scope:
 
@@ -112,6 +127,7 @@ There are a few built-in environment variables for each scope:
     * `LOCO_PRJ`: The absolute path of your project. (Ex: `/home/me/src/my-web-app`; usually the `PWD`.)
     * `LOCO_VAR`: The absolute path of the project's dynamic data-folder.
       Very loosely similar to FHS `/var`. (Ex: `/home/me/src/my-web-app/.loco/var`)
+    * `LOCO_CFG_YML`: The path of the `loco.yml` configuration file
 * Loco Service Scope
     * `LOCO_SVC`: The name of the service being launched. (Ex: `php-fpm`)
     * `LOCO_SVC_CFG`: The absolute path of a folder  containing configuration-templates (Ex: `/home/me/src/my-web-app/.loco/config/php-fpm`)
@@ -121,6 +137,7 @@ When defining variables in YAML, one may reference other variables, e.g.
 
 ```yaml
 environment:
+  - PATH=/opt/foo/bin:$PATH
   - FOO_BASE=$LOCO_VAR/foo
   - FOO_DATA=$FOO_BASE/data
   - FOO_LOGS=$FOO_BASE/log
@@ -131,19 +148,16 @@ References are evaluated on-demand: specifically, when launching a subcommand (e
 user-string/template (e.g.  `pid_file:`), `loco` merges the active scopes (per precedence) and recursively evaluates
 any nested references.  `loco` *only* evaluates a nested reference if it's declared in the YAML file.
 
-Variables may defined recursively, incorporating avalue from the parent scope:
+If a variable is defined recursively (e.g. `PATH=/opt/foo/bin:$PATH`), then it incorporates the value from the parent scope.
 
-```yaml
-environment:
-  - PATH=/opt/foo/bin:$PATH
-```
-
-Additionally, there is limited support for computations (eg `dirname` and `basename`).
+There is limited support for computation (eg `dirname` and `basename`).
 
 ```yaml
 environment:
   - FOO_BASE=$(dirname $LOCO_VAR)/sibling
 ```
+
+If further computation is required, then use a [plugin](plugins.md).
 
 ## Specification: Initializing config files
 
@@ -166,7 +180,7 @@ This is very common, so there is also a *convention* for automatic file mappings
 
 > WIP: Pick another templating language to embed.
 
-# Specificiation: CLI (WIP/Draft)
+# Specificiation: CLI (WIP/Draft/Wishlist)
 
 ```
 ### Common options
@@ -174,16 +188,16 @@ loco ... [--cwd <dir>]                                Change working directory
 loco ... [-c <configFile>]                            Load alternative config file
 
 ## Multi service commands. (By default, execute on all services.)
-loco run [-f] [--ram-disk=<size>] [<svc>...]          Start service(s) in foreground
-loco start [-f] [--ram-disk=<size>] [<svc>...]        Start service(s) in background
-loco stop [<svc>...]                                  Stop service(s) in background
-loco status [<svc>...]                                List background service(s) and their status(es)
 loco init [-f] [<svc>...]                             Execute initialization
+loco run [-f] [-X] [<svc>...]                         Start service(s) in foreground
+loco start [-f] [<svc>...]                            Start service(s) in background
+loco stop [<svc>...]                                  Stop service(s) in background
+loco status [<svc>...]                                List background service(s) and their status(es) (Wishlist)
 loco clean [<svc>...]                                 Destroy any generated data files
 
 ## Single service commands. (No services picked by default.)
 loco env [<svc>|.]                                    Display environment variables
-loco shell [<svc>|.] -- <cmd>                         Execute a shell command within the service's environment
+loco shell [<svc>|.] [-- <cmd>]                       Open a subshell or run a commad in a subshell, using the service's environment
 loco sh [<svc>|.] -- <cmd>                            Alias for "shell"
 
 ## Manipulating YAML content
