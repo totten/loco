@@ -1,0 +1,12 @@
+{
+  "Unit": [
+  ],
+  "Service": [
+    "PermissionsStartOnly=true",
+    "PrivateTmp=true",
+    "LimitNOFILE=500000",
+    "RemainAfterExit=true",
+    "StandardOutput=journal"
+  ],
+  "Install": []
+}

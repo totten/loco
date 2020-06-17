@@ -17,7 +17,9 @@ class SystemdService {
     $svc = $this->service;
     $env = $svc->createEnv();
     $appSvcName = $this->input->getOption('app') . '.service';
-    $iniTemplate = __DIR__ . '/SystemdServiceTemplate.json';
+    $iniTemplate = empty($svc->run)
+      ? __DIR__ . '/SystemdOneshotTemplate.json'
+      : __DIR__ . '/SystemdServiceTemplate.json';
 
     $significantVars = array_merge(
       $this->system->default_environment->getKeys(),
@@ -47,19 +49,25 @@ class SystemdService {
       }
     }
 
-    $ini['Service'][] = "Type=" . $exportOptions['type'];
-    if ($svc->pid_file) {
-      $ini['Service'][] = "PIDFile=" . $env->evaluate($svc->pid_file);
+    if ($svc->run) {
+      $ini['Service'][] = "Type=" . $exportOptions['type'];
+      if ($svc->pid_file) {
+        $ini['Service'][] = "PIDFile=" . $env->evaluate($svc->pid_file);
+      }
+
+      $locoRun = sprintf('loco run -X -v -c %s %s', escapeshellarg($env->getValue('LOCO_CFG_YML')), escapeshellarg($svc->name));
+      $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($locoRun);
+    }
+    else {
+      $ini['Service'][] = "Type=" . 'oneshot';
+      $locoRun = sprintf('loco init -v -c %s %s', escapeshellarg($env->getValue('LOCO_CFG_YML')), escapeshellarg($svc->name));
+      $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($locoRun);
     }
 
-    // LOCO_BIN ?
-    $locoRun = sprintf('loco run -X -v -c %s %s', escapeshellarg($env->getValue('LOCO_CFG_YML')), escapeshellarg($svc->name));
-    $ini['Service'][] = "ExecStart=/bin/bash -c " . escapeshellarg($locoRun);
 
     $ini['Service'][] = "User=" . $this->input->getOption('user');
     $ini['Service'][] = "Group=" . $this->input->getOption('group');
     $ini['Service'][] = "WorkingDirectory=" . $env->getValue('LOCO_PRJ');
-
 
     // When 'loco run -X' runs, it will re-compute defaults+mandatory values. However, we may want to reproduce
     // some of the original environment.
