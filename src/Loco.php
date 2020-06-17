@@ -24,10 +24,11 @@ class Loco {
    *
    * NOTE: At time of writing, this is not used internally - but can be used by a plugin.
    *
+   * @param string $namespace
    * @return \Psr\SimpleCache\CacheInterface
    */
-  public static function cache() {
-    if (!isset(self::$instances["cache"])) {
+  public static function cache($namespace = 'default') {
+    if (!isset(self::$instances["cache.$namespace"])) {
       if (getenv('XDG_CACHE_HOME')) {
         $dir = getenv('XDG_CACHE_HOME');
       }
@@ -37,11 +38,11 @@ class Loco {
       else {
         throw new \RuntimeException("Failed to determine cache location");
       }
-      $fsCache = new FilesystemAdapter('loco', 600, $dir);
+      $fsCache = new FilesystemAdapter($namespace, 600, $dir . DIRECTORY_SEPARATOR . 'loco');
       // In symfony/cache~3.x, the class name is weird.
-      self::$instances["cache"] = new Psr6Cache($fsCache);
+      self::$instances["cache.$namespace"] = new Psr6Cache($fsCache);
     }
-    return self::$instances["cache"];
+    return self::$instances["cache.$namespace"];
   }
 
   /**
