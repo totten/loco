@@ -21,7 +21,7 @@ jobs:
         run: composer validate
 
       - name: Build PHAR
-        run: ./build.sh
+        run: ./scripts/github-build.sh
         continue-on-error: false
 
       - name: Create Release
