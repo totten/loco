@@ -1,5 +1,7 @@
 /.idea/
 /vendor/
 /result
+/bin/box
 /bin/loco.phar
+.composer-downloads
 *~

@@ -8,7 +8,8 @@
         "symfony/console": "~3.0",
         "symfony/filesystem": "~3.0",
         "symfony/event-dispatcher": "~3.0",
-        "symfony/cache": "~3.0"
+        "symfony/cache": "~3.0",
+        "civicrm/composer-downloads-plugin": "~2.1"
     },
     "bin": ["bin/loco"],
     "autoload": {
@@ -22,5 +23,14 @@
             "name": "Tim Otten",
             "email": "totten@civicrm.org"
         }
-    ]
+    ],
+    "extra": {
+        "downloads": {
+            "box": {
+                "url": "https://github.com/humbug/box/releases/download/3.8.3/box.phar",
+                "path": "bin/box",
+                "type": "phar"
+            }
+        }
+    }
 }
