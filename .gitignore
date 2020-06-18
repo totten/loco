@@ -1,4 +1,5 @@
 /.idea/
 /vendor/
 /result
+/bin/loco.phar
 *~

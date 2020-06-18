@@ -43,6 +43,6 @@ in stdenv.mkDerivation rec {
     #  sha256 = "FIXME";
     #};
 
-    buildInputs = [ php phpPackages.composer ];
+    buildInputs = [ php phpPackages.composer phpPackages.box ];
     builder = "${src}/scripts/nix-builder.sh";
 }
