@@ -1,5 +1,6 @@
 {
     "name": "totten/loco",
+    "description": "Loco is the YAML-based \"local-compose\" process manager",
     "require": {
         "marcj/topsort": "^1.1",
         "symfony/yaml": "~3.0",
@@ -15,7 +16,7 @@
         "Loco\\": "src/"
       }
     },
-    "license": "BSD",
+    "license": "MIT",
     "authors": [
         {
             "name": "Tim Otten",
