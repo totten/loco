@@ -1,15 +1,15 @@
 # loco: Download
 
-* Option 1: Install PHP 5.6/7.x with the `pcntl` extension. Download a PHAR.
+* Option 1: Install PHP 7.x with the `pcntl` extension. Download a PHAR.
 
-    Browse to https://github.com/totten/loco/releases and identify the latest PHAR. Download it to /usr/local/bin.
+    Browse to https://github.com/totten/loco/releases and identify the latest PHAR. Download it to `/usr/local/bin`.
 
     ```
     sudo wget https://github.com/totten/loco/releases/download/v0.4.3/loco-0.4.3.phar -O /usr/local/bin/loco
     chmod +x /usr/local/bin/loco
     ```
 
-* Option 2: Install PHP 5.6/7.x with the `pcntl` extension. Clone the repo; run composer; update the PATH.
+* Option 2: Install PHP 7.x with the `pcntl` extension. Clone the repo; run composer; update the `PATH`.
     ```
     git clone https://github.com/totten/loco
     cd loco
