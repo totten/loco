@@ -2,6 +2,7 @@
 <?php
 define('LOCO_BIN', __FILE__);
 ini_set('display_errors', 1);
+ini_set('pcre.jit', 0);
 if (PHP_SAPI !== 'cli') {
   fwrite(STDERR, "loco is a command-line tool\n");
   exit(1);
