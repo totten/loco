@@ -1,4 +1,5 @@
-{pkgs ? import <nixpkgs> {
+## Pin to variant of 20.03. Same pin as buildkit/nix.
+{pkgs ? import (fetchTarball https://github.com/NixOS/nixpkgs-channels/archive/70717a337f7ae4e486ba71a500367cad697e5f09.tar.gz) {
     inherit system;
   },
   system ? builtins.currentSystem,
@@ -45,4 +46,8 @@ in stdenv.mkDerivation rec {
 
     buildInputs = [ php phpPackages.composer phpPackages.box ];
     builder = "${src}/scripts/nix-builder.sh";
+    shellHook = ''
+      PATH="$PWD/bin:$PWD/extern:$PATH"
+      export PATH
+    '';
 }

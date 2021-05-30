@@ -35,6 +35,18 @@
                 "url": "https://github.com/humbug/box/releases/download/3.8.3/box.phar",
                 "path": "bin/box",
                 "type": "phar"
+            },
+            "phpunit5": {
+                "version": "5.x",
+                "url": "https://phar.phpunit.de/phpunit-5.phar",
+                "path": "extern/phpunit5",
+                "type": "phar"
+            },
+            "phpunit8": {
+                "version": "8.x",
+                "url": "https://phar.phpunit.de/phpunit-8.phar",
+                "path": "extern/phpunit8",
+                "type": "phar"
             }
         }
     }
