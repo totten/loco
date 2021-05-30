@@ -9,7 +9,7 @@ class SystemdUtil {
 
     $buf = '';
     for ($i = 0; $i < strlen($name); $i++) {
-      $c = $name{$i};
+      $c = $name[$i];
 
       if (strpos($PASSTHRU, $c) !== FALSE) {
         $buf .= $c;
