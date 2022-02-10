@@ -4,8 +4,8 @@
   },
   system ? builtins.currentSystem,
   noDev ? false,
-  php ? pkgs.php72,
-  phpPackages ? pkgs.php72Packages
+  php ? pkgs.php74,
+  phpPackages ? pkgs.php74Packages
   }:
 
 let
