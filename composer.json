@@ -20,7 +20,10 @@
     "config": {
       "platform": {
         "php": "7.1"
-      }
+      },
+        "allow-plugins": {
+            "civicrm/composer-downloads-plugin": true
+        }
     },
     "license": "MIT",
     "authors": [
@@ -32,7 +35,7 @@
     "extra": {
         "downloads": {
             "box": {
-                "url": "https://github.com/humbug/box/releases/download/3.8.3/box.phar",
+                "url": "https://github.com/humbug/box/releases/download/3.15.0/box.phar",
                 "path": "bin/box",
                 "type": "phar"
             },
