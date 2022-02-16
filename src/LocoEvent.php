@@ -13,7 +13,8 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Drak <drak@zikula.org>
  */
 class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
-  protected $arguments;
+
+  use Utils\BasicArrayAccessTrait;
 
   /**
    * Encapsulate an event with $subject and $args.
@@ -86,51 +87,6 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
    */
   public function hasArgument($key) {
     return \array_key_exists($key, $this->arguments);
-  }
-
-  /**
-   * ArrayAccess for argument getter.
-   *
-   * @param string $key Array key
-   *
-   * @return mixed
-   *
-   * @throws \InvalidArgumentException if key does not exist in $this->args
-   */
-  public function &offsetGet($key): mixed {
-    return $this->arguments[$key];
-  }
-
-  /**
-   * ArrayAccess for argument setter.
-   *
-   * @param string $key Array key to set
-   * @param mixed $value Value
-   */
-  public function offsetSet($key, $value): void {
-    $this->setArgument($key, $value);
-  }
-
-  /**
-   * ArrayAccess for unset argument.
-   *
-   * @param string $key Array key
-   */
-  public function offsetUnset($key): void {
-    if ($this->hasArgument($key)) {
-      unset($this->arguments[$key]);
-    }
-  }
-
-  /**
-   * ArrayAccess has argument.
-   *
-   * @param string $key Array key
-   *
-   * @return bool
-   */
-  public function offsetExists($key): bool {
-    return $this->hasArgument($key);
   }
 
   /**

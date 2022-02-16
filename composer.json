@@ -13,6 +13,9 @@
     },
     "bin": ["bin/loco"],
     "autoload": {
+      "files": [
+        "src/php7-overloads.php"
+      ],
       "psr-4": {
         "Loco\\": "src/"
       }
