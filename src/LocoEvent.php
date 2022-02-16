@@ -97,7 +97,7 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
    *
    * @throws \InvalidArgumentException if key does not exist in $this->args
    */
-  public function &offsetGet(mixed $key): mixed {
+  public function &offsetGet($key): mixed {
     return $this->arguments[$key];
   }
 
@@ -107,7 +107,7 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
    * @param string $key Array key to set
    * @param mixed $value Value
    */
-  public function offsetSet(mixed $key, mixed $value): void {
+  public function offsetSet($key, $value): void {
     $this->setArgument($key, $value);
   }
 
@@ -116,7 +116,7 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
    *
    * @param string $key Array key
    */
-  public function offsetUnset(mixed $key): void {
+  public function offsetUnset($key): void {
     if ($this->hasArgument($key)) {
       unset($this->arguments[$key]);
     }
@@ -129,7 +129,7 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
    *
    * @return bool
    */
-  public function offsetExists(mixed $key): bool {
+  public function offsetExists($key): bool {
     return $this->hasArgument($key);
   }
 
