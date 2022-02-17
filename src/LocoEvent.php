@@ -13,7 +13,8 @@ use Symfony\Component\EventDispatcher\Event;
  * @author Drak <drak@zikula.org>
  */
 class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
-  protected $arguments;
+
+  use Utils\BasicArrayAccessTrait;
 
   /**
    * Encapsulate an event with $subject and $args.
@@ -89,56 +90,11 @@ class LocoEvent extends Event implements \ArrayAccess, \IteratorAggregate {
   }
 
   /**
-   * ArrayAccess for argument getter.
-   *
-   * @param string $key Array key
-   *
-   * @return mixed
-   *
-   * @throws \InvalidArgumentException if key does not exist in $this->args
-   */
-  public function &offsetGet($key) {
-    return $this->arguments[$key];
-  }
-
-  /**
-   * ArrayAccess for argument setter.
-   *
-   * @param string $key Array key to set
-   * @param mixed $value Value
-   */
-  public function offsetSet($key, $value) {
-    $this->setArgument($key, $value);
-  }
-
-  /**
-   * ArrayAccess for unset argument.
-   *
-   * @param string $key Array key
-   */
-  public function offsetUnset($key) {
-    if ($this->hasArgument($key)) {
-      unset($this->arguments[$key]);
-    }
-  }
-
-  /**
-   * ArrayAccess has argument.
-   *
-   * @param string $key Array key
-   *
-   * @return bool
-   */
-  public function offsetExists($key) {
-    return $this->hasArgument($key);
-  }
-
-  /**
    * IteratorAggregate for iterating over the object like an array.
    *
    * @return \ArrayIterator
    */
-  public function getIterator() {
+  public function getIterator(): \Traversable {
     return new \ArrayIterator($this->arguments);
   }
 
