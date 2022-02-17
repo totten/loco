@@ -1,0 +1,30 @@
+name: CI
+
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - php: 7.2
+            phpunit: 7
+          - php: 7.4
+            phpunit: 8
+          - php: 8.1
+            phpunit: 8
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: php-actions/composer@v5
+      - name: PHPUnit Tests
+        uses: php-actions/phpunit@v2
+        with:
+          configuration: phpunit.xml.dist
+          version: ${{ matrix.phpunit }}
+          php_version:  ${{ matrix.php }}
