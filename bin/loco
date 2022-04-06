@@ -1,4 +1,4 @@
-#!/usr/bin/env php -d variables_order=EGPCS
+#!/usr/bin/env php
 <?php
 define('LOCO_BIN', __FILE__);
 ini_set('display_errors', 1);
