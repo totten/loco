@@ -122,6 +122,9 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     }
 
     pcntl_signal(SIGINT, [$this, 'onshutdown']);
+    pcntl_signal(SIGTERM, [$this, 'onshutdown']);
+    pcntl_signal(SIGQUIT, [$this, 'onshutdown']);
+    pcntl_signal(SIGABRT, [$this, 'onshutdown']);
     register_shutdown_function([$this, 'onshutdown']);
 
     // Track which thread is responsible for shutdown.
@@ -198,11 +201,11 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
 
   public function onshutdown() {
     global $shutdownPid;
-    static $started = FALSE;
-    if ($started || $shutdownPid !== posix_getpid()) {
+    global $shutdownStarted;
+    if ($shutdownStarted || $shutdownPid !== posix_getpid()) {
       return;
     }
-    $started = 1;
+    $shutdownStarted = 1;
 
     $this->output->writeln("<info>[<comment>loco</comment>] Shutdown started</info>");
 
