@@ -23,4 +23,8 @@ class Multiprocess {
     }
   }
 
+  public static function isAlive(int $pid): bool {
+    return (bool) posix_getpgid($pid);
+  }
+
 }
