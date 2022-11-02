@@ -21,7 +21,7 @@ trait LocoCommandTrait {
     if (!$input->getOption('config')) {
       $input->setOption('config', $this->pickConfig());
     }
-    if (!file_exists($input->getOption('config'))) {
+    if (!$input->getOption('config') || !file_exists($input->getOption('config'))) {
       throw new \Exception("Failed to find loco config file: " . $input->getOption('config'));
     }
     $configFile = $input->getOption('config');
