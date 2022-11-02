@@ -1,6 +1,7 @@
 <?php
 namespace Loco;
 
+use LesserEvil\ShellVerbosityIsEvil;
 use Loco\Command\CleanCommand;
 use Loco\Command\EnvCommand;
 use Loco\Command\ExportCommand;
@@ -30,6 +31,12 @@ class Application extends \Symfony\Component\Console\Application {
     $this->setCatchExceptions(TRUE);
     $this->addCommands($this->createCommands());
     // $this->setDefaultCommand('run');
+  }
+
+  protected function configureIO(InputInterface $input, OutputInterface $output) {
+    ShellVerbosityIsEvil::doWithoutEvil(function() use ($input, $output) {
+      parent::configureIO($input, $output);
+    });
   }
 
   /**
