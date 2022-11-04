@@ -1,0 +1,10 @@
+At time of writing, the package `marcj/topsort` has v1.1.0 and v2.0.0. How do they differ?
+
+* topsort@1.1 and topsort@2.0's are basically identical, in terms of API/runtime.
+* topsort@2.0 adds a couple pro-forma signature fixes (for php80 compatibility).
+* topsort@2.0 updates the QA regime (move to phpunit9; drop support for php54-php72).
+* It looks like php54-php72 was primarily dropped to appease phpunit9.
+
+Our current target is to build a PHAR which supports php71-php82. We achieve this using topsort@1.1 plus backports (for php80 compatibility).
+
+When it comes time to drop php71-php72, then we can switch to a clean topsort@2.0.

@@ -11,7 +11,8 @@
         "symfony/cache": "~4.4",
         "civicrm/composer-downloads-plugin": "~3.0",
         "lesser-evil/shell-verbosity-is-evil": "~1.0",
-        "psr/simple-cache": "^1.0"
+        "psr/simple-cache": "^1.0",
+        "cweagans/composer-patches": "^1.7"
     },
     "bin": ["bin/loco"],
     "autoload": {
@@ -26,8 +27,10 @@
         "platform": {
             "php": "7.1.4"
         },
+        "preferred-install": "source",
         "allow-plugins": {
-            "civicrm/composer-downloads-plugin": true
+            "civicrm/composer-downloads-plugin": true,
+            "cweagans/composer-patches": true
         }
     },
     "license": "MIT",
@@ -38,6 +41,11 @@
         }
     ],
     "extra": {
+        "patches": {
+            "marcj/topsort": {
+                "Fix PHP 8.x warnings": "patches/topsort-110-php8.diff"
+            }
+        },
         "downloads": {
             "box": {
                 "url": "https://github.com/humbug/box/releases/download/3.15.0/box.phar",

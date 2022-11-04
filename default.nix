@@ -18,6 +18,7 @@ let
 
     src = ./src;
     bin = ./bin;
+    patches = ./patches;
     scripts = ./scripts;
     composerJson = ./composer.json;
     composerLock = ./composer.lock;
@@ -26,6 +27,7 @@ let
       mkdir $out
       cp -r $src $out/src
       cp -r $bin $out/bin
+      cp -r $patches $out/patches
       cp -r $scripts $out/scripts
       cp $composerJson $out/composer.json
       cp $composerLock $out/composer.lock
