@@ -1,5 +1,5 @@
-## Pin to variant of 20.03. Same pin as buildkit/nix.
-{pkgs ? import (fetchTarball https://github.com/NixOS/nixpkgs-channels/archive/70717a337f7ae4e486ba71a500367cad697e5f09.tar.gz) {
+## Prefer nixpkgs 22.05 (same as buildkit)
+{pkgs ? import (fetchTarball { url = "https://github.com/nixos/nixpkgs/archive/ce6aa13369b667ac2542593170993504932eb836.tar.gz"; sha256 = "0d643wp3l77hv2pmg2fi7vyxn4rwy0iyr8djcw1h5x72315ck9ik"; }) {
     inherit system;
   },
   system ? builtins.currentSystem,
@@ -44,7 +44,7 @@ in stdenv.mkDerivation rec {
     #  sha256 = "FIXME";
     #};
 
-    buildInputs = [ php phpPackages.composer phpPackages.box ];
+    buildInputs = [ php phpPackages.composer phpPackages.box pkgs.git pkgs.cacert ];
     builder = "${src}/scripts/nix-builder.sh";
     shellHook = ''
       PATH="$PWD/bin:$PWD/extern:$PATH"
