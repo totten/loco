@@ -4,5 +4,6 @@
 /result
 /bin/box
 /bin/loco.phar
+/dist/
 .composer-downloads
 *~

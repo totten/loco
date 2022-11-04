@@ -12,6 +12,6 @@
     ],
     "git-version": "package_version",
     "main": "bin/loco",
-    "output": "bin/loco.phar",
+    "output": "dist/loco.phar",
     "stub": true
 }
