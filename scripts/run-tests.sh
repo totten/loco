@@ -16,6 +16,14 @@ function absdirname() {
   popd >> /dev/null
 }
 
+function nixrun() {
+  # nix run "$@"
+  ## ^^^ Nix 2.3? 2.4? Something like that. No longer works in 2.7.
+  # https://github.com/NixOS/nix/issues/5081 + https://discourse.nixos.org/t/error-experimental-nix-feature-nix-command-is-disabled/18089/2
+  nix --extra-experimental-features nix-command shell "$@"
+  return $?
+}
+
 ###############################################################################
 ## Execute the PHP, unit-level tests
 ## usage: test_phpunit <php-pkg-name> <nix-repo-url> [phpunit_bin] [phpunit-options]
@@ -27,8 +35,8 @@ function test_phpunit() {
   shift 3
   local name="Unit tests ($pkg from $url; $@)"
   echo "[$name] Start"
-  echo nix run -f "$url" "$pkg" -c php "$phpunit" "$@"
-  if nix run -f "$url" "$pkg" -c php "$phpunit" "$@" ; then
+  echo nixrun -f "$url" "$pkg" -c php "$phpunit" "$@"
+  if nixrun -f "$url" "$pkg" -c php "$phpunit" "$@" ; then
     echo "[$name] OK"
   else
     echo "[$name] Fail"
@@ -54,10 +62,12 @@ EXIT_CODE=0
 pushd "$PRJDIR"
   "$COMPOSER" install
 
-  test_phpunit     php56   https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz phpunit5
+  NIX_2205="https://github.com/nixos/nixpkgs/archive/ce6aa13369b667ac2542593170993504932eb836.tar.gz"
+
+  #test_phpunit     php56   https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz phpunit5
   test_phpunit     php72   https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.09.tar.gz phpunit5
-  test_phpunit     php74   https://github.com/NixOS/nixpkgs-channels/archive/nixos-20.03.tar.gz phpunit5
-  test_phpunit	   php80    "https://github.com/nixos/nixpkgs/archive/594fbfe27905f2fd98d9431038814e497b4fcad1.tar.gz" phpunit8
+  test_phpunit     php74   "$NIX_2205" phpunit5
+  test_phpunit     php80   "$NIX_2205" phpunit8
 
 popd
 exit $EXIT_CODE
