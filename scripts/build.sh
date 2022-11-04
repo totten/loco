@@ -13,7 +13,7 @@ function absdirname() {
 
 SCRDIR=$(absdirname "$0")
 PRJDIR=$(dirname "$SCRDIR")
-export PATH="$PRJDIR/bin:$PATH"
+export PATH="$PRJDIR/extern:$PATH"
 
 set -ex
 composer install --prefer-dist --no-progress --no-suggest --no-dev
