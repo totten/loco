@@ -1,6 +1,7 @@
 <?php
 namespace Loco\Command;
 
+use Loco\Utils\Multiprocess;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -8,6 +9,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RunCommand extends \Symfony\Component\Console\Command\Command {
+
+  const SHUTDOWN_GRACE = 2;
 
   use LocoCommandTrait;
 
@@ -39,7 +42,18 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       $this->executeInExecMode($input, $output);
     }
     else {
-      $this->executeInManagedMode($input, $output);
+      // Run in managed console mode.
+      //
+      // Note: Consider a case where one uses xfce-terminal to start 'loco run' which spawns
+      // 5 more children. They then close xfce-terminal. The console process may receive SIGKILL
+      // but the children left running. To resolve this, we don't do any real work in $consolePid.
+      $consolePid = posix_getpid();
+      $watcherPid = Multiprocess::fork('loco-watcher', function() use ($input, $output, $consolePid) {
+        $this->executeInManagedMode($input, $output, $consolePid);
+      });
+      while (TRUE) {
+        sleep(60 * 10);
+      }
     }
   }
 
@@ -84,9 +98,12 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
    *
    * @param \Symfony\Component\Console\Input\InputInterface $input
    * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param int|null $consolePid
+   *   The PID of the console (wherein the admin monitors services).
+   *   If the expected console gets killed, then we will shutdown services.
    * @return int
    */
-  protected function executeInManagedMode(InputInterface $input, OutputInterface $output) {
+  protected function executeInManagedMode(InputInterface $input, OutputInterface $output, ?int $consolePid) {
     declare(ticks = 1);
     $POLL_INTERVAL = 3;
 
@@ -120,8 +137,11 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       return 1;
     }
 
-    pcntl_signal(SIGINT, [$this, 'onshutdown']);
-    register_shutdown_function([$this, 'onshutdown']);
+    pcntl_signal(SIGINT, [$this, 'onShutdownWatcher']);
+    pcntl_signal(SIGTERM, [$this, 'onShutdownWatcher']);
+    pcntl_signal(SIGQUIT, [$this, 'onShutdownWatcher']);
+    pcntl_signal(SIGABRT, [$this, 'onShutdownWatcher']);
+    register_shutdown_function([$this, 'onShutdownWatcher']);
 
     // Track which thread is responsible for shutdown.
     global $shutdownPid;
@@ -132,6 +152,12 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     $postStartupMessages = [];
 
     while (TRUE) {
+      if ($consolePid !== NULL && !Multiprocess::isAlive($consolePid)) {
+        $this->output->writeln("<info>[<comment>watcher</comment>] Console process disappeared. Shutting down.</info>");
+        exit(0);
+        // It's up to "onShutdownWatcher" to actually shutdown child processes.
+      }
+
       foreach ($services as $name => $svc) {
         /** @var \Loco\LocoService $svc */
         if (isset($blacklist[$name])) {
@@ -153,21 +179,14 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             $blacklist[$name] = $name;
           }
           else {
-            $pid = pcntl_fork();
-            if ($pid == -1) {
-              die("($name) Failed to fork");
-            }
-            elseif ($pid) {
-              $this->procs[$name]['pid'] = $pid;
-            }
-            else {
+            $this->procs[$name]['pid'] = Multiprocess::fork($name, function() use ($name, $env, $svc) {
               Shell::applyEnv($env);
               $cmd = $env->evaluate($svc->run);
               $this->output->writeln("<info>[<comment>$name</comment>] Start service: <comment>$cmd</comment></info>");
               passthru($svc->run, $ret);
               $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
-              exit($ret);
-            }
+              return $ret;
+            });
           }
 
           if ($svc->message) {
@@ -202,13 +221,13 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     return 0;
   }
 
-  public function onshutdown() {
+  public function onShutdownWatcher() {
     global $shutdownPid;
-    static $started = FALSE;
-    if ($started || $shutdownPid !== posix_getpid()) {
+    global $shutdownStarted;
+    if ($shutdownStarted || $shutdownPid !== posix_getpid()) {
       return;
     }
-    $started = 1;
+    $shutdownStarted = 1;
 
     $this->output->writeln("<info>[<comment>loco</comment>] Shutdown started</info>");
 
@@ -223,17 +242,18 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       }
     }
 
-    // print_r(['onshutdown', 'pid' => posix_getpid(), '$shutdownPid' => $shutdownPid, 'allPids' => $allPids, 'procs' => $this->procs]);
+    // print_r(['onShutdownWatcher', 'pid' => posix_getpid(), '$shutdownPid' => $shutdownPid, 'allPids' => $allPids, 'procs' => $this->procs]);
 
     foreach ($allPids as $pid) {
       posix_kill($pid, SIGTERM);
     }
-    sleep(2);
+    sleep(static::SHUTDOWN_GRACE);
     foreach ($allPids as $pid) {
       posix_kill($pid, SIGKILL);
     }
 
     $this->output->writeln("<info>[<comment>loco</comment>] Shutdown finished</info>");
+    $this->output->writeln("");
     exit(1);
   }
 
