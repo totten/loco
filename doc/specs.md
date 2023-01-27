@@ -150,12 +150,14 @@ any nested references.  `loco` *only* evaluates a nested reference if it's decla
 
 If a variable is defined recursively (e.g. `PATH=/opt/foo/bin:$PATH`), then it incorporates the value from the parent scope.
 
-There is limited support for computation (eg `dirname` and `basename`).
+There is experimental support for inline function calls (eg `dirname` and `basename`).
 
 ```yaml
 environment:
   - FOO_BASE=$(dirname $LOCO_VAR)/sibling
 ```
+
+(Note: These resemble bash subcommands, but they aren't.)
 
 If further computation is required, then use a [plugin](plugins.md).
 

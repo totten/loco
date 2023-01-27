@@ -154,18 +154,8 @@ class LocoEnv {
         $func = $matches[1];
         $argString = trim($matches[2]);
 
-        switch ($func) {
-          case 'dirname':
-            $value = $this->evaluate($argString);
-            return dirname($value);
-
-          case 'basename':
-            $value = $this->evaluate($argString);
-            return basename($value);
-
-          default:
-            throw new \RuntimeException("Invalid function expression: " . $valExpr);
-        }
+        $value = $this->evaluate($argString);
+        return Loco::callFunction($func, $value);
       }
 
       throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
