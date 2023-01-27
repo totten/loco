@@ -152,15 +152,15 @@ class LocoEnv {
       }
       elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
         $func = $matches[1];
-        $args = explode(' ', trim($matches[2]));
+        $argString = trim($matches[2]);
 
         switch ($func) {
           case 'dirname':
-            $value = $lookupVar(substr($args[0], 1));
+            $value = $this->evaluate($argString);
             return dirname($value);
 
           case 'basename':
-            $value = $lookupVar(substr($args[0], 1));
+            $value = $this->evaluate($argString);
             return basename($value);
 
           default:

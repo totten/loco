@@ -16,8 +16,11 @@ class LocoEnvTest extends \PHPUnit\Framework\TestCase {
     $es[] = ['Loaded ($(basename $FILE))', 'Loaded (LocoEnvTest.php)'];
     $es[] = ['Loaded {$(basename $FILE)}', 'Loaded {LocoEnvTest.php}'];
     $es[] = ['Loaded from $(dirname $FILE)', 'Loaded from ' . __DIR__];
+    $es[] = ['Loaded from $DIR', 'Loaded from ' . __DIR__];
+    $es[] = ['Loaded from $GRAMPA', 'Loaded from ' . dirname(__DIR__)];
     $es[] = ['Move to $(basename $FILE)bak', 'Move to LocoEnvTest.phpbak'];
     $es[] = ['Move to $(dirname $FILE)bak', 'Move to ' . __DIR__ . 'bak'];
+    $es[] = ['Copy $(basename $FILE) to $(basename $FILE.bak)', 'Copy LocoEnvTest.php to LocoEnvTest.php.bak'];
     $es[] = ['more ${COLOR}ish', 'more redish'];
     $es[] = ['more $COLORish', 'more '];
     $es[] = ['if{$COLOR}', 'if{red}'];
@@ -42,6 +45,8 @@ class LocoEnvTest extends \PHPUnit\Framework\TestCase {
   public function testEvaluate(string $input, string $expect) {
     $env = new LocoEnv();
     $env->set('FILE', __FILE__);
+    $env->set('DIR', '$(dirname $FILE)', TRUE);
+    $env->set('GRAMPA', '$(dirname $DIR)', TRUE);
     $env->set('COLOR', 'red');
     $env->set('NUM', '1234');
     $env->set('TRANSPORT', '$COLOR bike', TRUE);
