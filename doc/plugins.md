@@ -56,7 +56,7 @@ array-like interface (`ArrayAccess`) to reading and writing arguments.
 
 The following events are defined:
 
-* `loco.app.boot` (*global-only*): Fires immediately when the application starst
+* `loco.app.boot` (*global-only*): Fires immediately when the application starts
 * `loco.app.run` (*global-only*): Fires when the application begins executing a command
 * `loco.app.commands` (*global-only*): Fires when the application builds a list of available commands
    * __Argument__: `$e['commands`]`: alterable list of commands
@@ -74,6 +74,8 @@ The following events are defined:
 * `loco.env.merge`: Fires whenever a series of environments are merged to create a new environment.
    * __Argument__: `$e['srcs']`: an array of `LocoEnv`, ordered by priority
    * __Argument__: `$e['env']`: the new `LocoEnv` built by combining the various sources
+* `loco.function.list`: Fires when the application needs to identify user-callable functions
+   * __Argument__: `$e['functions']`: The list of  user-callable functions, keyed by name. Each item is a callback.
 * `loco.service.create`: Fires after a `LocoService` is instantiated
    * __Argument__: `$e['service']`: the `LocoService` which needs an environment
 * `loco.service.mergeEnv`: Fires whenever a set of environments are merged to build the effective service-environment.

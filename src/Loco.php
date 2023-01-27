@@ -84,4 +84,27 @@ class Loco {
     return self::$instances['plugins'];
   }
 
+  /**
+   * Get a list of functions.
+   *
+   * For example, in the expression "cp foo $(dirname $BAR)", the "dirname" is a function.
+   *
+   * @return array
+   *   Ex: ['basename' => function(string $expr): string]
+   * @experimental
+   */
+  public static function callFunction(string $function, string $arg): string {
+    if (!isset(self::$instances['functions'])) {
+      $data = Loco::filter('loco.function.list', ['functions' => []]);
+      self::$instances['functions'] = $data['functions'];
+    }
+
+    if (isset(self::$instances['functions'][$function])) {
+      return call_user_func(self::$instances['functions'][$function], $arg);
+    }
+    else {
+      throw new \RuntimeException("Invalid function: " . $function);
+    }
+  }
+
 }
