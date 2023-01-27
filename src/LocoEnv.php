@@ -129,9 +129,9 @@ class LocoEnv {
       return $valExpr;
     }
 
-    $varExprRegex = '\$([a-zA-Z0-9_\{\}]+)'; // Ex: '$FOO' or '${FOO}'
+    $varExprRegex = '\$([a-zA-Z0-9_]+|{[a-zA-Z0-9_]+})'; // Ex: '$FOO' or '${FOO}'
     $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
-    $funcExprRegex = '\$\((' . $funcNameRegex .') (' . $varExprRegex . ')\)'; // Ex: '$(basename $FOO)'
+    $funcExprRegex = '\$\((' . $funcNameRegex . ')([^()]*)\)'; // Ex: '$(basename $FOO)'
 
     $lookupVar = function($name) use ($onMissing, $spec) {
       $name = preg_replace(';^\{(.*)\}$;', '\1', $name);
@@ -151,14 +151,17 @@ class LocoEnv {
         return $lookupVar($matches[1]);
       }
       elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
-        $target = $lookupVar($matches[3]);
         $func = $matches[1];
+        $args = explode(' ', trim($matches[2]));
+
         switch ($func) {
           case 'dirname':
-            return dirname($target);
+            $value = $lookupVar(substr($args[0], 1));
+            return dirname($value);
 
           case 'basename':
-            return basename($target);
+            $value = $lookupVar(substr($args[0], 1));
+            return basename($value);
 
           default:
             throw new \RuntimeException("Invalid function expression: " . $valExpr);
