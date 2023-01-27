@@ -22,6 +22,9 @@ class LocoPlugins {
       // getcwd() . '/.loco/plugin'
     }
 
+    // Always load internal plugins
+    $paths[] = __DIR__ . '/plugin';
+
     foreach ($paths as $path) {
       if (file_exists($path) && is_dir($path)) {
         $this->load("$path/*.php");
