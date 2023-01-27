@@ -1,6 +1,8 @@
 <?php
 namespace Loco;
 
+use Loco\Expression\Experimental;
+
 class LocoEnv {
 
   protected $specs = [];
@@ -35,7 +37,7 @@ class LocoEnv {
   public static function create($asgnExprs) {
     $env = new static();
     foreach ($asgnExprs as $asgnExpr) {
-      list ($key, $valExpr) = explode('=', $asgnExpr, 2);
+      [$key, $valExpr] = explode('=', $asgnExpr, 2);
       $env->set($key, $valExpr, TRUE);
     }
     Loco::filter('loco.env.create', ['env' => $env, 'assignments' => $asgnExprs]);
@@ -119,22 +121,12 @@ class LocoEnv {
    *   Ex: 'exception', 'null', 'keep'
    * @return string|NULL
    */
-  public function evaluateSpec($spec, $onMissing = 'exception') {
+  protected function evaluateSpec($spec, $onMissing = 'exception') {
     if (!$spec['isDynamic']) {
       return $spec['value'];
     }
-    $valExpr = $spec['value'];
-
-    if (empty($valExpr)) {
-      return $valExpr;
-    }
-
-    $varExprRegex = '\$([a-zA-Z0-9_]+|{[a-zA-Z0-9_]+})'; // Ex: '$FOO' or '${FOO}'
-    $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
-    $funcExprRegex = '\$\((' . $funcNameRegex . ')([^()]*)\)'; // Ex: '$(basename $FOO)'
 
     $lookupVar = function($name) use ($onMissing, $spec) {
-      $name = preg_replace(';^\{(.*)\}$;', '\1', $name);
       if ($name === $spec['name']) {
         // Recursive value expression! Consult parent environment.
         return isset($spec['parent'])
@@ -146,20 +138,11 @@ class LocoEnv {
       }
     };
 
-    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $onMissing, $varExprRegex, $funcExprRegex, $spec, $lookupVar) {
-      if (preg_match(";^$varExprRegex$;", $mainMatch[1], $matches)) {
-        return $lookupVar($matches[1]);
-      }
-      elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
-        $func = $matches[1];
-        $argString = trim($matches[2]);
+    $evaluateArg = function($rawArg) use ($onMissing) {
+      return $this->evaluate($rawArg, $onMissing);
+    };
 
-        $value = $this->evaluate($argString);
-        return Loco::callFunction($func, $value);
-      }
-
-      throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
-    }, $valExpr);
+    return (new Experimental())->eval($spec['value'], $lookupVar, $evaluateArg);
   }
 
 }
