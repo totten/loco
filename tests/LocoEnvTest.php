@@ -6,6 +6,22 @@ namespace Loco;
  */
 class LocoEnvTest extends \PHPUnit\Framework\TestCase {
 
+  public static function onRegisterFunctions(LocoEvent $e): void {
+    // $(test_json ab cd) ==> ["ab","cd"]
+    // This helps to write tests about the way parameters are passed.
+    $e['functions']['test_json'] = function(...$argv) {
+      return \json_encode($argv, \JSON_UNESCAPED_SLASHES);
+    };
+  }
+
+  protected function setUp(): void {
+    Loco::dispatcher()->addListener('loco.expr.functions', [__CLASS__, 'onRegisterFunctions']);
+  }
+
+  protected function tearDown(): void {
+    Loco::dispatcher()->removeListener('loco.expr.functions', [__CLASS__, 'onRegisterFunctions']);
+  }
+
   public function getExamples() {
     $es = [];
     $es[] = ['rides a $COLOR bike', 'rides a red bike'];
@@ -34,6 +50,8 @@ class LocoEnvTest extends \PHPUnit\Framework\TestCase {
     // $es[] = ['$()', ''];
     $es[] = ['apple $(echo red $COLOR rouge) pomegranate', 'apple red red rouge pomegranate'];
     $es[] = ['fruity $(echo "$COLOR apples" and "$COLOR pomegranates) for $(echo $NUM) people', 'fruity red apples and red pomegranates for 1234 people'];
+    $es[] = ['json data $(test_json "$TRANSPORT" "go go" "go $TRANSPORT")', 'json data ["red bike","go go","go red bike"]'];
+    $es[] = ['json data $(test_json $TRANSPORT "go go")', 'json data ["red bike","go go"]']; /* This is not necessarily good behavior. But when/if it changes, that should be clear. */
     return $es;
   }
 
