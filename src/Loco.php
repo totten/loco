@@ -84,20 +84,4 @@ class Loco {
     return self::$instances['plugins'];
   }
 
-  /**
-   * Evaluate a string, replacing variables with concrete values.
-   *
-   * @param string|null $expr
-   * @param callable $lookupVar
-   * @return string|null
-   * @experimental
-   */
-  public static function evaluate(?string $expr, callable $lookupVar): ?string {
-    if (!isset(self::$instances['evaluator'])) {
-      $data = static::filter('loco.expr.create', ['evaluator' => new LocoEvaluator()]);
-      self::$instances['evaluator'] = $data['evaluator'];
-    }
-    return self::$instances['evaluator']->evaluate($expr, $lookupVar);
-  }
-
 }

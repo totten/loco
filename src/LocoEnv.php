@@ -3,15 +3,27 @@ namespace Loco;
 
 class LocoEnv {
 
+  /**
+   * @var \Loco\LocoEvaluator
+   */
+  protected $evaluator;
+
   protected $specs = [];
 
   /**
-   * @param array $locoEnvs
+   * @param LocoEnv[] $locoEnvs
    * @return LocoEnv
    */
   public static function merge($locoEnvs) {
     $merged = new static();
     foreach ($locoEnvs as $locoEnv) {
+      if ($merged->evaluator === NULL) {
+        $merged->evaluator = $locoEnv->evaluator;
+      }
+      elseif ($merged->evaluator !== $locoEnv->evaluator) {
+        throw new \RuntimeException('Error: Cannot merge incompatible evaluators');
+      }
+
       foreach ($locoEnv->specs as $envKey => $envSpec) {
         if (!isset($merged->specs[$envKey])) {
           $merged->specs[$envKey] = $envSpec;
@@ -28,12 +40,14 @@ class LocoEnv {
   }
 
   /**
-   * @param array $asgnExprs
+   * @param string[] $asgnExprs
    *   Ex: ['FOO=123', 'BAR=abc_$FOO']
+   * @param LocoEvaluator $evaluator
    * @return LocoEnv
    */
-  public static function create($asgnExprs) {
+  public static function create($asgnExprs, LocoEvaluator $evaluator) {
     $env = new static();
+    $env->evaluator = $evaluator;
     foreach ($asgnExprs as $asgnExpr) {
       [$key, $valExpr] = explode('=', $asgnExpr, 2);
       $env->set($key, $valExpr, TRUE);
@@ -136,7 +150,7 @@ class LocoEnv {
       }
     };
 
-    return Loco::evaluate($spec['value'], $lookupVar);
+    return $this->evaluator->evaluate($spec['value'], $lookupVar);
   }
 
 }

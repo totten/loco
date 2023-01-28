@@ -43,7 +43,9 @@ class LocoEnvTest extends \PHPUnit\Framework\TestCase {
    * @dataProvider getExamples
    */
   public function testEvaluate(string $input, string $expect) {
-    $env = new LocoEnv();
+    $sys = LocoSystem::create(NULL, NULL, []);
+    $env = $sys->environment;
+
     $env->set('FILE', __FILE__);
     $env->set('DIR', '$(dirname $FILE)', TRUE);
     $env->set('GRAMPA', '$(dirname $DIR)', TRUE);

@@ -23,6 +23,11 @@ class LocoSystem {
   public $format;
 
   /**
+   * @var LocoEvaluator
+   */
+  public $evaluator;
+
+  /**
    * Default values for environment variables (defined at system-level in loco.yml).
    *
    * @var LocoEnv
@@ -67,8 +72,11 @@ class LocoSystem {
     $system->config = $settings;
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
 
-    $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
-    $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
+    $filtered = Loco::filter('loco.expr.create', ['settings' => $settings, 'evaluator' => new LocoEvaluator()]);
+    $system->evaluator = $filtered['evaluator'];
+
+    $system->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : [], $system->evaluator);
+    $system->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : [], $system->evaluator);
     $system->environment->set('LOCO_CFG_YML', $configFile, FALSE);
     if ($system->environment->getSpec('LOCO_PRJ') === NULL) {
       $system->environment->set('LOCO_PRJ', $prjDir, FALSE);
@@ -82,7 +90,7 @@ class LocoSystem {
     if ($system->environment->getSpec('PATH') === NULL && file_exists($binDir = "$prjDir/.loco/bin")) {
       $system->environment->set('PATH', $binDir . PATH_SEPARATOR . '${PATH}', TRUE);
     }
-    $system->global_environment = LocoEnv::create([]);
+    $system->global_environment = LocoEnv::create([], $system->evaluator);
     $globalEnv = version_compare(PHP_VERSION, '7.1.alpha', '>=') ? getenv() : $_ENV;
     foreach ($globalEnv as $k => $v) {
       $system->global_environment->set($k, $v, FALSE);
