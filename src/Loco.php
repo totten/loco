@@ -2,6 +2,7 @@
 
 namespace Loco;
 
+use Loco\Expression\Experimental;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Simple\Psr6Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -82,6 +83,22 @@ class Loco {
       self::$instances['plugins'] = new LocoPlugins();
     }
     return self::$instances['plugins'];
+  }
+
+  /**
+   * Evaluate a string, replacing variables with concrete values.
+   *
+   * @param string|null $expr
+   * @param callable $lookupVar
+   * @return string|null
+   * @experimental
+   */
+  public static function evaluate(?string $expr, callable $lookupVar): ?string {
+    if (!isset(self::$instances['evaluator'])) {
+      $data = static::filter('loco.expr.create', ['evaluator' => new Experimental()]);
+      self::$instances['evaluator'] = $data['evaluator'];
+    }
+    return self::$instances['evaluator']->evaluate($expr, $lookupVar);
   }
 
   /**

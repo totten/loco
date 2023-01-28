@@ -15,7 +15,7 @@ class Experimental {
    * @return string|null
    *   User-supplied expression, with variables replaced.
    */
-  public function eval(?string $valExpr, callable $lookupVar): ?string {
+  public function evaluate(?string $valExpr, callable $lookupVar): ?string {
     if (empty($valExpr)) {
       return $valExpr;
     }
@@ -34,7 +34,7 @@ class Experimental {
         $rawArgs = ShellString::split(trim($matches[2]));
         $args = [];
         foreach ($rawArgs as $rawArg) {
-          $args[] = $this->eval($rawArg, $lookupVar);
+          $args[] = $this->evaluate($rawArg, $lookupVar);
         }
 
         return Loco::callFunction($func, ...$args);

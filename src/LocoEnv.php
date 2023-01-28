@@ -1,8 +1,6 @@
 <?php
 namespace Loco;
 
-use Loco\Expression\Experimental;
-
 class LocoEnv {
 
   protected $specs = [];
@@ -138,7 +136,7 @@ class LocoEnv {
       }
     };
 
-    return (new Experimental())->eval($spec['value'], $lookupVar);
+    return Loco::evaluate($spec['value'], $lookupVar);
   }
 
 }
