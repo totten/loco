@@ -7,7 +7,15 @@ use Loco\Utils\ShellString;
 
 class Experimental {
 
-  public function eval(?string $valExpr, callable $lookupVar, callable $evaluateArg): ?string {
+  /**
+   * @param string|null $valExpr
+   *   The user-supplied expression to evaluate.
+   * @param callable $lookupVar
+   *   A function to lookup values of variables.
+   * @return string|null
+   *   User-supplied expression, with variables replaced.
+   */
+  public function eval(?string $valExpr, callable $lookupVar): ?string {
     if (empty($valExpr)) {
       return $valExpr;
     }
@@ -16,7 +24,7 @@ class Experimental {
     $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
     $funcExprRegex = '\$\((' . $funcNameRegex . ')([^()]*)\)'; // Ex: '$(basename $FOO)'
 
-    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $evaluateArg, $varExprRegex, $funcExprRegex, $lookupVar) {
+    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $varExprRegex, $funcExprRegex, $lookupVar) {
       if (preg_match(";^$varExprRegex$;", $mainMatch[1], $matches)) {
         $name = preg_replace(';^\{(.*)\}$;', '\1', $matches[1]);
         return call_user_func($lookupVar, $name);
@@ -26,7 +34,7 @@ class Experimental {
         $rawArgs = ShellString::split(trim($matches[2]));
         $args = [];
         foreach ($rawArgs as $rawArg) {
-          $args[] = call_user_func($evaluateArg, $rawArg);
+          $args[] = $this->eval($rawArg, $lookupVar);
         }
 
         return Loco::callFunction($func, ...$args);
@@ -34,7 +42,6 @@ class Experimental {
 
       throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
     }, $valExpr);
-
   }
 
 }

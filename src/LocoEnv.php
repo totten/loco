@@ -138,11 +138,7 @@ class LocoEnv {
       }
     };
 
-    $evaluateArg = function($rawArg) use ($onMissing) {
-      return $this->evaluate($rawArg, $onMissing);
-    };
-
-    return (new Experimental())->eval($spec['value'], $lookupVar, $evaluateArg);
+    return (new Experimental())->eval($spec['value'], $lookupVar);
   }
 
 }
