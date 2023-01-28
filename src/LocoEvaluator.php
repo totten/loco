@@ -1,11 +1,10 @@
 <?php
 
-namespace Loco\Expression;
+namespace Loco;
 
-use Loco\Loco;
 use Loco\Utils\ShellString;
 
-class Experimental {
+class LocoEvaluator {
 
   /**
    * @var callable[]|null

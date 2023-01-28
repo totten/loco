@@ -2,7 +2,6 @@
 
 namespace Loco;
 
-use Loco\Expression\Experimental;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Cache\Simple\Psr6Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -95,7 +94,7 @@ class Loco {
    */
   public static function evaluate(?string $expr, callable $lookupVar): ?string {
     if (!isset(self::$instances['evaluator'])) {
-      $data = static::filter('loco.expr.create', ['evaluator' => new Experimental()]);
+      $data = static::filter('loco.expr.create', ['evaluator' => new LocoEvaluator()]);
       self::$instances['evaluator'] = $data['evaluator'];
     }
     return self::$instances['evaluator']->evaluate($expr, $lookupVar);
