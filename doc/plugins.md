@@ -76,7 +76,7 @@ The following events are defined:
    * __Argument__: `$e['env']`: the new `LocoEnv` built by combining the various sources
 * `loco.expr.create`: Initializes the expression language.
    * __Argument__: `$e['functions']`: The list of  user-callable functions, keyed by name. Each item is a callback.
-* `loco.function.list`: Fires when the application needs to identify user-callable functions
+* `loco.expr.functions`: Fires when the application needs to identify user-callable functions
    * __Argument__: `$e['functions']`: The list of  user-callable functions, keyed by name. Each item is a callback.
 * `loco.service.create`: Fires after a `LocoService` is instantiated
    * __Argument__: `$e['service']`: the `LocoService` which needs an environment

@@ -8,6 +8,11 @@ use Loco\Utils\ShellString;
 class Experimental {
 
   /**
+   * @var callable[]|null
+   */
+  protected $functions = NULL;
+
+  /**
    * @param string|null $valExpr
    *   The user-supplied expression to evaluate.
    * @param callable $lookupVar
@@ -37,11 +42,34 @@ class Experimental {
           $args[] = $this->evaluate($rawArg, $lookupVar);
         }
 
-        return Loco::callFunction($func, ...$args);
+        return $this->callFunction($func, ...$args);
       }
 
       throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
     }, $valExpr);
+  }
+
+  /**
+   * Get a list of functions.
+   *
+   * For example, in the expression "cp foo $(dirname $BAR)", the "dirname" is a function.
+   *
+   * @return array
+   *   Ex: ['basename' => function(string $one, string $two, ...): string]
+   * @experimental
+   */
+  public function callFunction(string $function, ...$args): string {
+    if ($this->functions === NULL) {
+      $data = Loco::filter('loco.expr.functions', ['functions' => []]);
+      $this->functions = $data['functions'];
+    }
+
+    if (isset($this->functions[$function])) {
+      return call_user_func_array($this->functions[$function], $args);
+    }
+    else {
+      throw new \RuntimeException("Invalid function: " . $function);
+    }
   }
 
 }

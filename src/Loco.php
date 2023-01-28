@@ -101,27 +101,4 @@ class Loco {
     return self::$instances['evaluator']->evaluate($expr, $lookupVar);
   }
 
-  /**
-   * Get a list of functions.
-   *
-   * For example, in the expression "cp foo $(dirname $BAR)", the "dirname" is a function.
-   *
-   * @return array
-   *   Ex: ['basename' => function(string $one, string $two, ...): string]
-   * @experimental
-   */
-  public static function callFunction(string $function, ...$args): string {
-    if (!isset(self::$instances['functions'])) {
-      $data = Loco::filter('loco.function.list', ['functions' => []]);
-      self::$instances['functions'] = $data['functions'];
-    }
-
-    if (isset(self::$instances['functions'][$function])) {
-      return call_user_func_array(self::$instances['functions'][$function], $args);
-    }
-    else {
-      throw new \RuntimeException("Invalid function: " . $function);
-    }
-  }
-
 }
