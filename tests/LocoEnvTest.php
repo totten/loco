@@ -32,7 +32,8 @@ class LocoEnvTest extends \PHPUnit\Framework\TestCase {
     $es[] = ['()', '()'];
     $es[] = ['{}', '{}'];
     // $es[] = ['$()', ''];
-    // $es[] = ['go to $(expr $NUM + 5000)', '1734'];
+    $es[] = ['apple $(echo red $COLOR rouge) pomegranate', 'apple red red rouge pomegranate'];
+    $es[] = ['fruity $(echo "$COLOR apples" and "$COLOR pomegranates) for $(echo $NUM) people', 'fruity red apples and red pomegranates for 1234 people'];
     return $es;
   }
 
