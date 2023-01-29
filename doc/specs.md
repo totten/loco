@@ -150,14 +150,29 @@ any nested references.  `loco` *only* evaluates a nested reference if it's decla
 
 If a variable is defined recursively (e.g. `PATH=/opt/foo/bin:$PATH`), then it incorporates the value from the parent scope.
 
-There is limited support for computation (eg `dirname` and `basename`).
+## Specification: Inline function calls
+
+There is experimental support for assigning variables with inline function calls (following a subset of shell-style syntax).
 
 ```yaml
 environment:
-  - FOO_BASE=$(dirname $LOCO_VAR)/sibling
+  - FOO_NAME=$(basename "$FILE")
+  - FOO_PATH=$(dirname "$FILE")
+  - FOO_SIBLING=$(dirname "$FILE")/sibling
+  - GREETING=$(echo "Hello $NAME")!
 ```
 
-If further computation is required, then use a [plugin](plugins.md).
+Important details:
+
+- These are not literally `bash` expressions.
+- The syntax and semantics may still change in subtle ways.
+- These are internal functions -- not external programs.
+- Subexpressions are prohibited from having `(` or `)` characters. `$(echo "foo()")` will not work.
+- `$(basename "$FILE")` and `$(basename $FILE)` are equivalent -- whitespace in variable content does not currently expand to multiple parameters. Never-the-less, you should use the quotes for consistency/readability/portability.
+
+<!-- Why not just call out to bash for evaluation? You'd have to materialize the env-vars first. I don't quite have my finger on why, but this feels tricky. -->
+
+If further computation is required, then use a [plugin](plugins.md) to define custom variables or custom functions.
 
 ## Specification: Initializing config files
 

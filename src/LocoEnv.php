@@ -3,15 +3,27 @@ namespace Loco;
 
 class LocoEnv {
 
+  /**
+   * @var \Loco\LocoEvaluator
+   */
+  protected $evaluator;
+
   protected $specs = [];
 
   /**
-   * @param array $locoEnvs
+   * @param LocoEnv[] $locoEnvs
    * @return LocoEnv
    */
   public static function merge($locoEnvs) {
     $merged = new static();
     foreach ($locoEnvs as $locoEnv) {
+      if ($merged->evaluator === NULL) {
+        $merged->evaluator = $locoEnv->evaluator;
+      }
+      elseif ($merged->evaluator !== $locoEnv->evaluator) {
+        throw new \RuntimeException('Error: Cannot merge incompatible evaluators');
+      }
+
       foreach ($locoEnv->specs as $envKey => $envSpec) {
         if (!isset($merged->specs[$envKey])) {
           $merged->specs[$envKey] = $envSpec;
@@ -28,14 +40,16 @@ class LocoEnv {
   }
 
   /**
-   * @param array $asgnExprs
+   * @param string[] $asgnExprs
    *   Ex: ['FOO=123', 'BAR=abc_$FOO']
+   * @param LocoEvaluator $evaluator
    * @return LocoEnv
    */
-  public static function create($asgnExprs) {
+  public static function create($asgnExprs, LocoEvaluator $evaluator) {
     $env = new static();
+    $env->evaluator = $evaluator;
     foreach ($asgnExprs as $asgnExpr) {
-      list ($key, $valExpr) = explode('=', $asgnExpr, 2);
+      [$key, $valExpr] = explode('=', $asgnExpr, 2);
       $env->set($key, $valExpr, TRUE);
     }
     Loco::filter('loco.env.create', ['env' => $env, 'assignments' => $asgnExprs]);
@@ -119,22 +133,12 @@ class LocoEnv {
    *   Ex: 'exception', 'null', 'keep'
    * @return string|NULL
    */
-  public function evaluateSpec($spec, $onMissing = 'exception') {
+  protected function evaluateSpec($spec, $onMissing = 'exception') {
     if (!$spec['isDynamic']) {
       return $spec['value'];
     }
-    $valExpr = $spec['value'];
-
-    if (empty($valExpr)) {
-      return $valExpr;
-    }
-
-    $varExprRegex = '\$([a-zA-Z0-9_\{\}]+)'; // Ex: '$FOO' or '${FOO}'
-    $funcNameRegex = '[a-zA-Z-9_]+'; // Ex: 'basename' or 'dirname'
-    $funcExprRegex = '\$\((' . $funcNameRegex .') (' . $varExprRegex . ')\)'; // Ex: '$(basename $FOO)'
 
     $lookupVar = function($name) use ($onMissing, $spec) {
-      $name = preg_replace(';^\{(.*)\}$;', '\1', $name);
       if ($name === $spec['name']) {
         // Recursive value expression! Consult parent environment.
         return isset($spec['parent'])
@@ -146,27 +150,7 @@ class LocoEnv {
       }
     };
 
-    return preg_replace_callback(';(' . $funcExprRegex . '|' . $varExprRegex . ');', function($mainMatch) use ($valExpr, $onMissing, $varExprRegex, $funcExprRegex, $spec, $lookupVar) {
-      if (preg_match(";^$varExprRegex$;", $mainMatch[1], $matches)) {
-        return $lookupVar($matches[1]);
-      }
-      elseif (preg_match(";^$funcExprRegex$;", $mainMatch[1], $matches)) {
-        $target = $lookupVar($matches[3]);
-        $func = $matches[1];
-        switch ($func) {
-          case 'dirname':
-            return dirname($target);
-
-          case 'basename':
-            return basename($target);
-
-          default:
-            throw new \RuntimeException("Invalid function expression: " . $valExpr);
-        }
-      }
-
-      throw new \RuntimeException("Malformed variable expression: " . $mainMatch[0]);
-    }, $valExpr);
+    return $this->evaluator->evaluate($spec['value'], $lookupVar);
   }
 
 }

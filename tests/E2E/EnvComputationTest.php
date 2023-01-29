@@ -221,7 +221,7 @@ class EnvComputationTest extends \PHPUnit\Framework\TestCase {
     $this->assertEquals(0, $tester->getStatusCode());
     $out = $tester->getDisplay();
 
-    $lines = explode("\n", $out);
+    $lines = explode("\n", trim($out));
     $vars = [];
     foreach ($lines as $line) {
       [$key, $value] = explode('=', $line, 2);

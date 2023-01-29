@@ -96,11 +96,11 @@ class LocoService {
     $svc->name = $name;
     $svc->systemd = $settings['systemd'] ?? [];
     $svc->enabled = isset($settings['enabled']) ? $settings['enabled'] : TRUE;
-    $svc->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : []);
+    $svc->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : [], $system->evaluator);
     $svc->environment->set('LOCO_SVC', $name, FALSE);
     $svc->environment->set('LOCO_SVC_VAR', '$LOCO_VAR/$LOCO_SVC', TRUE);
     $svc->environment->set('LOCO_SVC_CFG', '$LOCO_CFG/$LOCO_SVC', TRUE);
-    $svc->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : []);
+    $svc->default_environment = LocoEnv::create(isset($settings['default_environment']) ? $settings['default_environment'] : [], $system->evaluator);
     foreach (['init', 'cleanup', 'depends'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? ((array) $settings[$key]) : [];
     }

@@ -18,3 +18,5 @@ if (!isset($loader)) {
 
 #### Extra - Register classes in "tests" directory
 $loader->addPsr4('Loco\\', __DIR__);
+
+\Loco\Loco::plugins()->init();
