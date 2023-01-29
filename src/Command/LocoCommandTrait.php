@@ -4,6 +4,7 @@ namespace Loco\Command;
 use Loco\Loco;
 use Loco\LocoSystem;
 use Loco\LocoVolume;
+use Loco\Utils\File;
 use Loco\Utils\Shell;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -47,7 +48,10 @@ trait LocoCommandTrait {
   }
 
   public function pickConfig() {
-    $c = Loco::filter('loco.config.find', ['file' => NULL]);
+    // If you setup an environment with a specific config file (`loco env -c FILE` or `loco shell -c FILE`), then
+    // the same file should be used in subsequent sub commands (`loco run SVC`).
+    $envFile = getenv('LOCO_CFG_YML') ? File::toAbsolutePath(getenv('LOCO_CFG_YML')) : NULL;
+    $c = Loco::filter('loco.config.find', ['file' => $envFile]);
     if ($c['file']) {
       return $c['file'];
     }
