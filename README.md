@@ -36,6 +36,14 @@ $ loco run
 
 To stop, press Ctrl-C.
 
+Alternatively, you may start and stop services in the background:
+
+```
+$ loco start
+...
+$ loco stop
+```
+
 `loco` is a functional proof-of-concept. For more details, see the [working example (*loco*lamp)](https://github.com/totten/locolamp) and [draft specification/todos](doc/specs.md).
 
 ## More information
