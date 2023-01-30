@@ -246,16 +246,13 @@ This is a working proof-of-concept. Some TODOs (no particular oder):
       loco import --detect
       ```
 * Process management
-    * Implement support for background launching
-    * For BG processes, route console output to log files
     * Find a more meaningful protocol to detect when a service has really come online, then:
         * Use this to improve/fix launching of dependencies (so that we don't need 'sleep' hacks in any of the config files)
         * Use this to improve/fix timing of the startup messages.
 * Quality assurance
-    * Add test coverage for variable evaluation
     * Add test coverage for CLI options
     * Add test coverage for start/stop/restart
-* Other Usability
+* Other usability
     * When initializing services, create a checksum of the configuration. When starting a service, compare the checksum and warn if it's changed.
     * Allow flagging some services to *always* init on startup.
     * Allow flagging some services to *autorestart* when certain files are changed.
