@@ -31,6 +31,9 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
         $svc->kill($output, $input->getOption('sig'));
       }
     }
+
+    $this->awaitStopped($output, $svcs);
+
     return 0;
   }
 

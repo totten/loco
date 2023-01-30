@@ -35,7 +35,9 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
       }
     }
 
-    $output->writeln("<info>[<comment>loco</comment>] Cleanup services: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+    $this->awaitStopped($output, $svcs);
+
+    $output->writeln("<info>[<comment>loco</comment>] Cleanup data: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
     foreach ($svcs as $svc) {
       $svc->cleanup($output);
     }
