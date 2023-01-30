@@ -8,6 +8,7 @@ use Loco\Command\ExportCommand;
 use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
+use Loco\Command\StartCommand;
 use Loco\Command\StatusCommand;
 use Loco\Command\StopCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -81,6 +82,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new RunCommand();
     $commands[] = new InitCommand();
     $commands[] = new CleanCommand();
+    $commands[] = new StartCommand();
     $commands[] = new StopCommand();
     $commands[] = new StatusCommand();
     $commands[] = new ExportCommand();

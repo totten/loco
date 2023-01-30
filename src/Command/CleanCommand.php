@@ -1,8 +1,10 @@
 <?php
 namespace Loco\Command;
 
+use Loco\LocoSystem;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class CleanCommand extends \Symfony\Component\Console\Command\Command {
@@ -14,6 +16,7 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
       ->setName('clean')
       ->setDescription('Clean out the service data folders')
       ->addArgument('service', InputArgument::IS_ARRAY, 'Service name(s). (Default: all)')
+      ->addOption('sig', 'k', InputOption::VALUE_REQUIRED, 'Kill signal', SIGTERM)
       ->setHelp('Clean out the service data folders');
     $this->configureSystemOptions();
   }
@@ -23,16 +26,42 @@ class CleanCommand extends \Symfony\Component\Console\Command\Command {
     $svcNames = $input->getArgument('service')
       ? $input->getArgument('service')
       : array_keys($system->services);
+    $svcs = $this->asServices($system, $svcNames);
 
-    $output->writeln("<info>[<comment>loco</comment>] Cleanup services: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+    $output->writeln("<info>[<comment>loco</comment>] Stop services: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+    foreach ($svcs as $svc) {
+      if (!empty($svc->pid_file)) {
+        $svc->kill($output, $input->getOption('sig'));
+      }
+    }
 
+    $this->awaitStopped($output, $svcs);
+
+    $output->writeln("<info>[<comment>loco</comment>] Cleanup data: " . $this->formatList($svcNames) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+    foreach ($svcs as $svc) {
+      $svc->cleanup($output);
+    }
+
+    return 0;
+  }
+
+  /**
+   * @param \Loco\LocoSystem $system
+   * @param array $svcNames
+   * @return \Loco\LocoService[]
+   * @throws \Exception
+   */
+  protected function asServices(LocoSystem $system, array $svcNames): array {
+    $svcs = [];
     foreach ($svcNames as $svcName) {
       if (empty($system->services[$svcName])) {
         throw new \Exception("Unknown service: $svcName");
       }
-      $system->services[$svcName]->cleanup($output);
+      else {
+        $svcs[$svcName] = $system->services[$svcName];
+      }
     }
-    return 0;
+    return $svcs;
   }
 
 }

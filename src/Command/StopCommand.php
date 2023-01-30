@@ -1,8 +1,6 @@
 <?php
 namespace Loco\Command;
 
-use Loco\LocoService;
-use Loco\LocoSystem;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -29,34 +27,14 @@ class StopCommand extends \Symfony\Component\Console\Command\Command {
     $svcs = $this->pickServices($system, $input->getArgument('service'));
     $output->writeln("<info>[<comment>loco</comment>] Stop services: " . $this->formatList(array_keys($svcs)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
     foreach (array_reverse($svcs) as $svc) {
-      static::doStop($system, $svc, $input->getOption('sig'), $input, $output);
+      if (!empty($svc->pid_file)) {
+        $svc->kill($output, $input->getOption('sig'));
+      }
     }
+
+    $this->awaitStopped($output, $svcs);
+
     return 0;
-  }
-
-  public static function doStop(LocoSystem $sys, LocoService $svc, $sig, InputInterface $input, OutputInterface $output) {
-    declare(ticks = 1);
-
-    if (empty($svc->pid_file)) {
-      return;
-    }
-    $env = $svc->createEnv();
-
-    switch ($svc->isRunning($env)) {
-      case TRUE:
-        $pid = $svc->getPid($env);
-        $output->writeln("<info>[<comment>$svc->name</comment>] Kill process (pid=<comment>$pid</comment>, sig=<comment>$sig</comment>)</info>", OutputInterface::VERBOSITY_VERBOSE);
-        posix_kill($pid, $sig);
-        break;
-
-      case FALSE:
-        $output->writeln("<info>[<comment>{$svc->name}</comment>] Already stopped</info>", OutputInterface::VERBOSITY_VERBOSE);
-        break;
-
-      case NULL:
-        $output->writeln("<info>[<comment>{$svc->name}</comment>] Does not have a PID file. Stop not supported right now.</info>", OutputInterface::VERBOSITY_VERBOSE);
-        break;
-    }
   }
 
 }

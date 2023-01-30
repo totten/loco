@@ -69,6 +69,11 @@ class LocoService {
   /**
    * @var string|null
    */
+  public $log_file;
+
+  /**
+   * @var string|null
+   */
   public $message;
 
   /**
@@ -104,7 +109,7 @@ class LocoService {
     foreach (['init', 'cleanup', 'depends'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? ((array) $settings[$key]) : [];
     }
-    foreach (['run', 'message', 'pid_file'] as $key) {
+    foreach (['run', 'message', 'pid_file', 'log_file'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? $settings[$key] : NULL;
     }
 
@@ -252,6 +257,76 @@ class LocoService {
     }
 
     // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
+  }
+
+  /**
+   * Spawn a child worker-process to execute this service.
+   *
+   * @return int
+   */
+  public function spawn(OutputInterface $output): int {
+    $env = $this->createEnv();
+
+    if (empty($this->run)) {
+      throw new \RuntimeException("[{$this->name}] Service cannot start");
+    }
+
+    $pid = pcntl_fork();
+    if ($pid == -1) {
+      die("({$this->name}) Failed to fork");
+    }
+    elseif ($pid) {
+      return $pid;
+    }
+    else {
+      Shell::applyEnv($env);
+      $cmd = $env->evaluate($this->run);
+      $output->writeln("<info>[<comment>{$this->name}</comment>] Start service: <comment>$cmd</comment></info>");
+      if ($this->log_file) {
+        $logFile = $env->evaluate($this->log_file);
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Redirect console to: <comment>$logFile</comment></info>", OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $ret = Shell::runWatch($this->run, function (string $str, string $medium) use ($logFile) {
+          $line = sprintf("[%s] %s", $this->name, $str);
+          file_put_contents($logFile, $line, FILE_APPEND);
+        });
+      }
+      else {
+        passthru($this->run, $ret);
+      }
+      $output->writeln("<info>[<comment>{$this->name}</comment>] Exited (<comment>$ret</comment>)</info>");
+      exit($ret);
+    }
+  }
+
+  /**
+   * Send a kill signal to the running process.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param int $sig
+   */
+  public function kill(OutputInterface $output, int $sig = SIGTERM): void {
+    declare(ticks = 1);
+
+    if (empty($this->pid_file)) {
+      throw new \RuntimeException("Cannot kill \"{$this->name}\". No pid file configured.");
+    }
+    $env = $this->createEnv();
+
+    switch ($this->isRunning($env)) {
+      case TRUE:
+        $pid = $this->getPid($env);
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Kill process (pid=<comment>$pid</comment>, sig=<comment>$sig</comment>)</info>");
+        posix_kill($pid, $sig);
+        break;
+
+      case FALSE:
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Already stopped</info>", OutputInterface::VERBOSITY_VERBOSE);
+        break;
+
+      case NULL:
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Does not have a PID file. Stop not supported right now.</info>", OutputInterface::VERBOSITY_VERBOSE);
+        break;
+    }
   }
 
   public function cleanup(OutputInterface $output, LocoEnv $env = NULL) {

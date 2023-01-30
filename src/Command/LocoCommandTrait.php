@@ -151,6 +151,36 @@ trait LocoCommandTrait {
   }
 
   /**
+   * Wait for the given $svcs to shutdown.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param \Loco\LocoService[] $svcs
+   * @param int $maxWait
+   * @param float $interval
+   */
+  public function awaitStopped(OutputInterface $output, array $svcs, int $maxWait = 300, float $interval = 0.5): void {
+    $output->writeln("<info>[<comment>loco</comment>] Await shutdown: " . $this->formatList(array_keys($svcs)) . "</info>", OutputInterface::VERBOSITY_VERBOSE);
+
+    $end = microtime(TRUE) + $maxWait;
+    while (!empty($svcs)) {
+      foreach (array_keys($svcs) as $svcName) {
+        /** @var \Loco\LocoService $svc */
+        $svc = $svcs[$svcName];
+        if (empty($svc->pid_file) || !$svc->isRunning()) {
+          $output->writeln("$svcName is stopped", OutputInterface::VERBOSITY_VERY_VERBOSE);
+          unset($svcs[$svcName]);
+        }
+      }
+      if (!empty($svcs)) {
+        if (microtime(TRUE) > $end) {
+          throw new \RuntimeException("Shutdown failed. Service still running: " . $this->formatList(array_keys($svcs)));
+        }
+        usleep($interval * 1000 * 1000);
+      }
+    }
+  }
+
+  /**
    * @param array $words
    * @param string $style
    *   comment|info|error
