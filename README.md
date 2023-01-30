@@ -44,3 +44,4 @@ To stop, press Ctrl-C.
 * [__About__: Motivation and critical comparison](doc/about.md)
 * [__Download__](doc/download.md)
 * [__Specifications__: CLI, File Formats, Environment Variables, Roadmap/TODOs, etc](doc/specs.md)
+* [__Zero Version__: Interim tagging rules](doc/zero-version.md)
