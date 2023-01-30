@@ -5,7 +5,7 @@
     Browse to https://github.com/totten/loco/releases and identify the latest PHAR. Download it to `/usr/local/bin`.
 
     ```
-    sudo wget https://github.com/totten/loco/releases/download/v0.4.3/loco-0.4.3.phar -O /usr/local/bin/loco
+    sudo wget https://github.com/totten/loco/releases/download/v0.6.2/loco-0.6.2.phar -O /usr/local/bin/loco
     chmod +x /usr/local/bin/loco
     ```
 
