@@ -153,21 +153,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             $blacklist[$name] = $name;
           }
           else {
-            $pid = pcntl_fork();
-            if ($pid == -1) {
-              die("($name) Failed to fork");
-            }
-            elseif ($pid) {
-              $this->procs[$name]['pid'] = $pid;
-            }
-            else {
-              Shell::applyEnv($env);
-              $cmd = $env->evaluate($svc->run);
-              $this->output->writeln("<info>[<comment>$name</comment>] Start service: <comment>$cmd</comment></info>");
-              passthru($svc->run, $ret);
-              $this->output->writeln("<info>[<comment>$name</comment>] Exited (<comment>$ret</comment>)</info>");
-              exit($ret);
-            }
+            $this->procs[$name]['pid'] = $svc->spawn($output);
           }
 
           if ($svc->message) {

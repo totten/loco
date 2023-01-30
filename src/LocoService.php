@@ -255,6 +255,35 @@ class LocoService {
   }
 
   /**
+   * Spawn a child worker-process to execute this service.
+   *
+   * @return int
+   */
+  public function spawn(OutputInterface $output): int {
+    $env = $this->createEnv();
+
+    if (empty($this->run)) {
+      throw new \RuntimeException("[{$this->name}] Service cannot start");
+    }
+
+    $pid = pcntl_fork();
+    if ($pid == -1) {
+      die("({$this->name}) Failed to fork");
+    }
+    elseif ($pid) {
+      return $pid;
+    }
+    else {
+      Shell::applyEnv($env);
+      $cmd = $env->evaluate($this->run);
+      $output->writeln("<info>[<comment>{$this->name}</comment>] Start service: <comment>$cmd</comment></info>");
+      passthru($this->run, $ret);
+      $output->writeln("<info>[<comment>{$this->name}</comment>] Exited (<comment>$ret</comment>)</info>");
+      exit($ret);
+    }
+  }
+
+  /**
    * Send a kill signal to the running process.
    *
    * @param \Symfony\Component\Console\Output\OutputInterface $output
