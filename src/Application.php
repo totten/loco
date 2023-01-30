@@ -53,6 +53,10 @@ class Application extends \Symfony\Component\Console\Application {
    */
   public function doRun(InputInterface $input, OutputInterface $output) {
     $workingDir = $input->getParameterOption(array('--cwd'));
+    if (empty($workingDir) && getenv('LOCO_PRJ')) {
+      $workingDir = getenv('LOCO_PRJ');
+    }
+
     if (FALSE !== $workingDir && '' !== $workingDir) {
       if (!is_dir($workingDir)) {
         throw new \RuntimeException("Invalid working directory specified, $workingDir does not exist.");
