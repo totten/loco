@@ -99,6 +99,72 @@ class Shell {
   }
 
   /**
+   * Run a command and monitor the output.
+   *
+   * @param string $cmd
+   * @param callable $onData
+   *   function(string $data, string $medium).
+   *   Ex: `$onData('hello world', 'STDOUT')`
+   * @return int
+   */
+  public static function runWatch(string $cmd, callable $onData): int {
+    $maxLine = 2048;
+    $idleWait = 100 * 1000;
+
+    $pipeSpec = [
+      0 => ['pipe', 'r'],
+      1 => ['pipe', 'w'],
+      2 => ['pipe', 'w'],
+    ];
+    $process = proc_open($cmd, $pipeSpec, $pipes);
+
+    $isStdoutOpen = TRUE;
+    $isStderrOpen = TRUE;
+    stream_set_blocking($pipes[1], 0);
+    stream_set_blocking($pipes[2], 0);
+
+    while ($isStderrOpen || $isStdoutOpen) {
+      $isStreaming = FALSE;
+
+      if ($isStdoutOpen) {
+        if (feof($pipes[1])) {
+          fclose($pipes[1]);
+          $isStdoutOpen = FALSE;
+        }
+        else {
+          $str = fgets($pipes[1], $maxLine);
+          $len = strlen($str);
+          if ($len) {
+            $onData($str, 'STDOUT');
+            $isStreaming = TRUE;
+          }
+        }
+      }
+
+      if ($isStderrOpen) {
+        if (feof($pipes[2])) {
+          fclose($pipes[2]);
+          $isStderrOpen = FALSE;
+        }
+        else {
+          $str = fgets($pipes[2], $maxLine);
+          $len = strlen($str);
+          if ($len) {
+            $onData($str, 'STDERR');
+            $isStreaming = TRUE;
+          }
+        }
+      }
+
+      if (!$isStreaming) {
+        usleep($idleWait);
+      }
+    }
+
+    return proc_close($process);
+  }
+
+  /**
    * @return string
    *   Absolute path of the current working directory.
    *   To the extent possible, we try to *preserve* symlinks (i.e. *not*
