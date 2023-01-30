@@ -254,6 +254,37 @@ class LocoService {
     // TODO: Add options for more robust template -- e.g. loco.php; loco.twig
   }
 
+  /**
+   * Send a kill signal to the running process.
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   * @param int $sig
+   */
+  public function kill(OutputInterface $output, int $sig = SIGTERM): void {
+    declare(ticks = 1);
+
+    if (empty($this->pid_file)) {
+      throw new \RuntimeException("Cannot kill \"{$this->name}\". No pid file configured.");
+    }
+    $env = $this->createEnv();
+
+    switch ($this->isRunning($env)) {
+      case TRUE:
+        $pid = $this->getPid($env);
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Kill process (pid=<comment>$pid</comment>, sig=<comment>$sig</comment>)</info>");
+        posix_kill($pid, $sig);
+        break;
+
+      case FALSE:
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Already stopped</info>", OutputInterface::VERBOSITY_VERBOSE);
+        break;
+
+      case NULL:
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Does not have a PID file. Stop not supported right now.</info>", OutputInterface::VERBOSITY_VERBOSE);
+        break;
+    }
+  }
+
   public function cleanup(OutputInterface $output, LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
