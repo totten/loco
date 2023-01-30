@@ -49,9 +49,13 @@ services:
     ## The 'run' is the main bash command to execute and monitor.
     run: BASH_COMMAND
 
-    ## By default, 'run' works with non-forking/foreground daemons.
-    ## If the daemon forks
+    ## Daemons should write their PID to a control file.
+    ## This is required for 'start'/'stop' commands. (It is suggested for 'run'.)
     pid_file: FILE_PATH
+
+    ## Optionally, redirect the STDOUT/STDERR for the process to file.
+    ## If omitted, then output is either written to console ('loco run') or a general log file ('loco start').
+    log_file: FILE_PATH
 
     ## A message to display after the services have started.
     message: STRING

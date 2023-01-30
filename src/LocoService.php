@@ -69,6 +69,11 @@ class LocoService {
   /**
    * @var string|null
    */
+  public $log_file;
+
+  /**
+   * @var string|null
+   */
   public $message;
 
   /**
@@ -104,7 +109,7 @@ class LocoService {
     foreach (['init', 'cleanup', 'depends'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? ((array) $settings[$key]) : [];
     }
-    foreach (['run', 'message', 'pid_file'] as $key) {
+    foreach (['run', 'message', 'pid_file', 'log_file'] as $key) {
       $svc->{$key} = isset($settings[$key]) ? $settings[$key] : NULL;
     }
 
@@ -277,7 +282,17 @@ class LocoService {
       Shell::applyEnv($env);
       $cmd = $env->evaluate($this->run);
       $output->writeln("<info>[<comment>{$this->name}</comment>] Start service: <comment>$cmd</comment></info>");
-      passthru($this->run, $ret);
+      if ($this->log_file) {
+        $logFile = $env->evaluate($this->log_file);
+        $output->writeln("<info>[<comment>{$this->name}</comment>] Redirect console to: <comment>$logFile</comment></info>", OutputInterface::VERBOSITY_VERY_VERBOSE);
+        $ret = Shell::runWatch($this->run, function (string $str, string $medium) use ($logFile) {
+          $line = sprintf("[%s] %s", $this->name, $str);
+          file_put_contents($logFile, $line, FILE_APPEND);
+        });
+      }
+      else {
+        passthru($this->run, $ret);
+      }
       $output->writeln("<info>[<comment>{$this->name}</comment>] Exited (<comment>$ret</comment>)</info>");
       exit($ret);
     }
