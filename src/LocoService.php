@@ -260,42 +260,70 @@ class LocoService {
   }
 
   /**
-   * Spawn a child worker-process to execute this service.
+   * Run the service one time.
    *
+   * Output will be directed to `$this->log_file` (or, if undefined, then fallback to STDOUT/STDERR ).
+   *
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @return int
+   *   Exit code from the process.
    */
-  public function spawn(OutputInterface $output): int {
+  public function run(OutputInterface $output) {
     $env = $this->createEnv();
-
-    if (empty($this->run)) {
-      throw new \RuntimeException("[{$this->name}] Service cannot start");
-    }
-
-    $pid = pcntl_fork();
-    if ($pid == -1) {
-      die("({$this->name}) Failed to fork");
-    }
-    elseif ($pid) {
-      return $pid;
+    Shell::applyEnv($env);
+    $cmd = $env->evaluate($this->run);
+    $output->writeln("<info>[<comment>{$this->name}</comment>] Start service: <comment>$cmd</comment></info>");
+    if ($this->log_file) {
+      $logFile = $env->evaluate($this->log_file);
+      $output->writeln("<info>[<comment>{$this->name}</comment>] Redirect console to: <comment>$logFile</comment></info>", OutputInterface::VERBOSITY_VERY_VERBOSE);
+      $ret = Shell::runWatch($this->run, function (string $str, string $medium) use ($logFile) {
+        $line = sprintf("[%s] %s", $this->name, $str);
+        file_put_contents($logFile, $line, FILE_APPEND);
+      });
     }
     else {
-      Shell::applyEnv($env);
-      $cmd = $env->evaluate($this->run);
-      $output->writeln("<info>[<comment>{$this->name}</comment>] Start service: <comment>$cmd</comment></info>");
-      if ($this->log_file) {
-        $logFile = $env->evaluate($this->log_file);
-        $output->writeln("<info>[<comment>{$this->name}</comment>] Redirect console to: <comment>$logFile</comment></info>", OutputInterface::VERBOSITY_VERY_VERBOSE);
-        $ret = Shell::runWatch($this->run, function (string $str, string $medium) use ($logFile) {
-          $line = sprintf("[%s] %s", $this->name, $str);
-          file_put_contents($logFile, $line, FILE_APPEND);
-        });
-      }
-      else {
-        passthru($this->run, $ret);
-      }
-      $output->writeln("<info>[<comment>{$this->name}</comment>] Exited (<comment>$ret</comment>)</info>");
-      exit($ret);
+      passthru($this->run, $ret);
     }
+    $output->writeln("<info>[<comment>{$this->name}</comment>] Exited (<comment>$ret</comment>)</info>");
+    return $ret;
+  }
+
+  /**
+   * Run the service. Replace the current PHP process.
+   *
+   * This command does not return.
+   *
+   * @see pcntl_exec
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function exec(OutputInterface $output): void {
+    $env = $this->createEnv();
+    Shell::applyEnv($this->createEnv());
+    $cmd = $env->evaluate($this->run);
+    $output->writeln("<info>[<comment>{$this->name}</comment>] Exec: <comment>/bin/bash -c " . escapeshellarg($cmd) . "</comment></info>");
+    \pcntl_exec('/bin/bash', ['-c', $cmd]);
+  }
+
+  /**
+   * Run the service. Replace the current PHP process.
+   *
+   * This command does not return.
+   *
+   * @see pcntl_exec
+   * @param \Symfony\Component\Console\Output\OutputInterface $output
+   */
+  public function execWithLog(OutputInterface $output): void {
+    $env = $this->createEnv();
+    Shell::applyEnv($this->createEnv());
+    $cmd = $env->evaluate($this->run);
+
+    if ($this->log_file) {
+      $logFile = $env->evaluate($this->log_file);
+      $cmd .= ' >>' . escapeshellarg($logFile) . ' 2>&1';
+    }
+
+    $output->writeln("<info>[<comment>{$this->name}</comment>] Exec: <comment>/bin/bash -c " . escapeshellarg($cmd) . "</comment></info>");
+    \pcntl_exec('/bin/bash', ['-c', $cmd]);
   }
 
   /**

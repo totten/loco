@@ -1,7 +1,7 @@
 <?php
 namespace Loco\Command;
 
-use Loco\Utils\Shell;
+use Loco\Utils\Fork;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -69,11 +69,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
       $svc = $system->services[$name];
 
       InitCommand::doInit($svc, $input->getOption('force'), $output);
-      $env = $svc->createEnv();
-      Shell::applyEnv($svc->createEnv());
-      $cmd = $env->evaluate($svc->run);
-      $output->writeln("<info>[<comment>$name</comment>] Exec: <comment>/bin/bash -c " . escapeshellarg($cmd) . "</comment></info>");
-      pcntl_exec('/bin/bash', ['-c', $cmd]);
+      $svc->exec($output);
     }
     throw new \Exception("This line should not be executable.");
   }
@@ -153,7 +149,9 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
             $blacklist[$name] = $name;
           }
           else {
-            $this->procs[$name]['pid'] = $svc->spawn($output);
+            $this->procs[$name]['pid'] = Fork::child(function() use ($svc, $output) {
+              return $svc->run($output);
+            });
           }
 
           if ($svc->message) {
