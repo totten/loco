@@ -202,4 +202,22 @@ trait LocoCommandTrait {
     return $a == $b;
   }
 
+  /**
+   * Some defaults are different when executed as 'loco start' daemons.
+   *
+   * Fill in those details.
+   *
+   * @param \Loco\LocoService[] $services
+   */
+  protected function applyDaemonDefaults(array $services) {
+    foreach ($services as $svc) {
+      /** @var \Loco\LocoService $svc */
+      if (!($svc instanceof LocoVolume)) {
+        if (empty($svc->log_file)) {
+          $svc->log_file = '${LOCO_SVC_VAR}/loco.log';
+        }
+      }
+    }
+  }
+
 }

@@ -57,12 +57,10 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
           $output->writeln("<error>Service \"{$svcName}\" is not compatible with \"loco start\". Service must define \"run\" and \"pidFile\".</error>");
           return 1;
         }
-
-        if (empty($svc->log_file)) {
-          $svc->log_file = '${LOCO_SVC_VAR}/loco.log';
-        }
       }
     }
+
+    $this->applyDaemonDefaults($services);
 
     $postStartupMessages = [];
 
