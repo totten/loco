@@ -17,6 +17,7 @@ jobs:
           ## box.phar requires php72
           php-version: '7.4'
           tools: composer:v2
+          extensions: pcntl
 
       - name: Set env
         run: |

@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: php-actions/composer@v6
+        with:
+          php_extensions: pcntl
       - name: PHPUnit Tests
         uses: php-actions/phpunit@v3
         with:
