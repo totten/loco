@@ -78,8 +78,10 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
 
       InitCommand::doInit($svc, in_array($svc->name, $forceables), $output);
       if ($svc->run) {
+        $cmd = $env->evaluate($svc->run);
+        $output->writeln("<info>[<comment>{$svc->name}</comment>] Start daemon: <comment>$cmd</comment></info>");
         // Fork::child(function() use ($svc, $output) {
-        Fork::daemon(function() use ($svc, $output) {
+        Fork::daemon(function() use ($svc) {
           // $pipes = Fork::redirectStdIo($svc->log_file);
           // $output = new StreamOutput($pipes[1]);
           // Fork::closeStdio();
