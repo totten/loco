@@ -68,7 +68,7 @@ class Loco {
    */
   public static function filter($eventName, $data) {
     $event = new LocoEvent($data);
-    self::dispatcher()->dispatch($eventName, $event);
+    self::dispatcher()->dispatch($event, $eventName);
     return $event->getArguments();
   }
 

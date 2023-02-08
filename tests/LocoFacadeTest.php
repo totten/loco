@@ -22,7 +22,7 @@ class LocoFacadeTest extends \PHPUnit\Framework\TestCase {
     Loco::dispatcher()->addListener('my-test', function() use (&$called) {
       $called = TRUE;
     });
-    Loco::dispatcher()->dispatch('my-test', new LocoEvent());
+    Loco::dispatcher()->dispatch(new LocoEvent(), 'my-test');
     $this->assertEquals(TRUE, $called);
   }
 
