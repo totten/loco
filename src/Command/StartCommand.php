@@ -82,7 +82,8 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
         Fork::daemon(function() use ($svc) {
           // $pipes = Fork::redirectStdIo($svc->log_file);
           // $output = new StreamOutput($pipes[1]);
-          // Fork::closeStdio();
+          Fork::closeStdio();
+          // ^^ Ex: "loco start | cat" - closing ensures that parent can exit normally.
           $output = new NullOutput();
 
           // return $svc->run($output);
