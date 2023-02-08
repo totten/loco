@@ -3,9 +3,11 @@
 namespace Loco\Command;
 
 use Loco\LocoVolume;
+use Loco\Utils\Fork;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class StartCommand extends \Symfony\Component\Console\Command\Command {
@@ -76,7 +78,18 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
 
       InitCommand::doInit($svc, in_array($svc->name, $forceables), $output);
       if ($svc->run) {
-        $svc->spawn($output);
+        $cmd = $env->evaluate($svc->run);
+        $output->writeln("<info>[<comment>{$svc->name}</comment>] Start daemon: <comment>$cmd</comment></info>");
+        // Fork::child(function() use ($svc, $output) {
+        Fork::daemon(function() use ($svc) {
+          // $pipes = Fork::redirectStdIo($svc->log_file);
+          // $output = new StreamOutput($pipes[1]);
+          // Fork::closeStdio();
+          $output = new NullOutput();
+
+          // return $svc->run($output);
+          return $svc->exec($output);
+        });
       }
       if ($svc->message) {
         $postStartupMessages[] = $env->evaluate("<info>[<comment>$svcName</comment>] {$svc->message}</info>");
