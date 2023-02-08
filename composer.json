@@ -2,6 +2,9 @@
     "name": "totten/loco",
     "description": "Loco is the YAML-based \"local-compose\" process manager",
     "require": {
+        "ext-json": "*",
+        "ext-posix": "*",
+        "ext-pcntl": "*",
         "marcj/topsort": "^1.1",
         "symfony/yaml": "~4.4",
         "symfony/finder": "~4.4",
