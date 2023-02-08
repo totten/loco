@@ -5,6 +5,7 @@ use LesserEvil\ShellVerbosityIsEvil;
 use Loco\Command\CleanCommand;
 use Loco\Command\EnvCommand;
 use Loco\Command\ExportCommand;
+use Loco\Command\InfoCommand;
 use Loco\Command\InitCommand;
 use Loco\Command\RunCommand;
 use Loco\Command\ShellCommand;
@@ -81,6 +82,7 @@ class Application extends \Symfony\Component\Console\Application {
     $commands[] = new ShellCommand();
     $commands[] = new RunCommand();
     $commands[] = new InitCommand();
+    $commands[] = new InfoCommand();
     $commands[] = new CleanCommand();
     $commands[] = new StartCommand();
     $commands[] = new StopCommand();
