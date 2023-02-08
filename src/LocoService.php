@@ -300,22 +300,6 @@ class LocoService {
     $env = $this->createEnv();
     Shell::applyEnv($this->createEnv());
     $cmd = $env->evaluate($this->run);
-    $output->writeln("<info>[<comment>{$this->name}</comment>] Exec: <comment>/bin/bash -c " . escapeshellarg($cmd) . "</comment></info>");
-    \pcntl_exec('/bin/bash', ['-c', $cmd]);
-  }
-
-  /**
-   * Run the service. Replace the current PHP process.
-   *
-   * This command does not return.
-   *
-   * @see pcntl_exec
-   * @param \Symfony\Component\Console\Output\OutputInterface $output
-   */
-  public function execWithLog(OutputInterface $output): void {
-    $env = $this->createEnv();
-    Shell::applyEnv($this->createEnv());
-    $cmd = $env->evaluate($this->run);
 
     if ($this->log_file) {
       $logFile = $env->evaluate($this->log_file);

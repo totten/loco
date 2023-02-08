@@ -78,6 +78,7 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
 
       InitCommand::doInit($svc, in_array($svc->name, $forceables), $output);
       if ($svc->run) {
+        // Fork::child(function() use ($svc, $output) {
         Fork::daemon(function() use ($svc, $output) {
           // $pipes = Fork::redirectStdIo($svc->log_file);
           // $output = new StreamOutput($pipes[1]);
@@ -85,8 +86,7 @@ class StartCommand extends \Symfony\Component\Console\Command\Command {
           $output = new NullOutput();
 
           // return $svc->run($output);
-          // return $svc->exec($output);
-          return $svc->execWithLog($output);
+          return $svc->exec($output);
         });
       }
       if ($svc->message) {
