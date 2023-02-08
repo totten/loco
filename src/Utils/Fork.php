@@ -38,9 +38,16 @@ class Fork {
    * @param callable $run
    *   Main function we want to run in the child process.
    *   If this returns a numerical or boolean value, it will determine the exit-code for the child process.
+   * @param string|null $pidFile
+   *   Optionally, record the daemon's PID in a file.
+   *   Note that it may take a moment for the file to be written.
    */
-  public static function daemon(callable $run): void {
-    // Parent => Intermediate => Child
+  public static function daemon(callable $run, ?string $pidFile = NULL): void {
+    if ($pidFile !== NULL && file_exists($pidFile)) {
+      unlink($pidFile);
+    }
+
+    // We proceed through a sequence of 3 processes: Parent => Intermediate => Child
 
     // Fork from parent to intermediate
     $intermediatePid = pcntl_fork();
@@ -69,12 +76,17 @@ class Fork {
     // I'm not sure -- need to assess the significance of PWD for existing service definitions.
 
     // Finally, the child can do its thing.
+    if ($pidFile !== NULL) {
+      file_put_contents($pidFile, posix_getpid());
+    }
     $result = $run();
     exit(static::castToExitCode($result));
   }
 
   /**
    * Given the return value from a $run() function, determine the corresponding exit code.
+   *
+   * Numbers are passed-through directly. NULL is considered success. All other values are treated as boolean-ish (success/failure).
    *
    * @param mixed $result
    * @return int
