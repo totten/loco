@@ -79,6 +79,7 @@ services:
 ## dependency before any other services.
 volume:
   # Setup the data-volume with a ramdisk service
+  # The special value "off" disables ramdisk service
   # Depends: https://github.com/totten/ramdisk
   ramdisk: SIZE_IN_MB
 
