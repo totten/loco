@@ -3,7 +3,7 @@
 namespace Loco;
 
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Component\Cache\Simple\Psr6Cache;
+use Symfony\Component\Cache\Psr16Cache;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -40,7 +40,7 @@ class Loco {
       }
       $fsCache = new FilesystemAdapter($namespace, 600, $dir . DIRECTORY_SEPARATOR . 'loco');
       // In symfony/cache~3.x, the class name is weird.
-      self::$instances["cache.$namespace"] = new Psr6Cache($fsCache);
+      self::$instances["cache.$namespace"] = new Psr16Cache($fsCache);
     }
     return self::$instances["cache.$namespace"];
   }

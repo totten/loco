@@ -163,7 +163,7 @@ class LocoService {
    * @param LocoEnv $env
    * @return bool
    */
-  public function isInitialized(LocoEnv $env = NULL) {
+  public function isInitialized(?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
     return file_exists($env->getValue('LOCO_SVC_VAR'));
   }
@@ -174,7 +174,7 @@ class LocoService {
    *   - FALSE: The service is not running
    *   - NULL: The service is not assessable.
    */
-  public function isRunning(LocoEnv $env = NULL) {
+  public function isRunning(?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $file = $env->evaluate($this->pid_file);
@@ -191,7 +191,7 @@ class LocoService {
    *   - int:
    *   - NULL: The service is not assessable or not running.
    */
-  public function getPid(LocoEnv $env = NULL) {
+  public function getPid(?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $file = $env->evaluate($this->pid_file);
@@ -206,7 +206,7 @@ class LocoService {
     return $pid;
   }
 
-  public function init(OutputInterface $output, LocoEnv $env = NULL) {
+  public function init(OutputInterface $output, ?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $this->doInitMkdir($output, $env);
@@ -230,7 +230,7 @@ class LocoService {
    * @param \Symfony\Component\Console\Output\OutputInterface $output
    * @param \Loco\LocoEnv $env
    */
-  protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
+  protected function doInitFileTpl(OutputInterface $output, ?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
     $cfgDir = $env->getValue('LOCO_SVC_CFG');
     $destDir = $env->getValue('LOCO_SVC_VAR');
@@ -341,7 +341,7 @@ class LocoService {
     }
   }
 
-  public function cleanup(OutputInterface $output, LocoEnv $env = NULL) {
+  public function cleanup(OutputInterface $output, ?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
 
     $svcVar = $env->getValue('LOCO_SVC_VAR');
