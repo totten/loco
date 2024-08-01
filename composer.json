@@ -9,7 +9,7 @@
         "symfony/yaml": "~5.4",
         "symfony/finder": "~5.4",
         "symfony/console": "~5.4",
-        "symfony/filesystem": "~4.4",
+        "symfony/filesystem": "~5.4",
         "symfony/event-dispatcher": "~4.4",
         "symfony/cache": "~5.4",
         "civicrm/composer-downloads-plugin": "~3.0",
