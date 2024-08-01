@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6dfe5b61188e4b848bebd685f4801f1c",
+    "content-hash": "cc7f01590729bfdbe3a71e89b5b91258",
     "packages": [
         {
             "name": "civicrm/composer-downloads-plugin",
@@ -1883,7 +1883,7 @@
     },
     "platform-dev": [],
     "platform-overrides": {
-        "php": "7.2.5"
+        "php": "7.3.0"
     },
     "plugin-api-version": "2.6.0"
 }

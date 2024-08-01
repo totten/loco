@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - php: 7.2
-            phpunit: 7
+          - php: 7.3
+            phpunit: 8
           - php: 7.4
             phpunit: 8
           - php: 8.2
