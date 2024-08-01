@@ -35,17 +35,17 @@ class LocoVolume extends LocoService {
     return $svc;
   }
 
-  public function isInitialized(LocoEnv $env = NULL) {
+  public function isInitialized(?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
     return file_exists($env->evaluate('$LOCO_VAR/.loco-volume'));
     // return file_exists($env->evaluate('$LOCO_SVC_VAR'));
   }
 
-  public function getPid(LocoEnv $env = NULL) {
+  public function getPid(?LocoEnv $env = NULL) {
     return NULL;
   }
 
-  protected function doInitFileTpl(OutputInterface $output, LocoEnv $env = NULL) {
+  protected function doInitFileTpl(OutputInterface $output, ?LocoEnv $env = NULL) {
     // Not supported on volumes -- note the order of init() steps.
   }
 
