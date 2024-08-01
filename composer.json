@@ -5,7 +5,7 @@
         "ext-json": "*",
         "ext-posix": "*",
         "ext-pcntl": "*",
-        "marcj/topsort": "^1.1",
+        "marcj/topsort": "^2.0",
         "symfony/yaml": "~5.4",
         "symfony/finder": "~5.4",
         "symfony/console": "~5.4",
@@ -45,9 +45,6 @@
     ],
     "extra": {
         "patches": {
-            "marcj/topsort": {
-                "Fix PHP 8.x warnings": "patches/topsort-110-php8.diff"
-            }
         },
         "downloads": {
             "box": {
