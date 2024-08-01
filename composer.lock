@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f387940e17e7c3544567baa37d311d67",
+    "content-hash": "b09536e8e67f084ee74f20f8a2d2206f",
     "packages": [
         {
             "name": "civicrm/composer-downloads-plugin",
@@ -400,32 +400,33 @@
         },
         {
             "name": "symfony/cache",
-            "version": "v4.4.48",
+            "version": "v5.4.42",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/cache.git",
-                "reference": "3b98ed664887ad197b8ede3da2432787212eb915"
+                "reference": "6f5f750692bd5a212e01a4f1945fd856bceef89e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/cache/zipball/3b98ed664887ad197b8ede3da2432787212eb915",
-                "reference": "3b98ed664887ad197b8ede3da2432787212eb915",
+                "url": "https://api.github.com/repos/symfony/cache/zipball/6f5f750692bd5a212e01a4f1945fd856bceef89e",
+                "reference": "6f5f750692bd5a212e01a4f1945fd856bceef89e",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1.3",
+                "php": ">=7.2.5",
                 "psr/cache": "^1.0|^2.0",
-                "psr/log": "^1|^2|^3",
+                "psr/log": "^1.1|^2|^3",
                 "symfony/cache-contracts": "^1.1.7|^2",
+                "symfony/deprecation-contracts": "^2.1|^3",
                 "symfony/polyfill-php73": "^1.9",
                 "symfony/polyfill-php80": "^1.16",
-                "symfony/service-contracts": "^1.1|^2",
-                "symfony/var-exporter": "^4.2|^5.0"
+                "symfony/service-contracts": "^1.1|^2|^3",
+                "symfony/var-exporter": "^4.4|^5.0|^6.0"
             },
             "conflict": {
-                "doctrine/dbal": "<2.7",
-                "symfony/dependency-injection": "<3.4",
-                "symfony/http-kernel": "<4.4|>=5.0",
+                "doctrine/dbal": "<2.13.1",
+                "symfony/dependency-injection": "<4.4",
+                "symfony/http-kernel": "<4.4",
                 "symfony/var-dumper": "<4.4"
             },
             "provide": {
@@ -436,14 +437,15 @@
             "require-dev": {
                 "cache/integration-tests": "dev-master",
                 "doctrine/cache": "^1.6|^2.0",
-                "doctrine/dbal": "^2.7|^3.0",
-                "predis/predis": "^1.1",
+                "doctrine/dbal": "^2.13.1|^3|^4",
+                "predis/predis": "^1.1|^2.0",
                 "psr/simple-cache": "^1.0|^2.0",
-                "symfony/config": "^4.2|^5.0",
-                "symfony/dependency-injection": "^3.4|^4.1|^5.0",
-                "symfony/filesystem": "^4.4|^5.0",
-                "symfony/http-kernel": "^4.4",
-                "symfony/var-dumper": "^4.4|^5.0"
+                "symfony/config": "^4.4|^5.0|^6.0",
+                "symfony/dependency-injection": "^4.4|^5.0|^6.0",
+                "symfony/filesystem": "^4.4|^5.0|^6.0",
+                "symfony/http-kernel": "^4.4|^5.0|^6.0",
+                "symfony/messenger": "^4.4|^5.0|^6.0",
+                "symfony/var-dumper": "^4.4|^5.0|^6.0"
             },
             "type": "library",
             "autoload": {
@@ -475,7 +477,7 @@
                 "psr6"
             ],
             "support": {
-                "source": "https://github.com/symfony/cache/tree/v4.4.48"
+                "source": "https://github.com/symfony/cache/tree/v5.4.42"
             },
             "funding": [
                 {
@@ -491,7 +493,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-10-17T20:21:54+00:00"
+            "time": "2024-07-10T06:02:18+00:00"
         },
         {
             "name": "symfony/cache-contracts",
@@ -966,20 +968,21 @@
         },
         {
             "name": "symfony/finder",
-            "version": "v4.4.44",
+            "version": "v5.4.42",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "66bd787edb5e42ff59d3523f623895af05043e4f"
+                "reference": "0724c51fa067b198e36506d2864e09a52180998a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/66bd787edb5e42ff59d3523f623895af05043e4f",
-                "reference": "66bd787edb5e42ff59d3523f623895af05043e4f",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/0724c51fa067b198e36506d2864e09a52180998a",
+                "reference": "0724c51fa067b198e36506d2864e09a52180998a",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.1.3",
+                "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.1|^3",
                 "symfony/polyfill-php80": "^1.16"
             },
             "type": "library",
@@ -1008,7 +1011,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v4.4.44"
+                "source": "https://github.com/symfony/finder/tree/v5.4.42"
             },
             "funding": [
                 {
@@ -1024,7 +1027,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-07-29T07:35:46+00:00"
+            "time": "2024-07-22T08:53:29+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
