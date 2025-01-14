@@ -41,6 +41,7 @@ class RunCommand extends \Symfony\Component\Console\Command\Command {
     else {
       $this->executeInManagedMode($input, $output);
     }
+    return 0;
   }
 
   /**

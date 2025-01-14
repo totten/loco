@@ -62,6 +62,7 @@ class ExportCommand extends \Symfony\Component\Console\Command\Command {
           ));
       }
     }
+    return 0;
   }
 
 }
