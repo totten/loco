@@ -160,7 +160,7 @@ class LocoService {
   }
 
   /**
-   * @param LocoEnv $env
+   * @param LocoEnv|null $env
    * @return bool
    */
   public function isInitialized(?LocoEnv $env = NULL) {
@@ -228,7 +228,7 @@ class LocoService {
 
   /**
    * @param \Symfony\Component\Console\Output\OutputInterface $output
-   * @param \Loco\LocoEnv $env
+   * @param \Loco\LocoEnv|null $env
    */
   protected function doInitFileTpl(OutputInterface $output, ?LocoEnv $env = NULL) {
     $env = $env ?: $this->createEnv();
