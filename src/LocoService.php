@@ -89,6 +89,12 @@ class LocoService {
   public $systemd;
 
   /**
+   * @var string
+   *   Ex: 'open', 'close-all', 'close-output'
+   */
+  public $io_mode;
+
+  /**
    * @param LocoSystem $system
    * @param string $name
    * @param array $settings
@@ -101,6 +107,7 @@ class LocoService {
     $svc->name = $name;
     $svc->systemd = $settings['systemd'] ?? [];
     $svc->enabled = isset($settings['enabled']) ? $settings['enabled'] : TRUE;
+    $svc->io_mode = isset($settings['io_mode']) ? $settings['io_mode'] : $system->default_io_mode;
     $svc->environment = LocoEnv::create(isset($settings['environment']) ? $settings['environment'] : [], $system->evaluator);
     $svc->environment->set('LOCO_SVC', $name, FALSE);
     $svc->environment->set('LOCO_SVC_VAR', '$LOCO_VAR/$LOCO_SVC', TRUE);

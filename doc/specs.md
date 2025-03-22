@@ -19,6 +19,16 @@ environment:
 default_environment:
   - KEY=VALUE
 
+## (Experimental, Optional) When daemonizing ("loco start"), specify
+## how to handle STDIN/STDOUT/STDERR on the new child process.
+## One of: 'open', 'close-all', 'close-output'
+## Default: 'close-all'
+##
+## Ideally, we would have no option here -- and a strong guarantee of directing STDOUT/STDERR
+## to a file. However, it needs work and is subject to subtle runtime-variations. So for
+## now, we expose an option - so we can experiment without needing to rebuild/republish constantly.
+default_io_mode: STRING
+
 ## The 'services' defines each of the processes we will run.
 services:
 
@@ -56,6 +66,9 @@ services:
     ## Optionally, redirect the STDOUT/STDERR for the process to file.
     ## If omitted, then output is either written to console ('loco run') or a general log file ('loco start').
     log_file: FILE_PATH
+
+    ## (Experimental, Optional) See top-level "default_io_mode".
+    io_mode: STRING
 
     ## A message to display after the services have started.
     message: STRING

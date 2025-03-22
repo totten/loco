@@ -109,10 +109,34 @@ class Fork {
   /**
    * Forcibly close STDIN, STDOUT, STDERR.
    */
-  public static function closeStdio(): void {
-    fclose(STDIN);
-    fclose(STDOUT);
-    fclose(STDERR);
+  public static function resetStdio(string $ioMode): void {
+    switch ($ioMode) {
+      case 'open':
+        // Do nothing
+        break;
+
+      // case 'redirect':
+      //   $pipes = Fork::redirectStdIo($svc->log_file);
+      //   $output = new StreamOutput($pipes[1]);
+      //   break;
+
+      case 'close-output':
+        // Ex: "loco start | cat" - closing ensures that parent can exit normally.
+        fclose(STDOUT);
+        fclose(STDERR);
+        break;
+
+      case 'close-all':
+        // Ex: "loco start | cat" - closing ensures that parent can exit normally.
+        fclose(STDIN);
+        fclose(STDOUT);
+        fclose(STDERR);
+        break;
+
+      default:
+        throw new \RuntimeException("Unknown io_mode '$ioMode'");
+    }
+
   }
 
   /**

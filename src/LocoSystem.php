@@ -59,6 +59,11 @@ class LocoSystem {
   public $export;
 
   /**
+   * @var string
+   */
+  public $default_io_mode;
+
+  /**
    * @param string $configFile
    *   Ex: /srv/foo/.loco/loco.yml
    * @param string $prjDir
@@ -71,6 +76,7 @@ class LocoSystem {
     $system = new self();
     $system->config = $settings;
     $system->format = isset($settings['format']) ? $settings['format'] : 'loco-0.1';
+    $system->default_io_mode = isset($settings['default_io_mode']) ? $settings['default_io_mode'] : 'close-all';
 
     $filtered = Loco::filter('loco.expr.create', ['settings' => $settings, 'evaluator' => new LocoEvaluator()]);
     $system->evaluator = $filtered['evaluator'];
