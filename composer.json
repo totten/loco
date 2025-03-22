@@ -61,6 +61,12 @@
                 "url": "https://phar.phpunit.de/phpunit-8.phar",
                 "path": "extern/phpunit8",
                 "type": "phar"
+            },
+            "phpunit9": {
+                "version": "8.x",
+                "url": "https://phar.phpunit.de/phpunit-9.phar",
+                "path": "extern/phpunit9",
+                "type": "phar"
             }
         }
     }

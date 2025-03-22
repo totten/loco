@@ -63,11 +63,15 @@ pushd "$PRJDIR"
   "$COMPOSER" install
 
   NIX_2205="https://github.com/nixos/nixpkgs/archive/ce6aa13369b667ac2542593170993504932eb836.tar.gz"
+  BKNIX_2405BIS="https://github.com/totten/nixpkgs/archive/6ee466cbe0eba68005fa99742917bbe706c99bee.tar.gz"
 
   #test_phpunit     php56   https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.03.tar.gz phpunit5
   test_phpunit     php72   https://github.com/NixOS/nixpkgs-channels/archive/nixos-18.09.tar.gz phpunit5
   test_phpunit     php74   "$NIX_2205" phpunit5
   test_phpunit     php80   "$NIX_2205" phpunit8
+  test_phpunit     php82   "$BKNIX_2405BIS" phpunit8
+  test_phpunit     php83   "$BKNIX_2405BIS" phpunit8
+  test_phpunit     php84   "$BKNIX_2405BIS" phpunit9
 
 popd
 exit $EXIT_CODE
